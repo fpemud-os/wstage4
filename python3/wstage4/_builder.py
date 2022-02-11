@@ -28,6 +28,7 @@ import enum
 import pathlib
 import robust_layer.simple_fops
 from ._util import Util
+from ._const import get_disk_size
 from ._media import InstallMedia
 from ._prototype import ScriptInChroot
 from ._errors import SettingsError
@@ -54,6 +55,7 @@ def Action(*progressStepTuple):
 class BuildStep(enum.IntEnum):
     INIT = enum.auto()
     CUSTOM_INSTALL_ISO_FILE_CREATED = enum.auto()
+    VM_CREATED = enum.auto()
     WINDOWS_INSTALLED = enum.auto()
     ADDONS_INSTALLED = enum.auto()
     SYSTEM_CUSTOMIZED = enum.auto()
@@ -82,6 +84,7 @@ class Builder:
         self._workDirObj = work_dir
 
         self._progress = BuildStep.INIT
+        self._vm = None
 
     def get_progress(self):
         return self._progress
@@ -94,6 +97,10 @@ class Builder:
         assert self._ts.lang in m.getLangList()
 
     @Action(BuildStep.CUSTOM_INSTALL_ISO_FILE_CREATED)
+    def action_create_virtual_machine(self):
+        self._vm = _MyVm(get_disk_size(self._ts.arch, self._ts.variant, self._ts.lang))
+
+    @Action(BuildStep.VM_CREATED)
     def action_install_windows(self):
         pass
 
@@ -120,11 +127,8 @@ class Builder:
 
 class _MyVm(Vm):
 
-    def __init__(self, parent):
-        super().__init__(parent._workDirObj.chroot_dir_path)
-        self._p = parent
-        self._w = parent._workDirObj
-        self._bindMountList = []
+    def __init__(self):
+        super().__init__()
 
     def bind(self):
         super().bind()

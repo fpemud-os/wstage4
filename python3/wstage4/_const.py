@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-# wstage4 - customized microsoft windows disk image building
-#
 # Copyright (c) 2020-2021 Fpemud <fpemud@sina.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,27 +21,24 @@
 # THE SOFTWARE.
 
 
-__package__ = 'wstage4'
-
-__version__ = '0.0.1'
-
-__author__ = 'Fpemud <fpemud@sina.com>'
+import enum
 
 
-from ._settings import Arch
-from ._settings import Variant
-from ._settings import Lang
+class Arch:
+    X86 = "X86"
+    X86_64 = "X86_64"
 
-from ._settings import Settings
-from ._settings import TargetSettings
 
-from ._prototype import ScriptInChroot
+class Variant(enum.Enum):
+    WINDOWS_XP_HOME = enum.auto()
+    WINDOWS_XP_PROFESSIONAL = enum.auto()
 
-from ._workdir import WorkDir
+    WINDOWS_7_HOME = enum.auto()
+    WINDOWS_7_PROFESSIONAL = enum.auto()
+    WINDOWS_7_ULTIMATE = enum.auto()
 
-from ._builder import Builder
-from ._builder import BuildStep
 
-from ._errors import SettingsError
-from ._errors import SeedStageError
-from ._errors import WorkDirError
+class Lang(enum.Enum):
+    en_us = enum.auto()
+    zh_cn = enum.auto()
+    zh_tw = enum.auto()

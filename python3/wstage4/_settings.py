@@ -25,21 +25,6 @@ import enum
 from ._errors import SettingsError
 
 
-class Arch:
-    X86 = "X86"
-    X86_64 = "X86_64"
-
-
-class Variant(enum.Enum):
-    WINDOWS_7_HOME = enum.auto()
-    WINDOWS_7_PROFESSIONAL = enum.auto()
-
-
-class Lang(enum.Enum):
-    en_US = enum.auto()
-    zh_CN = enum.auto()
-
-
 class Settings:
 
     def __init__(self):
@@ -86,6 +71,8 @@ class TargetSettings:
         self.arch = None
         self.variant = None
         self.lang = None
+
+        self.serial = None
 
     @classmethod
     def check_object(cls, obj, raise_exception=None):
