@@ -21,7 +21,7 @@
 # THE SOFTWARE.
 
 
-import enum
+from ._const import Arch
 from ._errors import SettingsError
 
 
@@ -88,8 +88,6 @@ class TargetSettings:
                 pass
             elif obj.arch == "arm":
                 pass
-            elif obj.arch == "arm64":
-                pass
             elif obj.arch == "hppa":
                 pass
             elif obj.arch == "ia64":
@@ -108,10 +106,16 @@ class TargetSettings:
                 pass
             elif obj.arch == "sparc":
                 pass
-            elif obj.arch == "x86":
+            elif obj.arch == Arch.X86:
+                pass
+            elif obj.arch == Arch.X86_64:
                 pass
             else:
                 raise SettingsError("invalid value of arch")
+
+
+
+
 
             return True
         except SettingsError:

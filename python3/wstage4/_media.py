@@ -22,8 +22,11 @@
 
 
 import os
-import stat
-from _util import TmpMount
+from ._util import Util
+from ._util import TmpMount
+from ._const import Arch
+from ._const import Variant
+from ._const import Lang
 
 
 class InstallMedia:
@@ -35,12 +38,26 @@ class InstallMedia:
         self._variantList = []
         self._langList = []
 
-        bDeviceOrFile = stat.S_ISBLK(os.stat(self._path).st_mode)
-        if bDeviceOrFile:
-            assert False
-        else:
+        label = Util.getCdromLabel(self._path)
+        if label == "GRTMPVOL_EN":
+            # FIXME
+            self._arch = Arch.X86
+            self._variantList = [Variant.WINDOWS_XP_PROFESSIONAL]
+            self._langList = [Lang.en_us, Lang.zh_cn]
+        elif label == "GRMCULFRER_EN_DVD":
+            # FIXME
             with TmpMount(self._path) as mp:
-                pass
+                out = Util.cmdCall("file", "-L", os.path.join(mp, "setup.exe"))
+                if "80386" in out:
+                    self._arch = Arch.X86
+                elif "x86-64" in out:
+                    self._arch = Arch.X86_64
+                else:
+                    assert False
+            self._variantList = [Variant.WINDOWS_7_ULTIMATE]
+            self._langList = [Lang.en_us, Lang.zh_cn]
+        else:
+            assert False
 
     def getArch(self):
         return self._arch

@@ -30,9 +30,9 @@ __version__ = '0.0.1'
 __author__ = 'Fpemud <fpemud@sina.com>'
 
 
-from ._settings import Arch
-from ._settings import Variant
-from ._settings import Lang
+from ._const import Arch
+from ._const import Variant
+from ._const import Lang
 
 from ._settings import Settings
 from ._settings import TargetSettings
