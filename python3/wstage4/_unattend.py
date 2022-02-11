@@ -20,18 +20,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import os
+
+from io import BytesIO
+from ._const import Lang
 
 
 class MsWinCommon:
 
     @staticmethod
     def getTimezoneByLang(lang):
-        if lang == "en_us":
+        if lang == Lang.en_us:
             return "85"
-        elif lang == "zh_cn":
+        elif lang == Lang.zh_cn:
             return "85"
-        elif lang == "zh_tw":
+        elif lang == Lang.zh_tw:
             return "85"
         else:
             assert False
@@ -98,7 +100,7 @@ class UnattendForWindowsXP:
         buf += "\"shutdown /s /t 60\"\n"
 
         buf = buf.encode("UTF-8")
-        isoObj.add_fp(buf, len(buf), '/WINNT.SIF')
+        isoObj.add_fp(BytesIO(buf), len(buf), '/WINNT.SIF')
 
 
 class UnattendForWindows7:
@@ -116,7 +118,7 @@ class UnattendForWindows7:
         buf = buf.replace("@@timezone@@", MsWinCommon.getTimezoneByLang(self._ts.lang))
 
         buf = buf.encode("UTF-8")
-        isoObj.add_fp(buf, len(buf), '/autounattend.xml')
+        isoObj.add_fp(BytesIO(buf), len(buf), '/autounattend.xml')
 
     _fileTemplate = """
 <?xml version="1.0" encoding="utf-8"?>

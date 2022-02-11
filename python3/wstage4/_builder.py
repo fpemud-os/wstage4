@@ -43,10 +43,8 @@ def Action(*progressStepTuple):
             progressStepList = list(progressStepTuple)
             assert sorted(progressStepList) == list(progressStepList)
             assert self._progress in progressStepList
-            self._workDirObj.open_chroot_dir(from_dir_name=self._getChrootDirName())
             func(self, *kargs, **kwargs)
             self._progress = BuildStep(progressStepList[-1] + 1)
-            self._workDirObj.close_chroot_dir(to_dir_name=self._getChrootDirName())
         return wrapper
     return decorator
 

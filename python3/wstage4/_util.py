@@ -25,6 +25,7 @@ import os
 import re
 import time
 import pickle
+import socket
 import tempfile
 import subprocess
 
@@ -44,6 +45,19 @@ class Util:
 
     def loadEnum(filepath, klass):
         return Util.loadObj(filepath)
+
+    @staticmethod
+    def getFreeTcpPort(start_port=10000, end_port=65536):
+        for port in range(start_port, end_port):
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            try:
+                s.bind((('', port)))
+                return port
+            except socket.error:
+                continue
+            finally:
+                s.close()
+        raise Exception("No valid tcp port in [%d,%d]." % (start_port, end_port))
 
     @staticmethod
     def pathCompare(path1, path2):
