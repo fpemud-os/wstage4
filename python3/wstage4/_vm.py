@@ -28,41 +28,10 @@ from ._const import Arch, Variant, Lang
 
 class Vm:
 
-    @staticmethod
-    def create_main_disk(arch, variant, lang, path):
-        with open(path, 'wb') as f:
-            f.truncate(_getDiskSize(arch, variant, lang) * 1000 * 1000 * 1000)
+    def __init__(self, main_disk_filepath):
+        self._init(arch, variant, lang, main_disk_filepath, boot_iso_filepath)
 
-    def __init__(self, arch, variant, lang, main_disk_filepath, boot_iso_filepath=None):
-        # vm type
-        self._qemuVmType = "pc"
-
-        # cpu number
-        self._cpuNumber = 1
-
-        # memory size
-        if arch == Arch.X86:
-            self._memorySize = "1G"
-        elif arch == Arch.X86_64:
-            self._memorySize = "4G"
-        else:
-            assert False
-
-        # disk interface
-        if variant in [Variant.WINDOWS_XP_HOME, Variant.WINDOWS_XP_PROFESSIONAL]:
-            self._mainDiskInterface = "ide"
-        else:
-            self._mainDiskInterface = "scsi"
-
-        # main disk file path
-        self._diskPath = main_disk_filepath
-
-        # boot iso file path, can be None
-        self._bootFile = boot_iso_filepath
-
-        # FIXME
-        self._scriptDirList = []
-
+        # runtime variables
         self._pid = None
         self._qmpPort = None
 
@@ -89,6 +58,38 @@ class Vm:
             # send to qmp shutdown machine
             self._pid = None
             self._qmpPort = None
+
+    def _init(self, arch, variant, lang, mainDiskFile, bootIsoFile):
+        # vm type
+        if variant in [Variant.WINDOWS_XP_HOME, Variant.WINDOWS_XP_PROFESSIONAL]:
+            self._qemuVmType = "pc"
+        elif variant in [Variant.WINDOWS_7_HOME, Variant.WINDOWS_7_PROFESSIONAL, Variant.WINDOWS_7_ULTIMATE]:
+            self._qemuVmType = "q35"
+        else:
+            assert False
+
+        # cpu number
+        self._cpuNumber = 1
+
+        # memory size
+        if arch == Arch.X86:
+            self._memorySize = "1G"
+        elif arch == Arch.X86_64:
+            self._memorySize = "4G"
+        else:
+            assert False
+
+        # disk interface
+        if variant in [Variant.WINDOWS_XP_HOME, Variant.WINDOWS_XP_PROFESSIONAL]:
+            self._mainDiskInterface = "ide"
+        else:
+            self._mainDiskInterface = "scsi"
+
+        # main disk file path
+        self._diskPath = mainDiskFile
+
+        # boot iso file path, can be None
+        self._bootFile = bootIsoFile
 
     def _generateQemuCommand(self):
         """pci slot allcation:
@@ -120,16 +121,21 @@ class Vm:
         cmd += " -m %d" % (self._memorySize)
         cmd += " -rtc base=localtime"
 
+        # boot-iso-file
+        if self._bootFile is not None:
+            cmd += " -drive \'file=%s,if=none,id=boot-cdrom,readonly=on,format=raw\'" % (self._bootFile)
+            cmd += " -device ide-cd,bus=ide.1,unit=0,drive=boot-cdrom,id=boot-cdrom,bootindex=1"
+
         # main-disk
         if True:
-            cmd += " -drive \'file=%s,if=none,id=main-disk,format=%s\'" % (self._diskFile, "raw")
+            cmd += " -drive \'file=%s,if=none,id=main-disk,format=raw\'" % (self._diskPath)
             if self._mainDiskInterface == "ide":
-                cmd += " -device ide-hd,bus=ide.0,unit=0,drive=main-disk,id=main-disk,bootindex=1"
+                cmd += " -device ide-hd,bus=ide.0,unit=0,drive=main-disk,id=main-disk,bootindex=2"
             elif self._mainDiskInterface == "scsi":
-                cmd += " -device virtio-blk-pci,scsi=off,bus=%s,addr=0x%02x,drive=main-disk,id=main-disk,bootindex=1" % (pciBus, pciSlot)        # fixme
+                cmd += " -device virtio-blk-pci,scsi=off,bus=%s,addr=0x%02x,drive=main-disk,id=main-disk,bootindex=2" % (pciBus, pciSlot)        # FIXME
+                pciSlot += 1
             else:
                 assert False
-            pciSlot += 1
 
     #     # graphics device
     #     if True:
@@ -157,6 +163,14 @@ class Vm:
         return cmd
 
 
-def _getDiskSize(arch, variant, lang):
-    # disk size (10G)
-    return 10
+class VmUtil:
+
+    @staticmethod
+    def getBootstrapVm(arch, variant, lang, mainDiskPath):
+        with open(mainDiskPath, 'wb') as f:
+            f.truncate(VmUtil.getMainDiskSize(arch, variant, lang) * 1000 * 1000 * 1000)
+
+    @staticmethod
+    def getMainDiskSize(arch, variant, lang):
+        # disk size (10G)
+        return 10
