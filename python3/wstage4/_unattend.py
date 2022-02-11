@@ -42,7 +42,7 @@ class UnattendForWindowsXP:
     def __init__(self, target_settings):
         self._ts = target_settings
 
-    def updateDir(self, dstDir):
+    def updateIso(self, isoObj):
         buf = ""
         buf += "[Data]\n"
         buf += "AutoPartition=0\n"
@@ -97,8 +97,8 @@ class UnattendForWindowsXP:
         buf += "[GuiRunOnce]\n"
         buf += "\"shutdown /s /t 60\"\n"
 
-        with open(os.path.join(dstDir, "winnt.sif"), "w") as f:
-            f.write(buf)
+        buf = buf.encode("UTF-8")
+        isoObj.add_fp(buf, len(buf), '/WINNT.SIF')
 
 
 class UnattendForWindows7:
@@ -106,7 +106,7 @@ class UnattendForWindows7:
     def __init__(self, target_settings):
         self._ts = target_settings
 
-    def updateDir(self, dstDir):
+    def updateIso(self, isoObj):
         buf = self._fileTemplate
         buf = buf.replace("@@arch@@", self._ts.arch)
         buf = buf.replace("@@lang@@", self._ts.lang)
@@ -115,8 +115,8 @@ class UnattendForWindows7:
         buf = buf.replace("@@serial_id@@", self._ts.serial)
         buf = buf.replace("@@timezone@@", MsWinCommon.getTimezoneByLang(self._ts.lang))
 
-        with open(os.path.join(dstDir, "autounattend.xml"), "w") as f:
-            f.write(buf)
+        buf = buf.encode("UTF-8")
+        isoObj.add_fp(buf, len(buf), '/autounattend.xml')
 
     _fileTemplate = """
 <?xml version="1.0" encoding="utf-8"?>

@@ -59,6 +59,10 @@ class InstallMedia:
         else:
             assert False
 
+    @property
+    def path(self):
+        return self._path
+
     def getArch(self):
         return self._arch
 

@@ -25,17 +25,16 @@ import os
 import re
 import json
 import enum
-import pathlib
+import pycdlib
 import robust_layer.simple_fops
 from ._util import Util
-from ._const import get_disk_size
-from ._media import InstallMedia
+from ._const import Arch, Variant, Lang
+from ._unattend import UnattendForWindowsXP, UnattendForWindows7
+from ._install_media import InstallMedia
 from ._prototype import ScriptInChroot
-from ._errors import SettingsError
 from ._settings import Settings
 from ._settings import TargetSettings
 from ._vm import Vm
-from .scripts import ScriptFromBuffer
 
 
 def Action(*progressStepTuple):
@@ -83,6 +82,7 @@ class Builder:
         self._workDirObj = work_dir
 
         self._progress = BuildStep.INIT
+        self._m = None
         self._vm = None
 
     def get_progress(self):
@@ -90,10 +90,25 @@ class Builder:
 
     @Action(BuildStep.INIT)
     def action_create_custom_install_iso_file(self, path):
-        m = InstallMedia(path)
-        assert self._ts.arch == m.getArch()
-        assert self._ts.variant in m.getVariantList()
-        assert self._ts.lang in m.getLangList()
+        self._m = InstallMedia(path)
+        assert self._ts.arch == self._m.getArch()
+        assert self._ts.variant in self._m.getVariantList()
+        assert self._ts.lang in self._m.getLangList()
+
+        if self._ts.variant in [Variant.WINDOWS_XP_HOME, Variant.WINDOWS_XP_PROFESSIONAL]:
+            uobj = UnattendForWindowsXP(self._ts)
+        elif self._ts.variant in [Variant.WINDOWS_7_HOME, Variant.WINDOWS_7_PROFESSIONAL, Variant.WINDOWS_7_ULTIMATE]:
+            uobj = UnattendForWindows7(self._ts)
+        else:
+            assert False
+
+        iso = pycdlib.PyCdlib()
+        iso.open(self._m.path)
+        try:
+            uobj.updateIso(iso)
+            iso.write(self._workDirObj.custom_iso_filepath)
+        finally:
+            iso.close()
 
     @Action(BuildStep.CUSTOM_INSTALL_ISO_FILE_CREATED)
     def action_create_virtual_machine(self):

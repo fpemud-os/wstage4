@@ -37,6 +37,13 @@ class Variant(enum.Enum):
     WINDOWS_7_PROFESSIONAL = enum.auto()
     WINDOWS_7_ULTIMATE = enum.auto()
 
+    WINDOWS_8 = enum.auto()
+    WINDOWS_8_1 = enum.auto()
+
+    WINDOWS_10 = enum.auto()
+
+    WINDOWS_11 = enum.auto()
+
 
 class Lang(enum.Enum):
     en_us = enum.auto()
