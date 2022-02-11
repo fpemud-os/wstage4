@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 
+import json
 import subprocess
 from ._util import Util
 from ._const import Arch, Variant, Lang
@@ -29,11 +30,13 @@ from ._const import Arch, Variant, Lang
 class Vm:
 
     def __init__(self, main_disk_filepath):
-        self._init(arch, variant, lang, main_disk_filepath, boot_iso_filepath)
+        data = None
+        with open(main_disk_filepath, "rb") as f:
+            f.seek(512)
+            data = Util.readUntil(f, '\n\0', max=512, bTextOrBinary=False)
 
-        # runtime variables
-        self._pid = None
-        self._qmpPort = None
+        data = json.loads(data.decode("iso8859-1"))
+        self._init(data["arch"], data["variant"], data["lang"], main_disk_filepath, None)
 
     def __enter__(self):
         self.start()
@@ -90,6 +93,10 @@ class Vm:
 
         # boot iso file path, can be None
         self._bootFile = bootIsoFile
+
+        # runtime variables
+        self._pid = None
+        self._qmpPort = None
 
     def _generateQemuCommand(self):
         """pci slot allcation:
@@ -166,9 +173,13 @@ class Vm:
 class VmUtil:
 
     @staticmethod
-    def getBootstrapVm(arch, variant, lang, mainDiskPath):
+    def getBootstrapVm(arch, variant, lang, mainDiskPath, bootIsoFile):
         with open(mainDiskPath, 'wb') as f:
             f.truncate(VmUtil.getMainDiskSize(arch, variant, lang) * 1000 * 1000 * 1000)
+
+        ret = Vm.__new__()
+        ret._init(arch, variant, lang, mainDiskPath, bootIsoFile)
+        return ret
 
     @staticmethod
     def getMainDiskSize(arch, variant, lang):

@@ -24,28 +24,28 @@
 import enum
 
 
-class Arch:
+class Arch(enum.Enum):
     X86 = "X86"
     X86_64 = "X86_64"
 
 
 class Variant(enum.Enum):
-    WINDOWS_XP_HOME = enum.auto()
-    WINDOWS_XP_PROFESSIONAL = enum.auto()
+    WINDOWS_XP_HOME = "windows-xp-home"
+    WINDOWS_XP_PROFESSIONAL = "windows-xp-professional"
 
-    WINDOWS_7_HOME = enum.auto()
-    WINDOWS_7_PROFESSIONAL = enum.auto()
-    WINDOWS_7_ULTIMATE = enum.auto()
+    WINDOWS_7_HOME = "windows-7-home"
+    WINDOWS_7_PROFESSIONAL = "windows-7-professional"
+    WINDOWS_7_ULTIMATE = "windows-7-ultimate"
 
-    WINDOWS_8 = enum.auto()
-    WINDOWS_8_1 = enum.auto()
+    WINDOWS_8 = "windows-8"
+    WINDOWS_8_1 = "windows-8-1"
 
-    WINDOWS_10 = enum.auto()
+    WINDOWS_10 = "windows-10"
 
-    WINDOWS_11 = enum.auto()
+    WINDOWS_11 = "windows-11"
 
 
 class Lang(enum.Enum):
-    en_us = enum.auto()
-    zh_cn = enum.auto()
-    zh_tw = enum.auto()
+    en_us = "en_us"
+    zh_cn = "zh_cn"
+    zh_tw = "zh_tw"

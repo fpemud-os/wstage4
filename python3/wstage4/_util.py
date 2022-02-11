@@ -47,6 +47,25 @@ class Util:
         return Util.loadObj(filepath)
 
     @staticmethod
+    def readUntil(f, chList, max=-1, bTextOrBinary=True, bInclusive=False):
+        if bTextOrBinary:
+            buf = ""
+        else:
+            buf = b''
+
+        while True:
+            c = f.read(1)
+            if c in chList:
+                if bInclusive:
+                    buf += c
+                break
+            buf += c
+            if max >= 0 and len(buf) >= max:
+                break
+
+        return buf
+
+    @staticmethod
     def getFreeTcpPort(start_port=10000, end_port=65536):
         for port in range(start_port, end_port):
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
