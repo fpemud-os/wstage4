@@ -30,10 +30,12 @@ __version__ = '0.0.1'
 __author__ = 'Fpemud <fpemud@sina.com>'
 
 
+from ._settings import Arch
+from ._settings import Variant
+from ._settings import Lang
+
 from ._settings import Settings
 from ._settings import TargetSettings
-from ._settings import TargetSettingsBuildOpts
-from ._settings import ComputingPower
 
 from ._prototype import SeedStage
 from ._prototype import ManualSyncRepository

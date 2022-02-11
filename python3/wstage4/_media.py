@@ -21,29 +21,21 @@
 # THE SOFTWARE.
 
 
-import abc
+import os
+import stat
 
 
-class ScriptInChroot(abc.ABC):
+class InstallMedia:
 
-    @abc.abstractmethod
-    def fill_script_dir(self, script_dir_hostpath):
-        pass
+    def __init__(self, path):
+        self._bDeviceOrFile = stat.S_ISBLK(os.stat(path).st_mode)
 
-    @abc.abstractmethod
-    def get_description(self):
-        pass
+    def getArch(self):
+        assert False
 
-    @abc.abstractmethod
-    def get_script(self):
-        pass
+    def getVariantList(self):
+        assert False
 
-    def __eq__(self, other):
-        if not isinstance(other, ScriptInChroot):
-            return False
-        if self.get_description() != other.get_description():
-            return False
-        return True
+    def getLangList(self):
+        assert False
 
-    def __ne__(self, other):
-        return (not self.__eq__(other))
