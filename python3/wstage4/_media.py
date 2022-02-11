@@ -23,19 +23,30 @@
 
 import os
 import stat
+from _util import TmpMount
 
 
 class InstallMedia:
 
     def __init__(self, path):
-        self._bDeviceOrFile = stat.S_ISBLK(os.stat(path).st_mode)
+        self._path = path
+
+        self._arch = None
+        self._variantList = []
+        self._langList = []
+
+        bDeviceOrFile = stat.S_ISBLK(os.stat(self._path).st_mode)
+        if bDeviceOrFile:
+            assert False
+        else:
+            with TmpMount(self._path) as mp:
+                pass
 
     def getArch(self):
-        assert False
+        return self._arch
 
     def getVariantList(self):
-        assert False
+        return self._variantList
 
     def getLangList(self):
-        assert False
-
+        return self._langList
