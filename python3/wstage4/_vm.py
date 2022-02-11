@@ -107,18 +107,18 @@ class VmBuilder:
                 assert False
             pciSlot += 1
 
-        # graphics device
-        if True:
-            if self._graphicsAdapterInterface == "qxl":
-                assert self.spicePort != -1
-                cmd += " -spice port=%d,addr=127.0.0.1,disable-ticketing,agent-mouse=off" % (self.spicePort)
-                cmd += " -vga qxl -global qxl-vga.ram_size_mb=64 -global qxl-vga.vram_size_mb=64"
-    #            cmd += " -device qxl-vga,bus=%s,addr=0x04,ram_size_mb=64,vram_size_mb=64"%(pciBus)                        # see https://bugzilla.redhat.com/show_bug.cgi?id=915352
-            else:
-                assert self.spicePort != -1
-                cmd += " -spice port=%d,addr=127.0.0.1,disable-ticketing,agent-mouse=off" % (self.spicePort)
-                cmd += " -device VGA,bus=%s,addr=0x%02x" % (pciBus, pciSlot)
-            pciSlot += 1
+    #     # graphics device
+    #     if True:
+    #         if self._graphicsAdapterInterface == "qxl":
+    #             assert self.spicePort != -1
+    #             cmd += " -spice port=%d,addr=127.0.0.1,disable-ticketing,agent-mouse=off" % (self.spicePort)
+    #             cmd += " -vga qxl -global qxl-vga.ram_size_mb=64 -global qxl-vga.vram_size_mb=64"
+    # #            cmd += " -device qxl-vga,bus=%s,addr=0x04,ram_size_mb=64,vram_size_mb=64"%(pciBus)                        # see https://bugzilla.redhat.com/show_bug.cgi?id=915352
+    #         else:
+    #             assert self.spicePort != -1
+    #             cmd += " -spice port=%d,addr=127.0.0.1,disable-ticketing,agent-mouse=off" % (self.spicePort)
+    #             cmd += " -device VGA,bus=%s,addr=0x%02x" % (pciBus, pciSlot)
+    #         pciSlot += 1
 
         # network device
         if True:

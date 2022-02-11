@@ -34,7 +34,7 @@ from ._prototype import ScriptInChroot
 from ._errors import SettingsError
 from ._settings import Settings
 from ._settings import TargetSettings
-from ._chrooter import Vm
+from ._vm import Vm
 from .scripts import ScriptFromBuffer
 
 
@@ -56,8 +56,9 @@ class BuildStep(enum.IntEnum):
     INIT = enum.auto()
     CUSTOM_INSTALL_ISO_FILE_CREATED = enum.auto()
     VM_CREATED = enum.auto()
-    WINDOWS_INSTALLED = enum.auto()
-    ADDONS_INSTALLED = enum.auto()
+    MSWIN_INSTALLED = enum.auto()
+    MSWIN_ADDONS_INSTALLED = enum.auto()
+    APPLICATIONS_INSTALLED = enum.auto()
     SYSTEM_CUSTOMIZED = enum.auto()
     CLEANED_UP = enum.auto()
 
@@ -78,8 +79,6 @@ class Builder:
             os.makedirs(self._s.log_dir, mode=0o750, exist_ok=True)
 
         self._ts = target_settings
-        if self._ts.build_opts.ccache and self._s.host_ccache_dir is None:
-            raise SettingsError("ccache is enabled but host ccache directory is not specified")
 
         self._workDirObj = work_dir
 
@@ -98,17 +97,21 @@ class Builder:
 
     @Action(BuildStep.CUSTOM_INSTALL_ISO_FILE_CREATED)
     def action_create_virtual_machine(self):
-        self._vm = _MyVm(get_disk_size(self._ts.arch, self._ts.variant, self._ts.lang))
+        self._vm = _MyVm(self._ts.arch, self._ts.variant, self._ts.lang)
 
     @Action(BuildStep.VM_CREATED)
     def action_install_windows(self):
         pass
 
-    @Action(BuildStep.WINDOWS_INSTALLED)
-    def action_install_addons(self):
+    @Action(BuildStep.MSWIN_INSTALLED)
+    def action_install_windows_addons(self):
         pass
 
-    @Action(BuildStep.WINDOWS_INSTALLED, BuildStep.ADDONS_INSTALLED)
+    @Action(BuildStep.MSWIN_INSTALLED, BuildStep.MSWIN_ADDONS_INSTALLED)
+    def action_install_applications(self):
+        pass
+
+    @Action(BuildStep.MSWIN_INSTALLED, BuildStep.MSWIN_ADDONS_INSTALLED, BuildStep.APPLICATIONS_INSTALLED)
     def action_customize_system(self, custom_script_list=[]):
         assert all([isinstance(s, ScriptInChroot) for s in custom_script_list])
 
@@ -117,7 +120,7 @@ class Builder:
                 for s in custom_script_list:
                     m.script_exec(s, quiet=self._getQuiet())
 
-    @Action(BuildStep.WINDOWS_INSTALLED, BuildStep.ADDONS_INSTALLED, BuildStep.SYSTEM_CUSTOMIZED)
+    @Action(BuildStep.MSWIN_INSTALLED, BuildStep.MSWIN_ADDONS_INSTALLED, BuildStep.APPLICATIONS_INSTALLED, BuildStep.SYSTEM_CUSTOMIZED)
     def action_cleanup(self):
         pass
 
@@ -127,8 +130,8 @@ class Builder:
 
 class _MyVm(Vm):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, arch, variant, lang):
+        super().__init__(arch, variant, lang)
 
     def bind(self):
         super().bind()
