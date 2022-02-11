@@ -56,21 +56,16 @@ def Action(*progressStepTuple):
 
 class BuildStep(enum.IntEnum):
     INIT = enum.auto()
-    UNPACKED = enum.auto()
-    GENTOO_REPOSITORY_CREATED = enum.auto()
-    CONFDIR_INITIALIZED = enum.auto()
-    OVERLAYS_CREATED = enum.auto()
-    WORLD_UPDATED = enum.auto()
-    KERNEL_INSTALLED = enum.auto()
-    SERVICES_ENABLED = enum.auto()
-    SYSTEM_CUSTOMIZED = enum.auto()
+    CUSTOM_ISO_CREATED = enum.auto()
+    INSTALLED = enum.auto()
+    CUSTOMIZED = enum.auto()
     CLEANED_UP = enum.auto()
 
 
 class Builder:
     """
-    This class does all of the chroot setup, copying of files, etc.
-    It is the driver class for pretty much everything that gstage4 does.
+    This class does all of the jobs, including create custom install CD, setup qemu virtual machine, install windows system, etc.
+    It is the driver class for pretty much everything that wstage4 does.
     """
 
     def __init__(self, settings, target_settings, work_dir):

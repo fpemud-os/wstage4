@@ -24,7 +24,7 @@
 import abc
 
 
-class SeedStage(abc.ABC):
+class InstallCd(abc.ABC):
 
     @abc.abstractclassmethod
     def get_arch(self):
@@ -36,49 +36,6 @@ class SeedStage(abc.ABC):
 
     @abc.abstractmethod
     def unpack(self, target_dir):
-        pass
-
-
-class Repository(abc.ABC):
-
-    @abc.abstractmethod
-    def get_name(self):
-        pass
-
-    @abc.abstractmethod
-    def get_datadir_path(self):
-        pass
-
-    def __eq__(self, other):
-        if not isinstance(other, Repository):
-            return False
-        if self.get_name() != other.get_name():
-            return False
-        return True
-
-    def __ne__(self, other):
-        return (not self.__eq__(other))
-
-
-class ManualSyncRepository(Repository):
-
-    @abc.abstractmethod
-    def sync(self, datadir_hostpath):
-        pass
-
-
-class MountRepository(Repository):
-
-    @abc.abstractmethod
-    def get_mount_params(self):
-        # returns (source, mount-options)
-        pass
-
-
-class EmergeSyncRepository(Repository):
-
-    @abc.abstractmethod
-    def get_repos_conf_file_content(self):
         pass
 
 
