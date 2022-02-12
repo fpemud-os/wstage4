@@ -174,8 +174,17 @@ class VmUtil:
 
     @staticmethod
     def getBootstrapVm(arch, variant, lang, mainDiskPath, bootIsoFile):
+        buf = json.dumps({
+            "arch": arch,
+            "variant": variant,
+            "lang": lang,
+        }) + "\n"
+ 
         with open(mainDiskPath, 'wb') as f:
             f.truncate(VmUtil.getMainDiskSize(arch, variant, lang) * 1000 * 1000 * 1000)
+            if True:
+                f.seek(512)
+                f.write(buf.encode("iso8859-1"))
 
         ret = Vm.__new__()
         ret._init(arch, variant, lang, mainDiskPath, bootIsoFile)

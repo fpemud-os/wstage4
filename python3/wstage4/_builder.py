@@ -35,6 +35,7 @@ from ._prototype import ScriptInChroot
 from ._settings import Settings
 from ._settings import TargetSettings
 from ._vm import Vm
+from ._vm import VmUtil
 
 
 def Action(*progressStepTuple):
@@ -52,7 +53,6 @@ def Action(*progressStepTuple):
 class BuildStep(enum.IntEnum):
     INIT = enum.auto()
     CUSTOM_INSTALL_ISO_FILE_CREATED = enum.auto()
-    VM_CREATED = enum.auto()
     MSWIN_INSTALLED = enum.auto()
     MSWIN_ADDONS_INSTALLED = enum.auto()
     APPLICATIONS_INSTALLED = enum.auto()
@@ -80,45 +80,40 @@ class Builder:
         self._workDirObj = work_dir
 
         self._progress = BuildStep.INIT
-        self._m = None
-        self._vm = None
 
     def get_progress(self):
         return self._progress
 
     @Action(BuildStep.INIT)
     def action_create_custom_install_iso_file(self, path):
-        self._m = InstallMedia(path)
-        assert self._ts.arch == self._m.getArch()
-        assert self._ts.variant in self._m.getVariantList()
-        assert self._ts.lang in self._m.getLangList()
+        # check install media
+        m = InstallMedia(path)
+        assert self._ts.arch == m.getArch()
+        assert self._ts.variant in m.getVariantList()
+        assert self._ts.lang in m.getLangList()
 
-        if self._ts.variant in [Variant.WINDOWS_XP_HOME, Variant.WINDOWS_XP_PROFESSIONAL]:
-            uobj = UnattendForWindowsXP(self._ts)
-        elif self._ts.variant in [Variant.WINDOWS_7_HOME, Variant.WINDOWS_7_PROFESSIONAL, Variant.WINDOWS_7_ULTIMATE]:
-            uobj = UnattendForWindows7(self._ts)
-        else:
-            assert False
-
+        # do work
         iso = pycdlib.PyCdlib()
-        iso.open(self._m.path)
+        iso.open(path)
         try:
+            if self._ts.variant in [Variant.WINDOWS_XP_HOME, Variant.WINDOWS_XP_PROFESSIONAL]:
+                uobj = UnattendForWindowsXP(self._ts)
+            elif self._ts.variant in [Variant.WINDOWS_7_HOME, Variant.WINDOWS_7_PROFESSIONAL, Variant.WINDOWS_7_ULTIMATE]:
+                uobj = UnattendForWindows7(self._ts)
+            else:
+                assert False
             uobj.updateIso(iso)
             iso.write(self._workDirObj.custom_iso_filepath)
         finally:
             iso.close()
 
-    @Action(BuildStep.CUSTOM_INSTALL_ISO_FILE_CREATED)
-    def action_create_virtual_machine(self):
-        self._vm = _MyVm(self._ts.arch, self._ts.variant, self._ts.lang)
-
-    @Action(BuildStep.VM_CREATED)
+    @Action(BuildStep.INIT)
     def action_install_windows(self):
-        pass
+        vm = VmUtil.getBootstrapVm(self._ts.arch, self._ts.variant, self._ts.lang, self._workDirObj.image_filepath, self._workDirObj.custom_iso_filepath)
 
     @Action(BuildStep.MSWIN_INSTALLED)
     def action_install_windows_addons(self):
-        pass
+        vm = Vm(self._workDirObj.image_filepath)
 
     @Action(BuildStep.MSWIN_INSTALLED, BuildStep.MSWIN_ADDONS_INSTALLED)
     def action_install_applications(self):
