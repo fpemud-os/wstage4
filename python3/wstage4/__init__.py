@@ -44,6 +44,8 @@ from ._workdir import WorkDir
 from ._builder import Builder
 from ._builder import BuildStep
 
+from .hdds import 
+
 from ._errors import SettingsError
 from ._errors import SeedStageError
 from ._errors import WorkDirError

@@ -29,6 +29,14 @@ class Arch(enum.Enum):
     X86_64 = "X86_64"
 
 
+class Category(enum.Enum):
+    WINDOWS_XP = "windows-xp"
+    WINDOWS_7 = "windows-7"
+    WINDOWS_8 = "windows-8"
+    WINDOWS_10 = "windows-10"
+    WINDOWS_11 = "windows-11"
+
+
 class Variant(enum.Enum):
     WINDOWS_XP_HOME = "windows-xp-home"
     WINDOWS_XP_PROFESSIONAL = "windows-xp-professional"
@@ -49,3 +57,8 @@ class Lang(enum.Enum):
     en_us = "en_us"
     zh_cn = "zh_cn"
     zh_tw = "zh_tw"
+
+
+class BootMode(enmu.Enum):
+    BIOS = enum.auto()
+    EFI = enum.auto()
