@@ -179,7 +179,7 @@ class VmUtil:
             "edition": edition,
             "lang": lang,
         }) + "\n"
- 
+
         with open(mainDiskPath, 'wb') as f:
             f.truncate(VmUtil.getMainDiskSize(arch, edition, lang) * 1000 * 1000 * 1000)
             if True:
