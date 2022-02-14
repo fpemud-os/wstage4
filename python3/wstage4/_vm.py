@@ -24,7 +24,7 @@
 import json
 import subprocess
 from ._util import Util
-from ._const import Arch, Variant, Lang
+from ._const import Arch, Ddition, Lang
 
 
 class Vm:
@@ -64,9 +64,9 @@ class Vm:
 
     def _init(self, arch, variant, lang, mainDiskFile, bootIsoFile):
         # vm type
-        if variant in [Variant.WINDOWS_XP_HOME, Variant.WINDOWS_XP_PROFESSIONAL]:
+        if variant in [Ddition.WINDOWS_XP_HOME, Ddition.WINDOWS_XP_PROFESSIONAL]:
             self._qemuVmType = "pc"
-        elif variant in [Variant.WINDOWS_7_HOME, Variant.WINDOWS_7_PROFESSIONAL, Variant.WINDOWS_7_ULTIMATE]:
+        elif variant in [Ddition.WINDOWS_7_HOME, Ddition.WINDOWS_7_PROFESSIONAL, Ddition.WINDOWS_7_ULTIMATE]:
             self._qemuVmType = "q35"
         else:
             assert False
@@ -83,7 +83,7 @@ class Vm:
             assert False
 
         # disk interface
-        if variant in [Variant.WINDOWS_XP_HOME, Variant.WINDOWS_XP_PROFESSIONAL]:
+        if variant in [Ddition.WINDOWS_XP_HOME, Ddition.WINDOWS_XP_PROFESSIONAL]:
             self._mainDiskInterface = "ide"
         else:
             self._mainDiskInterface = "scsi"

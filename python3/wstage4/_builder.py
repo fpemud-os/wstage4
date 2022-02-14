@@ -28,7 +28,7 @@ import enum
 import pycdlib
 import robust_layer.simple_fops
 from ._util import Util
-from ._const import Arch, Variant, Lang
+from ._const import Arch, Ddition, Lang
 from ._unattend import UnattendForWindowsXP, UnattendForWindows7
 from ._install_media import InstallMedia
 from ._prototype import ScriptInChroot
@@ -96,9 +96,9 @@ class Builder:
         iso = pycdlib.PyCdlib()
         iso.open(path)
         try:
-            if self._ts.variant in [Variant.WINDOWS_XP_HOME, Variant.WINDOWS_XP_PROFESSIONAL]:
+            if self._ts.variant in [Ddition.WINDOWS_XP_HOME, Ddition.WINDOWS_XP_PROFESSIONAL]:
                 uobj = UnattendForWindowsXP(self._ts)
-            elif self._ts.variant in [Variant.WINDOWS_7_HOME, Variant.WINDOWS_7_PROFESSIONAL, Variant.WINDOWS_7_ULTIMATE]:
+            elif self._ts.variant in [Ddition.WINDOWS_7_HOME, Ddition.WINDOWS_7_PROFESSIONAL, Ddition.WINDOWS_7_ULTIMATE]:
                 uobj = UnattendForWindows7(self._ts)
             else:
                 assert False
