@@ -31,15 +31,24 @@ class Arch(enum.Enum):
 
 class Category(enum.Enum):
     WINDOWS_XP = "windows-xp"
+    WINDOWS_VISTA = "windows-vista"
     WINDOWS_7 = "windows-7"
     WINDOWS_8 = "windows-8"
+    WINDOWS_8_1 = "windows-8"
     WINDOWS_10 = "windows-10"
     WINDOWS_11 = "windows-11"
+
+    WINDOWS_SERVER_2008 = "windows-server-2008"
+    WINDOWS_SERVER_2012 = "windows-server-2012"
+    WINDOWS_SERVER_2016 = "windows-server-2016"
+    WINDOWS_SERVER_2019 = "windows-server-2019"
 
 
 class Edition(enum.Enum):
     WINDOWS_XP_HOME = "windows-xp-home"
     WINDOWS_XP_PROFESSIONAL = "windows-xp-professional"
+
+    WINDOWS_VISTA = "windows-vista"
 
     # from https://www.windowsafg.com
     WINDOWS_7_STARTER = "windows-7-starter"                 # Windows 7 Starter
@@ -68,14 +77,13 @@ class Edition(enum.Enum):
     WINDOWS_10_ENTERPRISE = "windows-10-enterprise"             # Windows 10 Enterprise
     WINDOWS_10_ENTERPRISE_LTSB = "windows-10-enterprise-ltsb"   # Windows 10 Enterprise LTSB
 
+    WINDOWS_11 = "windows-11"
+
     # from https://www.windowsafg.com
     WINDOWS_SERVER_2008 = "windows-server-2008"
     WINDOWS_SERVER_2012 = "windows-server-2012"
     WINDOWS_SERVER_2016 = "windows-server-2016"
     WINDOWS_SERVER_2019 = "windows-server-2019"
-
-
-    WINDOWS_11 = "windows-11"
 
 
 class Lang(enum.Enum):

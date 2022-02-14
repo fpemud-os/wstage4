@@ -29,7 +29,7 @@ import pycdlib
 import robust_layer.simple_fops
 from ._util import Util
 from ._const import Arch, Edition, Lang
-from ._unattend import UnattendForWindowsXP, UnattendForWindows7
+from ._unattend import AnswerFileGenerator
 from ._install_media import InstallMedia
 from ._prototype import ScriptInChroot
 from ._settings import Settings
@@ -96,13 +96,7 @@ class Builder:
         iso = pycdlib.PyCdlib()
         iso.open(path)
         try:
-            if self._ts.edition in [Edition.WINDOWS_XP_HOME, Edition.WINDOWS_XP_PROFESSIONAL]:
-                uobj = UnattendForWindowsXP(self._ts)
-            elif self._ts.edition in [Edition.WINDOWS_7_HOME, Edition.WINDOWS_7_PROFESSIONAL, Edition.WINDOWS_7_ULTIMATE]:
-                uobj = UnattendForWindows7(self._ts)
-            else:
-                assert False
-            uobj.updateIso(iso)
+            AnswerFileGenerator(self._ts).updateIso(iso)
             iso.write(self._workDirObj.custom_iso_filepath)
         finally:
             iso.close()
