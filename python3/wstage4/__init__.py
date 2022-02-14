@@ -31,7 +31,7 @@ __author__ = 'Fpemud <fpemud@sina.com>'
 
 
 from ._const import Arch
-from ._const import Variant
+from ._const import Edition
 from ._const import Lang
 
 from ._settings import Settings

@@ -69,7 +69,7 @@ class TargetSettings:
 
     def __init__(self):
         self.arch = None
-        self.variant = None
+        self.edition = None
         self.lang = None
 
         self.serial = None

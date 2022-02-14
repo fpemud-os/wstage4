@@ -25,7 +25,7 @@ import os
 from ._util import Util
 from ._util import TmpMount
 from ._const import Arch
-from ._const import Ddition
+from ._const import Edition
 from ._const import Lang
 
 
@@ -42,7 +42,7 @@ class InstallMedia:
         if label == "GRTMPVOL_EN":
             # FIXME
             self._arch = Arch.X86
-            self._variantList = [Ddition.WINDOWS_XP_PROFESSIONAL]
+            self._variantList = [Edition.WINDOWS_XP_PROFESSIONAL]
             self._langList = [Lang.en_us, Lang.zh_cn]
         elif label == "GRMCULFRER_EN_DVD":
             # FIXME
@@ -54,7 +54,7 @@ class InstallMedia:
                     self._arch = Arch.X86_64
                 else:
                     assert False
-            self._variantList = [Ddition.WINDOWS_7_ULTIMATE]
+            self._variantList = [Edition.WINDOWS_7_ULTIMATE]
             self._langList = [Lang.en_us, Lang.zh_cn]
         else:
             assert False

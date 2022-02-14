@@ -24,7 +24,7 @@
 import json
 import subprocess
 from ._util import Util
-from ._const import Arch, Ddition, Lang
+from ._const import Arch, Edition, Lang
 
 
 class Vm:
@@ -36,7 +36,7 @@ class Vm:
             data = Util.readUntil(f, '\n\0', max=512, bTextOrBinary=False)
 
         data = json.loads(data.decode("iso8859-1"))
-        self._init(data["arch"], data["variant"], data["lang"], main_disk_filepath, None)
+        self._init(data["arch"], data["edition"], data["lang"], main_disk_filepath, None)
 
     def __enter__(self):
         self.start()
@@ -62,11 +62,11 @@ class Vm:
             self._pid = None
             self._qmpPort = None
 
-    def _init(self, arch, variant, lang, mainDiskFile, bootIsoFile):
+    def _init(self, arch, edition, lang, mainDiskFile, bootIsoFile):
         # vm type
-        if variant in [Ddition.WINDOWS_XP_HOME, Ddition.WINDOWS_XP_PROFESSIONAL]:
+        if edition in [Edition.WINDOWS_XP_HOME, Edition.WINDOWS_XP_PROFESSIONAL]:
             self._qemuVmType = "pc"
-        elif variant in [Ddition.WINDOWS_7_HOME, Ddition.WINDOWS_7_PROFESSIONAL, Ddition.WINDOWS_7_ULTIMATE]:
+        elif edition in [Edition.WINDOWS_7_HOME, Edition.WINDOWS_7_PROFESSIONAL, Edition.WINDOWS_7_ULTIMATE]:
             self._qemuVmType = "q35"
         else:
             assert False
@@ -83,7 +83,7 @@ class Vm:
             assert False
 
         # disk interface
-        if variant in [Ddition.WINDOWS_XP_HOME, Ddition.WINDOWS_XP_PROFESSIONAL]:
+        if edition in [Edition.WINDOWS_XP_HOME, Edition.WINDOWS_XP_PROFESSIONAL]:
             self._mainDiskInterface = "ide"
         else:
             self._mainDiskInterface = "scsi"
@@ -173,24 +173,24 @@ class Vm:
 class VmUtil:
 
     @staticmethod
-    def getBootstrapVm(arch, variant, lang, mainDiskPath, bootIsoFile):
+    def getBootstrapVm(arch, edition, lang, mainDiskPath, bootIsoFile):
         buf = json.dumps({
             "arch": arch,
-            "variant": variant,
+            "edition": edition,
             "lang": lang,
         }) + "\n"
  
         with open(mainDiskPath, 'wb') as f:
-            f.truncate(VmUtil.getMainDiskSize(arch, variant, lang) * 1000 * 1000 * 1000)
+            f.truncate(VmUtil.getMainDiskSize(arch, edition, lang) * 1000 * 1000 * 1000)
             if True:
                 f.seek(512)
                 f.write(buf.encode("iso8859-1"))
 
         ret = Vm.__new__()
-        ret._init(arch, variant, lang, mainDiskPath, bootIsoFile)
+        ret._init(arch, edition, lang, mainDiskPath, bootIsoFile)
         return ret
 
     @staticmethod
-    def getMainDiskSize(arch, variant, lang):
+    def getMainDiskSize(arch, edition, lang):
         # disk size (10G)
         return 10

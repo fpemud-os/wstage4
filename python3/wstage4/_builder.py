@@ -28,7 +28,7 @@ import enum
 import pycdlib
 import robust_layer.simple_fops
 from ._util import Util
-from ._const import Arch, Ddition, Lang
+from ._const import Arch, Edition, Lang
 from ._unattend import UnattendForWindowsXP, UnattendForWindows7
 from ._install_media import InstallMedia
 from ._prototype import ScriptInChroot
@@ -89,16 +89,16 @@ class Builder:
         # check install media
         m = InstallMedia(path)
         assert self._ts.arch == m.getArch()
-        assert self._ts.variant in m.getVariantList()
+        assert self._ts.edition in m.getVariantList()
         assert self._ts.lang in m.getLangList()
 
         # do work
         iso = pycdlib.PyCdlib()
         iso.open(path)
         try:
-            if self._ts.variant in [Ddition.WINDOWS_XP_HOME, Ddition.WINDOWS_XP_PROFESSIONAL]:
+            if self._ts.edition in [Edition.WINDOWS_XP_HOME, Edition.WINDOWS_XP_PROFESSIONAL]:
                 uobj = UnattendForWindowsXP(self._ts)
-            elif self._ts.variant in [Ddition.WINDOWS_7_HOME, Ddition.WINDOWS_7_PROFESSIONAL, Ddition.WINDOWS_7_ULTIMATE]:
+            elif self._ts.edition in [Edition.WINDOWS_7_HOME, Edition.WINDOWS_7_PROFESSIONAL, Edition.WINDOWS_7_ULTIMATE]:
                 uobj = UnattendForWindows7(self._ts)
             else:
                 assert False
@@ -109,7 +109,7 @@ class Builder:
 
     @Action(BuildStep.INIT)
     def action_install_windows(self):
-        vm = VmUtil.getBootstrapVm(self._ts.arch, self._ts.variant, self._ts.lang, self._workDirObj.image_filepath, self._workDirObj.custom_iso_filepath)
+        vm = VmUtil.getBootstrapVm(self._ts.arch, self._ts.edition, self._ts.lang, self._workDirObj.image_filepath, self._workDirObj.custom_iso_filepath)
 
     @Action(BuildStep.MSWIN_INSTALLED)
     def action_install_windows_addons(self):
@@ -138,8 +138,8 @@ class Builder:
 
 class _MyVm(Vm):
 
-    def __init__(self, arch, variant, lang):
-        super().__init__(arch, variant, lang)
+    def __init__(self, arch, edition, lang):
+        super().__init__(arch, edition, lang)
 
     def bind(self):
         super().bind()
