@@ -87,9 +87,9 @@ class Edition(enum.Enum):
 
 
 class Lang(enum.Enum):
-    en_us = "en_us"
-    zh_cn = "zh_cn"
-    zh_tw = "zh_tw"
+    en_US = "en_us"
+    zh_CN = "zh_cn"
+    zh_TW = "zh_tw"
 
 
 class BootMode(enmu.Enum):

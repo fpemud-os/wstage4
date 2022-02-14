@@ -72,8 +72,7 @@ class TargetSettings:
         self.category = None
         self.edition = None
         self.lang = None
-
-        self.serial = None
+        self.product_key = None
 
     @classmethod
     def check_object(cls, obj, raise_exception=None):
