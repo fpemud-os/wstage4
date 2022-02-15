@@ -134,7 +134,6 @@ def updateIsoForWindowsXP(ts, isoObj):
     # buf += "\n"
 
 
-
 def updateIsoForWindows7(self, isoObj):
     buf = """
         <?xml version="1.0" encoding="utf-8"?>

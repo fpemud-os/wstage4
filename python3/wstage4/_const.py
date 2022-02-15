@@ -30,6 +30,8 @@ class Arch(enum.Enum):
 
 
 class Category(enum.Enum):
+    WINDOWS_95 = "windows-95"
+    WINDOWS_98 = "windows-98"
     WINDOWS_XP = "windows-xp"
     WINDOWS_VISTA = "windows-vista"
     WINDOWS_7 = "windows-7"
