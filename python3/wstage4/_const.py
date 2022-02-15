@@ -47,6 +47,11 @@ class Category(enum.Enum):
 
 
 class Edition(enum.Enum):
+    WINDOWS_95 = "windows-95"
+
+    WINDOWS_98 = "windows-98"
+    WINDOWS_98_SE = "windows-98-se"
+
     WINDOWS_XP_HOME = "windows-xp-home"
     WINDOWS_XP_PROFESSIONAL = "windows-xp-professional"
 
