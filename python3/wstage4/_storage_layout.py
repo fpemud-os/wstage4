@@ -132,6 +132,25 @@ class StorageLayoutWindowsXP(StorageLayout):
         assert False
 
 
+class StorageLayoutWindows7(StorageLayout):
+
+    @staticmethod
+    def mount(boot_mode, base_dir):
+        pass
+
+    @staticmethod
+    def create_and_mount(boot_mode, disk_list, base_dir):
+        pass
+
+    def __init__(self, boot_mode, base_dir):
+        super().__init__(Category.WINDOWS_7, boot_mode, base_dir)
+
+    def umount_and_dispose(self):
+        assert False
+
+    def get_mount_entries(self):
+        assert False
+
 driveC = "C:"
 driveD = "D:"
 driveReserve = "reserve"
