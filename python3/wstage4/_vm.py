@@ -187,7 +187,7 @@ class VmUtil:
                 f.seek(512)
                 f.write(buf.encode("iso8859-1"))
 
-        ret = Vm.__new__()
+        ret = Vm.__new__(Vm)
         ret._init(arch, edition, lang, mainDiskPath, bootIsoFile)
         return ret
 
