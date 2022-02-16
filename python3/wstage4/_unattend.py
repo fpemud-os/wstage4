@@ -73,7 +73,7 @@ def updateIsoForWindows98(ts, isoObj):
     # from https://www.tek-tips.com/viewthread.cfm?qid=612507
 
     if ts.product_key is None:
-        key = _Util.getDefaultProductKey(ts.edition)
+        key = _Util.getDefaultProductKeyByEdition(ts.edition)
     else:
         key = ts.product_key
 
@@ -343,7 +343,7 @@ def updateIsoForWindows98(ts, isoObj):
 
 def updateIsoForWindowsXP(ts, isoObj):
     if ts.product_key is None:
-        key = _Util.getDefaultProductKey(ts.edition)
+        key = _Util.getDefaultProductKeyByEdition(ts.edition)
     else:
         key = ts.product_key
 
@@ -381,7 +381,7 @@ def updateIsoForWindowsXP(ts, isoObj):
     buf += "\n"
     buf += "[RegionalSettings]\n"
     buf += "LanguageGroup=%s\n" % (_Util.getLanguageGroupCodeByLang(ts.lang))
-    buf += "Language=%s\n" % (_Util.getLanguageCodeByLang(ts.lang))
+    buf += "Language=%s\n" % (_Util.getLanguageIdByLang(ts.lang))
     buf += "\n"
     buf += "[Networking]\n"
     buf += "InstallDefaultComponents=Yes\n"
@@ -555,7 +555,8 @@ class _Util:
         return d[lang]
 
     @staticmethod
-    def getLanguageCodeByLang(lang):
+    def getLanguageIdByLang(lang):
+        # from https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-lcid
         d = {
             Lang.en_US: "00000804",
             Lang.zh_CN: "00000804",
@@ -564,7 +565,11 @@ class _Util:
         return d[lang]
 
     @staticmethod
-    def getDefaultProductKey(edition):
+    def getLanguageTagByLang(lang):
+        pass
+
+    @staticmethod
+    def getDefaultProductKeyByEdition(edition):
         if edition == Edition.WINDOWS_98:
             # This is the "public knowledge" abandonware key supplied by Microsoft for Win98.
             # from https://github.com/visual2000/paschke/blob/master/02runsetup/MSBATCH.INF
