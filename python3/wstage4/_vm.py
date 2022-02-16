@@ -173,9 +173,10 @@ class Vm:
 class VmUtil:
 
     @staticmethod
-    def getBootstrapVm(arch, edition, lang, mainDiskPath, bootIsoFile):
+    def getBootstrapVm(arch, category, edition, lang, mainDiskPath, bootIsoFile):
         buf = json.dumps({
             "arch": arch,
+            "category": category,
             "edition": edition,
             "lang": lang,
         }) + "\n"

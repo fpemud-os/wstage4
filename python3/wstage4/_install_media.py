@@ -47,7 +47,7 @@ class InstallMedia:
             # FIXME
             self._arch = Arch.X86
             self._variantList = [Edition.WINDOWS_XP_PROFESSIONAL]
-            self._langList = [Lang.en_US, Lang.zh_cn]
+            self._langList = [Lang.en_US, Lang.zh_CN]
         elif label == "GRMCULFRER_EN_DVD":
             # FIXME
             with TmpMount(self._path) as mp:
@@ -59,7 +59,7 @@ class InstallMedia:
                 else:
                     assert False
             self._variantList = [Edition.WINDOWS_7_ULTIMATE]
-            self._langList = [Lang.en_US, Lang.zh_cn]
+            self._langList = [Lang.en_US, Lang.zh_CN]
         else:
             assert False
 

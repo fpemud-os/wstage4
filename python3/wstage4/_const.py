@@ -24,12 +24,12 @@
 import enum
 
 
-class Arch(enum.Enum):
+class Arch(enum.IntEnum):
     X86 = enum.auto()
     X86_64 = enum.auto()
 
 
-class Category(enum.Enum):
+class Category(enum.IntEnum):
     WINDOWS_95 = enum.auto()
     WINDOWS_98 = enum.auto()
     WINDOWS_XP = enum.auto()
@@ -46,7 +46,7 @@ class Category(enum.Enum):
     WINDOWS_SERVER_2019 = enum.auto()
 
 
-class Edition(enum.Enum):
+class Edition(enum.IntEnum):
     # from https://en.wikipedia.org/wiki/Microsoft_Windows_version_history
     WINDOWS_95 = enum.auto()                   # Windows 95
 
@@ -95,12 +95,12 @@ class Edition(enum.Enum):
     WINDOWS_SERVER_2019 = enum.auto()
 
 
-class Lang(enum.Enum):
+class Lang(enum.IntEnum):
     en_US = enum.auto()
     zh_CN = enum.auto()
     zh_TW = enum.auto()
 
 
-class BootMode(enum.Enum):
+class BootMode(enum.IntEnum):
     BIOS = enum.auto()
     EFI = enum.auto()
