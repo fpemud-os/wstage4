@@ -33,16 +33,24 @@ class StorageLayout:
 
     @classmethod
     def get_storage_layout(cls, os_category, base_dir):
+        assert base_dir.startswith("/") and len(os.listdir(base_dir)) == 0
+
         boot_mode = cls.BOOT_MODE_BIOS                      # FIXME
         return cls._getSubClass(os_category)(boot_mode, base_dir)
 
     @classmethod
     def mount_storage_layout(cls, os_category, boot_mode, base_dir):
+        assert boot_mode in [cls.BOOT_MODE_BIOS, cls.BOOT_MODE_EFI]
+        assert base_dir.startswith("/") and len(os.listdir(base_dir)) == 0
+
         return cls._getSubClass(os_category).mount(boot_mode, base_dir)
 
     @classmethod
-    def create_and_mount_storage_layout(cls, os_category, boot_mode, base_dir):
-        return cls._getSubClass(os_category).create_and_mount(boot_mode, base_dir)
+    def create_and_mount_storage_layout(cls, os_category, boot_mode, disk_list, base_dir):
+        assert boot_mode in [cls.BOOT_MODE_BIOS, cls.BOOT_MODE_EFI]
+        assert base_dir.startswith("/") and len(os.listdir(base_dir)) == 0
+
+        return cls._getSubClass(os_category).create_and_mount(boot_mode, disk_list, base_dir)
 
     def __init__(self, os_category, boot_mode, base_dir):
         assert isinstance(os_category, Category)
@@ -87,10 +95,11 @@ class StorageLayoutWindows98(StorageLayout):
 
     @staticmethod
     def mount(boot_mode, base_dir):
-        pass
+        os.mkdir(os.path.jion(base_dir, driveC))
+
 
     @staticmethod
-    def create_and_mount(boot_mode, base_dir):
+    def create_and_mount(boot_mode, disk_list, base_dir):
         pass
 
     def __init__(self, boot_mode, base_dir):
@@ -110,7 +119,7 @@ class StorageLayoutWindowsXP(StorageLayout):
         pass
 
     @staticmethod
-    def create_and_mount(boot_mode, base_dir):
+    def create_and_mount(boot_mode, disk_list, base_dir):
         pass
 
     def __init__(self, boot_mode, base_dir):
@@ -123,3 +132,6 @@ class StorageLayoutWindowsXP(StorageLayout):
         assert False
 
 
+driveC = "C:"
+driveD = "D:"
+driveReserve = "reserve"
