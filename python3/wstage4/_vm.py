@@ -89,10 +89,12 @@ class Vm:
             assert False
 
         # disk interface
-        if edition in [Edition.WINDOWS_XP_HOME, Edition.WINDOWS_XP_PROFESSIONAL]:
+        if category in [Category.WINDOWS_98, Category.WINDOWS_XP]:
             self._mainDiskInterface = "ide"
-        else:
+        elif category in [Category.WINDOWS_7]:
             self._mainDiskInterface = "scsi"
+        else:
+            assert False
 
         # main disk file path
         self._diskPath = mainDiskFile
