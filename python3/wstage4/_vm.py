@@ -150,7 +150,7 @@ class Vm:
                 assert False
 
         # graphics device
-        cmd += " -gtk"
+        cmd += " -display gtk"
     #     if True:
     #         if self._graphicsAdapterInterface == "qxl":
     #             assert self.spicePort != -1
