@@ -22,7 +22,8 @@
 
 
 from io import BytesIO
-from ._const import Lang
+from ._const import Category, Edition, Lang
+
 
 class AnswerFileGenerator:
 

@@ -101,6 +101,6 @@ class Lang(enum.Enum):
     zh_TW = enum.auto()
 
 
-class BootMode(enmu.Enum):
+class BootMode(enum.Enum):
     BIOS = enum.auto()
     EFI = enum.auto()

@@ -28,33 +28,30 @@ from ._const import BootMode
 
 class StorageLayout:
 
-    BOOT_MODE_BIOS = 1
-    BOOT_MODE_EFI = 2
-
     @classmethod
     def get_storage_layout(cls, os_category, base_dir):
         assert base_dir.startswith("/") and len(os.listdir(base_dir)) == 0
 
-        boot_mode = cls.BOOT_MODE_BIOS                      # FIXME
+        boot_mode = BootMode.BIOS                      # FIXME
         return cls._getSubClass(os_category)(boot_mode, base_dir)
 
     @classmethod
     def mount_storage_layout(cls, os_category, boot_mode, base_dir):
-        assert boot_mode in [cls.BOOT_MODE_BIOS, cls.BOOT_MODE_EFI]
+        assert isinstance(boot_mode, BootMode)
         assert base_dir.startswith("/") and len(os.listdir(base_dir)) == 0
 
         return cls._getSubClass(os_category).mount(boot_mode, base_dir)
 
     @classmethod
     def create_and_mount_storage_layout(cls, os_category, boot_mode, disk_list, base_dir):
-        assert boot_mode in [cls.BOOT_MODE_BIOS, cls.BOOT_MODE_EFI]
+        assert isinstance(boot_mode, BootMode)
         assert base_dir.startswith("/") and len(os.listdir(base_dir)) == 0
 
         return cls._getSubClass(os_category).create_and_mount(boot_mode, disk_list, base_dir)
 
     def __init__(self, os_category, boot_mode, base_dir):
         assert isinstance(os_category, Category)
-        assert boot_mode in [BootMode.BIOS, BootMode.EFI]
+        assert isinstance(boot_mode, BootMode)
         assert base_dir.startswith("/")
 
         self._category = os_category

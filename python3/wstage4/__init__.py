@@ -31,8 +31,10 @@ __author__ = 'Fpemud <fpemud@sina.com>'
 
 
 from ._const import Arch
+from ._const import Category
 from ._const import Edition
 from ._const import Lang
+from ._const import BootMode
 
 from ._settings import Settings
 from ._settings import TargetSettings
@@ -43,8 +45,6 @@ from ._workdir import WorkDir
 
 from ._builder import Builder
 from ._builder import BuildStep
-
-from .hdds import 
 
 from ._errors import SettingsError
 from ._errors import SeedStageError
