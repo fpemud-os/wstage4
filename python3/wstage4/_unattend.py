@@ -73,7 +73,7 @@ def updateIsoForWindows98(ts, isoObj):
     # from https://www.tek-tips.com/viewthread.cfm?qid=612507
 
     if ts.product_key is None:
-        key = _Util.getDefaultProductKey(ts.category)
+        key = _Util.getDefaultProductKey(ts.edition)
     else:
         key = ts.product_key
 
@@ -343,7 +343,7 @@ def updateIsoForWindows98(ts, isoObj):
 
 def updateIsoForWindowsXP(ts, isoObj):
     if ts.product_key is None:
-        key = _Util.getDefaultProductKey(ts.category)
+        key = _Util.getDefaultProductKey(ts.edition)
     else:
         key = ts.product_key
 
@@ -564,13 +564,34 @@ class _Util:
         return d[lang]
 
     @staticmethod
-    def getDefaultProductKey(category):
-        if category == Category.WINDOWS_98:
+    def getDefaultProductKey(edition):
+        if edition == Edition.WINDOWS_98:
             # This is the "public knowledge" abandonware key supplied by Microsoft for Win98.
             # from https://github.com/visual2000/paschke/blob/master/02runsetup/MSBATCH.INF
             return "F73WT-WHD3J-CD4VR-2GWKD-T38YD"
-        elif category == Category.WINDOWS_XP:
-            # from https://www.windowsafg.com/keys.html
+        elif edition == Edition.WINDOWS_XP_HOME:
+            # ?
             return "NG4HW-VH26C-733KW-K6F98-J8CK4"
+        elif edition == Edition.WINDOWS_XP_PROFESSIONAL:
+            # ?
+            return "NG4HW-VH26C-733KW-K6F98-J8CK4"
+        elif edition == Edition.WINDOWS_7_STARTER:
+            # from https://www.windowsafg.com/keys.html
+            return "7Q28W-FT9PC-CMMYT-WHMY2-89M6G"
+        elif edition == Edition.WINDOWS_7_HOME_BASIC:
+            # from https://www.windowsafg.com/keys.html
+            return "YGFVB-QTFXQ-3H233-PTWTJ-YRYRV"
+        elif edition == Edition.WINDOWS_7_HOME_PREMIUM:
+            # from https://www.windowsafg.com/keys.html
+            return "RHPQ2-RMFJH-74XYM-BH4JX-XM76F"
+        elif edition == Edition.WINDOWS_7_PROFESSIONAL:
+            # from https://www.windowsafg.com/keys.html
+            return "HYF8J-CVRMY-CM74G-RPHKF-PW487"
+        elif edition == Edition.WINDOWS_7_ULTIMATE:
+            # from https://www.windowsafg.com/keys.html
+            return "D4F6K-QK3RD-TMVMJ-BBMRX-3MBMV"
+        elif edition == Edition.WINDOWS_7_ENTERPRISE:
+            # from https://www.windowsafg.com/keys.html
+            return "H7X92-3VPBB-Q799D-Y6JJ3-86WC6"
         else:
             assert False
