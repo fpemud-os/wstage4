@@ -571,6 +571,9 @@ class _Util:
     @staticmethod
     def getDefaultProductKeyByEdition(edition):
         if edition == Edition.WINDOWS_98:
+            # ?
+            return "F73WT-WHD3J-CD4VR-2GWKD-T38YD"
+        elif edition == Edition.WINDOWS_98_SE:
             # This is the "public knowledge" abandonware key supplied by Microsoft for Win98.
             # from https://github.com/visual2000/paschke/blob/master/02runsetup/MSBATCH.INF
             return "F73WT-WHD3J-CD4VR-2GWKD-T38YD"

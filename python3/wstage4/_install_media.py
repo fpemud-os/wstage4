@@ -39,6 +39,10 @@ class InstallMedia:
         self._langList = []
 
         label = Util.getCdromLabel(self._path)
+        if label == "WIN98 SE":
+            self._arch = Arch.X86
+            self._variantList = [Edition.WINDOWS_98_SE]
+            self._langList = [Lang.en_us]
         if label == "GRTMPVOL_EN":
             # FIXME
             self._arch = Arch.X86
