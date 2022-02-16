@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 
+import os
 import abc
 from ._const import Category
 from ._const import BootMode
