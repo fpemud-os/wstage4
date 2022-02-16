@@ -24,7 +24,7 @@
 import enum
 
 
-class Arch(enum.IntEnum):
+class Arch(enum.IntEnum):   # use enum.IntEnum so it's serializable, sucks
     X86 = enum.auto()
     X86_64 = enum.auto()
 
