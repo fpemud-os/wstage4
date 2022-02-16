@@ -46,21 +46,26 @@ class Vm:
         self.stop()
 
     def is_running(self):
-        return self._pid is not None
+        return self._proc is not None
 
     def start(self):
         try:
             self._qmpPort = Util.getFreeTcpPort()
-            self._pid = subprocess.Popen(self._generateQemuCommand(), shell=True)
+            self._proc = subprocess.Popen(self._generateQemuCommand(), shell=True)
         except BaseException:
             self.stop()
             raise
 
     def stop(self, remove_scripts=True):
-        if self._pid is not None:
+        if self._proc is not None:
             # send to qmp shutdown machine
-            self._pid = None
+            self._proc = None
             self._qmpPort = None
+
+    def wait(self):
+        self._proc.wait()
+        self._proc = None
+        self._qmpPort = None
 
     def _init(self, arch, edition, lang, mainDiskFile, bootIsoFile):
         # vm type
@@ -95,7 +100,7 @@ class Vm:
         self._bootFile = bootIsoFile
 
         # runtime variables
-        self._pid = None
+        self._proc = None
         self._qmpPort = None
 
     def _generateQemuCommand(self):
@@ -125,7 +130,7 @@ class Vm:
         # platform device
         cmd += " -cpu host"
         cmd += " -smp 1,sockets=1,cores=%d,threads=1" % (self._cpuNumber)
-        cmd += " -m %d" % (self._memorySize)
+        cmd += " -m %s" % (self._memorySize)
         cmd += " -rtc base=localtime"
 
         # boot-iso-file
@@ -144,7 +149,8 @@ class Vm:
             else:
                 assert False
 
-    #     # graphics device
+        # graphics device
+        cmd += " -gtk"
     #     if True:
     #         if self._graphicsAdapterInterface == "qxl":
     #             assert self.spicePort != -1

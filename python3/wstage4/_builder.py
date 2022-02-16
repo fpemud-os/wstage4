@@ -103,7 +103,8 @@ class Builder:
 
     @Action(BuildStep.CUSTOM_INSTALL_ISO_FILE_CREATED)
     def action_install_windows(self):
-        vm = VmUtil.getBootstrapVm(self._ts.arch, self._ts.category, self._ts.edition, self._ts.lang, self._workDirObj.image_filepath, self._workDirObj.custom_iso_filepath)
+        with VmUtil.getBootstrapVm(self._ts.arch, self._ts.category, self._ts.edition, self._ts.lang, self._workDirObj.image_filepath, self._workDirObj.custom_iso_filepath) as vm:
+            vm.wait()
 
     @Action(BuildStep.MSWIN_INSTALLED)
     def action_install_windows_addons(self):
