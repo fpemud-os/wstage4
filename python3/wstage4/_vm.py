@@ -21,10 +21,11 @@
 # THE SOFTWARE.
 
 
+import os
 import json
 import subprocess
 from ._util import Util
-from ._const import Arch, Edition, Lang
+from ._const import Arch, Category, Edition, Lang
 
 
 class Vm:
@@ -36,7 +37,7 @@ class Vm:
             data = Util.readUntil(f, '\n\0', max=512, bTextOrBinary=False)
 
         data = json.loads(data.decode("iso8859-1"))
-        self._init(data["arch"], data["edition"], data["lang"], main_disk_filepath, None)
+        self._init(data["arch"], data["category"], data["edition"], data["lang"], main_disk_filepath, None)
 
     def __enter__(self):
         self.start()
@@ -67,11 +68,11 @@ class Vm:
         self._proc = None
         self._qmpPort = None
 
-    def _init(self, arch, edition, lang, mainDiskFile, bootIsoFile):
+    def _init(self, arch, category, edition, lang, mainDiskFile, bootIsoFile):
         # vm type
-        if edition in [Edition.WINDOWS_XP_HOME, Edition.WINDOWS_XP_PROFESSIONAL]:
+        if category in [Category.WINDOWS_XP]:
             self._qemuVmType = "pc"
-        elif edition in [Edition.WINDOWS_7_HOME, Edition.WINDOWS_7_PROFESSIONAL, Edition.WINDOWS_7_ULTIMATE]:
+        elif category in [Category.WINDOWS_7]:
             self._qemuVmType = "q35"
         else:
             assert False
@@ -122,9 +123,11 @@ class Vm:
             assert False
 
         cmd = "/usr/bin/qemu-system-x86_64"
-        cmd += " -enable-kvm"
+        if os.getuid() == 0:
+            # non-priviledged user can use us with a performance pernalty
+            cmd += " -enable-kvm"
         cmd += " -no-user-config"
-        cmd += " -nodefaults"
+        # cmd += " -nodefaults"
         cmd += " -machine %s,usb=on" % (self._qemuVmType)
 
         # platform device
@@ -194,7 +197,7 @@ class VmUtil:
                 f.write(buf.encode("iso8859-1"))
 
         ret = Vm.__new__(Vm)
-        ret._init(arch, edition, lang, mainDiskPath, bootIsoFile)
+        ret._init(arch, category, edition, lang, mainDiskPath, bootIsoFile)
         return ret
 
     @staticmethod
