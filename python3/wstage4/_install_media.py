@@ -30,6 +30,12 @@ from ._const import Arch, Category, Edition, Lang
 class InstallMedia:
 
     def __init__(self, path):
+        funcList = [
+            self._parserWindowns98,
+            self._parserWindownsXP,
+            self._parserWindowns7,
+        ]
+
         self._path = path
 
         self._arch = None
@@ -37,13 +43,9 @@ class InstallMedia:
         self._variantList = []
         self._langList = []
 
-        funcList = [
-            _parserWindowns98,
-            _parserWindownsXP,
-            _parserWindowns7,
-        ]
+        label = Util.getCdromLabel(path)
         for func in funcList:
-            ret = func(self._path)
+            ret = func(self._path, label)
             if ret is not None:
                 self._arch, self._category, self._variantList, self._langList = ret
                 return
@@ -62,34 +64,28 @@ class InstallMedia:
     def getLangList(self):
         return self._langList
 
+    def _parserWindowns98(self, path, label):
+        if label == "WIN98 SE":
+            # FIXME
+            return (Arch.X86, Category.WINDOWS_98, [Edition.WINDOWS_98_SE], [Lang.en_US])
+        return None
 
-def _parserWindowns98(path):
-    label = Util.getCdromLabel(path)
-    if label == "WIN98 SE":
-        # FIXME
-        return (Arch.X86, Category.WINDOWS_98, [Edition.WINDOWS_98_SE], [Lang.en_US])
-    return None
+    def _parserWindownsXP(self, path, label):
+        if label == "GRTMPVOL_EN":
+            # FIXME
+            return (Arch.X86, Category.WINDOWS_XP, [Edition.WINDOWS_XP_PROFESSIONAL], [Lang.en_US, Lang.zh_CN])
+        return None
 
-
-def _parserWindownsXP(path):
-    label = Util.getCdromLabel(path)
-    if label == "GRTMPVOL_EN":
-        # FIXME
-        return (Arch.X86, Category.WINDOWS_XP, [Edition.WINDOWS_XP_PROFESSIONAL], [Lang.en_US, Lang.zh_CN])
-    return None
-
-
-def _parserWindowns7(path):
-    label = Util.getCdromLabel(path)
-    if label == "GRMCULFRER_EN_DVD":
-        # FIXME
-        with TmpMount(path) as mp:
-            out = Util.cmdCall("file", "-L", os.path.join(mp, "setup.exe"))
-            if "80386" in out:
-                arch = Arch.X86
-            elif "x86-64" in out:
-                arch = Arch.X86_64
-            else:
-                assert False
-        return (arch, Category.WINDOWS_7, [Edition.WINDOWS_7_ULTIMATE], [Lang.en_US, Lang.zh_CN])
-    return None
+    def _parserWindowns7(self, path, label):
+        if label == "GRMCULFRER_EN_DVD":
+            # FIXME
+            with TmpMount(path) as mp:
+                out = Util.cmdCall("file", "-L", os.path.join(mp, "setup.exe"))
+                if "80386" in out:
+                    arch = Arch.X86
+                elif "x86-64" in out:
+                    arch = Arch.X86_64
+                else:
+                    assert False
+            return (arch, Category.WINDOWS_7, [Edition.WINDOWS_7_ULTIMATE], [Lang.en_US, Lang.zh_CN])
+        return None
