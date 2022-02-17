@@ -22,20 +22,15 @@
 
 
 import os
-import re
-import json
 import enum
-import pycdlib
 import robust_layer.simple_fops
 from ._util import Util
-from ._const import Arch, Edition, Lang
+from ._install_media import InstallMedia, InstallMediaCustomizer
+from ._settings import Settings, TargetSettings
+from ._errors import InstallMediaError
 from ._unattend import AnswerFileGenerator
-from ._install_media import InstallMedia
+from ._vm import Vm, VmUtil
 from ._prototype import ScriptInChroot
-from ._settings import Settings
-from ._settings import TargetSettings
-from ._vm import Vm
-from ._vm import VmUtil
 
 
 def Action(*progressStepTuple):
@@ -86,20 +81,27 @@ class Builder:
 
     @Action(BuildStep.INIT)
     def action_create_custom_install_iso_file(self, path):
-        # check install media
         m = InstallMedia(path)
-        assert self._ts.arch == m.getArch()
-        assert self._ts.edition in m.getVariantList()
-        assert self._ts.lang in m.getLangList()
-
-        # do work
-        iso = pycdlib.PyCdlib()
-        iso.open(path)
         try:
-            AnswerFileGenerator(self._ts).updateIso(iso)
-            iso.write(self._workDirObj.custom_iso_filepath)
+            # check install media
+            if self._ts.arch != m.getArch():
+                raise InstallMediaError("invalid install media, arch not match")
+            if self._ts.category not in m.getCategory():
+                raise InstallMediaError("invalid install media, category not match")
+            if self._ts.edition not in m.getVariantList():
+                raise InstallMediaError("invalid install media, edition not match")
+            if self._ts.lang not in m.getLangList():
+                raise InstallMediaError("invalid install media, language not match")
+
+            # do work
+            c = InstallMediaCustomizer(m.getIsoObj(), self._workDirObj.custom_iso_filepath)
+            try:
+                AnswerFileGenerator(self._ts).updateIso(c)
+                c.export()
+            finally:
+                c.dispose()
         finally:
-            iso.close()
+            m.dispose()
 
     @Action(BuildStep.CUSTOM_INSTALL_ISO_FILE_CREATED)
     def action_install_windows(self):

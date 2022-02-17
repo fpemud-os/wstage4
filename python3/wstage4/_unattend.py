@@ -104,8 +104,7 @@ def updateIsoForWindows98(ts, isoObj):
     # buf += "VRC=0\n"
     # buf += "PenWinWarning=0\n"
 
-    buf = buf.encode("iso8859-1")
-    isoObj.add_fp(BytesIO(buf), len(buf), '/MSBATCH.INF')
+    isoObj.add_file('/MSBATCH.INF', buf.encode("iso8859-1"))
 
     # [System]
     # Display="VBE Miniport" ; Comes from vbemp.inf
@@ -390,8 +389,7 @@ def updateIsoForWindowsXP(ts, isoObj):
     buf += "[GuiRunOnce]\n"
     buf += "\"shutdown /s /t 60\"\n"
 
-    buf = buf.encode("UTF-8")
-    isoObj.add_fp(BytesIO(buf), len(buf), '/WINNT.SIF')
+    isoObj.add_file('/WINNT.SIF', buf.encode("utf-8"))
 
     # buf += "EncryptedAdminPassword=No\n"          # FIXME: in [GuiUnattended]
     # buf += "\n"
@@ -529,8 +527,7 @@ def updateIsoForWindows7(ts, isoObj):
     buf = buf.replace("@@product_key@@", ts.product_key)
     buf = buf.replace("@@timezone@@", _Util.getTimezoneCodeByLang(ts.lang))
 
-    buf = buf.encode("UTF-8")
-    isoObj.add_fp(BytesIO(buf), len(buf), '/autounattend.xml')
+    isoObj.add_file('/autounattend.xml', buf.encode("utf-8"))
 
 
 class _Util:
