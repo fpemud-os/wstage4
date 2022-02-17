@@ -65,7 +65,7 @@ class InstallMedia:
     def getLangList(self):
         return self._langList
 
-    def _getCdromLabel(path):
+    def _getCdromLabel(self, path):
         iso = pycdlib.PyCdlib()
         iso.open(path)
         try:
@@ -140,25 +140,25 @@ class InstallMediaCustomizer:
                       xa=self._src.xa,
                       udf=("2.00" if self._src.has_udf() else None))
 
-    def add_dir(dir_path):
+    def add_dir(self, dir_path):
         assert dir_path.startswith("/")
-        assert file_path not in self._newFiles
+        assert dir_path not in self._newFiles
 
-        self._newFiles[file_path] = None
+        self._newFiles[dir_path] = None
 
-    def add_file(file_path, file_content):
+    def add_file(self, file_path, file_content):
         assert file_path.startswith("/")
         assert file_path not in self._newFiles
 
         self._newFiles[file_path] = file_content
 
-    def update_file(file_path, file_content):
+    def update_file(self, file_path, file_content):
         assert file_path.startswith("/")
         assert file_path not in self._newFiles
 
         self._newFiles[file_path] = file_content
 
-    def add_or_update_file(file_path, file_content):
+    def add_or_update_file(self, file_path, file_content):
         assert file_path.startswith("/")
 
         self._newFiles[file_path] = file_content
