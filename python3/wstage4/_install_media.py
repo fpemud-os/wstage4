@@ -23,6 +23,7 @@
 
 import os
 import pycdlib
+import collections
 from ._util import Util
 from ._util import TmpMount
 from ._const import Arch, Category, Edition, Lang
@@ -165,18 +166,18 @@ class InstallMediaCustomizer:
 
     def export_and_dispose(self):
         # export
-        root_entry = iso.get_record(**{pathname: "/"})
+        root_entry = self._src.get_record(**{self._pathname: "/"})
         dirs = collections.deque([root_entry])
         while dirs:
             dir_record = dirs.popleft()
-            ident_to_here = iso.full_path_from_dirrecord(dir_record, rockridge=(pathname=='rr_path'))
+            ident_to_here = self._src.full_path_from_dirrecord(dir_record, rockridge=(self._pathname=='rr_path'))
             relname = ident_to_here[len("/"):]
             if relname and relname[0] == '/':
                 relname = relname[1:]
             if dir_record.is_dir():
                 if relname != '':
                     os.makedirs(os.path.join(self._tmpDir, relname))
-                child_lister = iso.list_children(**{pathname: ident_to_here})
+                child_lister = self._src.list_children(**{self._pathname: ident_to_here})
 
                 for child in child_lister:
                     if child is None or child.is_dot() or child.is_dotdot():
@@ -192,7 +193,7 @@ class InstallMediaCustomizer:
                     os.symlink(dir_record.rock_ridge.symlink_path(), local_link_name)
                     os.chdir(old_dir)
                 else:
-                    iso.get_file_from_iso(os.path.join(self._tmpDir, relname), **{pathname: ident_to_here})
+                    self._src.get_file_from_iso(os.path.join(self._tmpDir, relname), **{self._pathname: ident_to_here})
 
         # dispose
         self._dst.write(self._target)
