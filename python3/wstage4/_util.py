@@ -106,15 +106,6 @@ class Util:
         return 0
 
     @staticmethod
-    def getCdromLabel(path):
-        out = Util.cmdCall("file", "-L", path)
-        m = re.search("ISO 9660 CD-ROM filesystem data '(.*)'", out)
-        if m.group(1) is not None:
-            return m.group(1)
-        else:
-            return None
-
-    @staticmethod
     def isInstanceList(obj, *instances):
         for inst in instances:
             if isinstance(obj, inst):

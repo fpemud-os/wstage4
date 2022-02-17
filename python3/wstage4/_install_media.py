@@ -22,6 +22,7 @@
 
 
 import os
+import pycdlib
 from ._util import Util
 from ._util import TmpMount
 from ._const import Arch, Category, Edition, Lang
@@ -43,7 +44,7 @@ class InstallMedia:
         self._variantList = []
         self._langList = []
 
-        label = Util.getCdromLabel(path)
+        label = self._getCdromLabel(path)
         for func in funcList:
             ret = func(self._path, label)
             if ret is not None:
@@ -63,6 +64,15 @@ class InstallMedia:
 
     def getLangList(self):
         return self._langList
+
+    def _getCdromLabel(path):
+        iso = pycdlib.PyCdlib()
+        iso.open(path)
+        try:
+            assert len(iso.pvds) == 1
+            return iso.pvds[0].volume_identifier.rstrip(" ")    # pycdlib has no direct method to get this value, sucks
+        finally:
+            iso.close()
 
     def _parserWindowns98(self, path, label):
         if label == "WIN98 SE":
@@ -101,21 +111,22 @@ class InstallMediaCustomizer:
         # src
         self._src = pycdlib.PyCdlib()
         self._src.open(install_iso_file)
-        if iso.has_udf():
+        if self._src.has_udf():
             self._pathname = 'udf_path'
-        elif iso.has_rock_ridge():
+        elif self._src.has_rock_ridge():
             self._pathname = 'rr_path'
-        elif iso.has_joliet():
+        elif self._src.has_joliet():
             self._pathname = 'joliet_path'
         else:
             self._pathname = 'iso_path'
+        assert len(self._src.pvds) == 1
 
         # dst
         self._dst = pycdlib.PyCdlib()
-        self._dst.new(interchange_level=args.iso_level,
-                      sys_ident=args.sysid,
-                      vol_ident=args.volid,
-                      set_size=args.volset_size,
+        self._dst.new(interchange_level=self._src.interchange_level,
+                      sys_ident=self._src.pvds[0].system_identifier.rstrip(" "),
+                      vol_ident=self._src.pvds[0].volume_identifier.rstrip(" "),
+                      set_size=self._src.pvds[0].set_size,
                       seqnum=args.volset_seqno,
                       vol_set_ident=args.volset,
                       pub_ident_str=args.publisher,
