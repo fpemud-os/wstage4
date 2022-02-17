@@ -24,9 +24,9 @@
 import os
 import pycdlib
 import collections
-from ._util import Util
-from ._util import TmpMount
+from ._util import Util, TmpMount
 from ._const import Arch, Category, Edition, Lang
+from ._errors import InstallMediaError
 
 
 class InstallMedia:
@@ -112,15 +112,11 @@ class InstallMediaCustomizer:
         # self._src
         self._src = pycdlib.PyCdlib()
         self._src.open(install_iso_file)
+        if len(self._src.pvds) != 1:
+            raise InstallMediaError("invalid install media")
         if self._src.has_udf():
-            self._pathname = 'udf_path'
-        elif self._src.has_rock_ridge():
-            self._pathname = 'rr_path'
-        elif self._src.has_joliet():
-            self._pathname = 'joliet_path'
-        else:
-            self._pathname = 'iso_path'
-        assert len(self._src.pvds) == 1
+            assert not self._src.has_rock_ridge() or not self._src.has_joliet()
+            raise InstallMediaError("invalid install media")
 
         # self._dst, should have the same parameter as self._src
         self._dst = pycdlib.PyCdlib()
@@ -139,7 +135,7 @@ class InstallMediaCustomizer:
                       joliet=(3 if self._src.has_joliet() else None),
                       rock_ridge=("1.12" if self._src.has_rock_ridge() else None),
                       xa=self._src.xa,
-                      udf=("2.00" if self._src.has_udf() else None))
+                      udf=None)
 
     def add_dir(self, dir_path):
         assert dir_path.startswith("/")
@@ -165,38 +161,53 @@ class InstallMediaCustomizer:
         self._newFiles[file_path] = file_content
 
     def export_and_dispose(self):
-        # export
-        root_entry = self._src.get_record(**{self._pathname: "/"})
+        root_entry = self._src.get_record(iso_path="/")
         dirs = collections.deque([root_entry])
         while dirs:
             dir_record = dirs.popleft()
-            ident_to_here = self._src.full_path_from_dirrecord(dir_record, rockridge=(self._pathname=='rr_path'))
-            relname = ident_to_here[len("/"):]
-            if relname and relname[0] == '/':
-                relname = relname[1:]
-            if dir_record.is_dir():
-                if relname != '':
-                    os.makedirs(os.path.join(self._tmpDir, relname))
-                child_lister = self._src.list_children(**{self._pathname: ident_to_here})
+            fullfn = self._src.full_path_from_dirrecord(dir_record)
+            if dir_record.is_link():
+                raise InstallMediaError("invalid install media, it has symlink %s" % (fullfn))
+            elif dir_record.is_dir():
+                kargDict = {}
+                if self._src.has_rock_ridge():
+                    kargDict["rr_name"] = dir_record.rock_ridge.name()
+                if self._src.has_joliet():
+                    kargDict["joliet_path"] = fullfn
+                self._src.add_directory(fullfn, **kargDict)
 
-                for child in child_lister:
+                for child in self._src.list_children(iso_path=fullfn):
                     if child is None or child.is_dot() or child.is_dotdot():
                         continue
                     dirs.append(child)
+            elif dir_record.is_file():
+                kargDict = {}
+                if self._src.has_rock_ridge():
+                    kargDict["rr_name"] = dir_record.rock_ridge.name()
+                if self._src.has_joliet():
+                    kargDict["joliet_path"] = fullfn
+                self._dst.add_file(fullfn, **kargDict)
             else:
-                if dir_record.is_symlink():
-                    fullpath = os.path.join(self._tmpDir, relname)
-                    local_dir = os.path.dirname(fullpath)
-                    local_link_name = os.path.basename(fullpath)
-                    old_dir = os.getcwd()
-                    os.chdir(local_dir)
-                    os.symlink(dir_record.rock_ridge.symlink_path(), local_link_name)
-                    os.chdir(old_dir)
-                else:
-                    self._src.get_file_from_iso(os.path.join(self._tmpDir, relname), **{self._pathname: ident_to_here})
+                assert False
 
-        # dispose
+        for fullfn, fbuf in self._newFiles.items():
+            kargDict = {}
+            if self._src.has_rock_ridge():
+                kargDict["rr_name"] = os.path.basename(fullfn)
+            if self._src.has_joliet():
+                kargDict["joliet_path"] = fullfn
+
+            if fbuf is None:
+                fullfn = pycdlib.utils.mangle_dir_for_iso9660(fullfn, self._dst.interchange_level)
+                self._src.add_directory(fullfn, **kargDict)
+            else:
+                fullfn = pycdlib.utils.mangle_file_for_iso9660(fullfn, self._dst.interchange_level)
+                self._dst.add_file(fullfn, **kargDict)
+
         self._dst.write(self._target)
+        self.dispose()
+
+    def dispose(self):
         self._dst.close()
         self._dst = None
 
