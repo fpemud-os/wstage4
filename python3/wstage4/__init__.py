@@ -47,5 +47,5 @@ from ._builder import Builder
 from ._builder import BuildStep
 
 from ._errors import SettingsError
-from ._errors import SeedStageError
+from ._errors import InstallMediaError
 from ._errors import WorkDirError

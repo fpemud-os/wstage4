@@ -25,7 +25,7 @@ class SettingsError(Exception):
     pass
 
 
-class SeedStageError(Exception):
+class InstallMediaError(Exception):
     pass
 
 
