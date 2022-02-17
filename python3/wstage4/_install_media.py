@@ -89,3 +89,16 @@ class InstallMedia:
                     assert False
             return (arch, Category.WINDOWS_7, [Edition.WINDOWS_7_ULTIMATE], [Lang.en_US, Lang.zh_CN])
         return None
+
+
+class InstallMediaCustomizer:
+
+    def __init__(self, tmp_dir, install_iso_file, target_iso_file):
+        self._tmpdir = tmp_dir
+
+
+    def add_file(file_path, file_content):
+        pass
+
+    def export(self):
+        pass
