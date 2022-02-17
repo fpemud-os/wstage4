@@ -172,7 +172,7 @@ class InstallMediaCustomizer:
                       abstract_file=self._src.pvds[0].abstract_file_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
                       bibli_file=self._src.pvds[0].bibliographic_file_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
                       joliet=(3 if self._src.has_joliet() else None),
-                      rock_ridge=("1.12" if self._src.has_rock_ridge() else None),
+                      rock_ridge=None,
                       xa=self._src.xa,
                       udf=None)
 
@@ -190,8 +190,6 @@ class InstallMediaCustomizer:
                 elif dir_record.is_dir():
                     if fullfn != "/":
                         kargDict = {}
-                        if self._src.has_rock_ridge():
-                            kargDict["rr_name"] = dir_record.rock_ridge.name()
                         if self._src.has_joliet():
                             kargDict["joliet_path"] = fullfn
                         theDstIso.add_directory(iso_path=fullfn, **kargDict)
@@ -202,8 +200,6 @@ class InstallMediaCustomizer:
                         dirs.append(child)
                 elif dir_record.is_file():
                     kargDict = {}
-                    if self._src.has_rock_ridge():
-                        kargDict["rr_name"] = dir_record.rock_ridge.name()
                     if self._src.has_joliet():
                         kargDict["joliet_path"] = fullfn
                     bio = io.BytesIO()
@@ -216,8 +212,6 @@ class InstallMediaCustomizer:
 
             for fullfn, fbuf in self._newFiles.items():
                 kargDict = {}
-                if self._src.has_rock_ridge():
-                    kargDict["rr_name"] = os.path.basename(fullfn)
                 if self._src.has_joliet():
                     kargDict["joliet_path"] = fullfn
 

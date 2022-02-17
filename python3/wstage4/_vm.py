@@ -70,7 +70,7 @@ class Vm:
 
     def _init(self, arch, category, edition, lang, mainDiskFile, bootIsoFile):
         # vm type
-        if category in [Category.WINDOWS_XP]:
+        if category in [Category.WINDOWS_98, Category.WINDOWS_XP]:
             self._qemuVmType = "pc"
         elif category in [Category.WINDOWS_7]:
             self._qemuVmType = "q35"
