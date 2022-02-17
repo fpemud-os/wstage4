@@ -70,7 +70,7 @@ class InstallMedia:
         iso.open(path)
         try:
             assert len(iso.pvds) == 1
-            return iso.pvds[0].volume_identifier.rstrip(" ")    # pycdlib has no direct method to get this value, sucks
+            return iso.pvds[0].volume_identifier.decode(iso.pvds[0].encoding).rstrip(" ")    # pycdlib has no direct method to get this value, sucks
         finally:
             iso.close()
 
@@ -108,7 +108,7 @@ class InstallMediaCustomizer:
         self._target = target_iso_file
         self._newFiles = dict()
 
-        # src
+        # self._src
         self._src = pycdlib.PyCdlib()
         self._src.open(install_iso_file)
         if self._src.has_udf():
@@ -121,25 +121,24 @@ class InstallMediaCustomizer:
             self._pathname = 'iso_path'
         assert len(self._src.pvds) == 1
 
-        # dst
+        # self._dst, should have the same parameter as self._src
         self._dst = pycdlib.PyCdlib()
         self._dst.new(interchange_level=self._src.interchange_level,
-                      sys_ident=self._src.pvds[0].system_identifier.rstrip(" "),
-                      vol_ident=self._src.pvds[0].volume_identifier.rstrip(" "),
+                      sys_ident=self._src.pvds[0].system_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
+                      vol_ident=self._src.pvds[0].volume_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
                       set_size=self._src.pvds[0].set_size,
-                      seqnum=args.volset_seqno,
-                      vol_set_ident=args.volset,
-                      pub_ident_str=args.publisher,
-                      preparer_ident_str=args.preparer,
-                      app_ident_str=args.appid,
-                      copyright_file=args.copyright,
-                      abstract_file=args.abstract,
-                      bibli_file=args.biblio,
-                      joliet=joliet_level,
-                      rock_ridge=rock_version,
-                      xa=(args.XA or args.xa),
-                      udf=udf_version
-        )
+                      seqnum=self._src.pvds[0].seqnum,
+                      vol_set_ident=self._src.pvds[0].volume_set_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
+                      pub_ident_str=self._src.pvds[0].publisher_identifier.text.decode(self._src.pvds[0].encoding).rstrip(" "),
+                      preparer_ident_str=self._src.pvds[0].preparer_identifier.text.decode(self._src.pvds[0].encoding).rstrip(" "),
+                      app_ident_str=self._src.pvds[0].application_identifier.text.decode(self._src.pvds[0].encoding).rstrip(" "),
+                      copyright_file=self._src.pvds[0].copyright_file_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
+                      abstract_file=self._src.pvds[0].abstract_file_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
+                      bibli_file=self._src.pvds[0].bibliographic_file_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
+                      joliet=(3 if self._src.has_joliet() else None),
+                      rock_ridge=("1.12" if self._src.has_rock_ridge() else None),
+                      xa=self._src.xa,
+                      udf=("2.00" if self._src.has_udf() else None))
 
     def add_dir(dir_path):
         assert dir_path.startswith("/")
