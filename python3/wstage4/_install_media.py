@@ -46,9 +46,9 @@ class InstallMedia:
         self._iso.open(path)
         if len(self._iso.pvds) != 1:
             raise InstallMediaError("invalid install media, multiple PVDs")
-        if self._src.has_rock_ridge():
+        if self._iso.has_rock_ridge():
             raise InstallMediaError("invalid install media, Rock Ridge extension")
-        if self._src.has_udf():
+        if self._iso.has_udf():
             raise InstallMediaError("invalid install media, UDF format")
 
         # pycdlib has no direct method to get this value, sucks
@@ -83,6 +83,9 @@ class InstallMedia:
 
     def getArch(self):
         return self._arch
+
+    def getCategory(self):
+        return self._category
 
     def getVariantList(self):
         return self._variantList
@@ -136,20 +139,20 @@ class InstallMediaCustomizer:
     def add_file(self, file_path, file_content):
         assert file_path.startswith("/")
         assert file_path not in self._newFiles
-        assert isinstance(file_content, bytearray)
+        assert isinstance(file_content, bytes)
 
         self._newFiles[file_path] = file_content
 
     def update_file(self, file_path, file_content):
         assert file_path.startswith("/")
         assert file_path not in self._newFiles
-        assert isinstance(file_content, bytearray)
+        assert isinstance(file_content, bytes)
 
         self._newFiles[file_path] = file_content
 
     def add_or_update_file(self, file_path, file_content):
         assert file_path.startswith("/")
-        assert isinstance(file_content, bytearray)
+        assert isinstance(file_content, bytes)
 
         self._newFiles[file_path] = file_content
 
@@ -163,7 +166,7 @@ class InstallMediaCustomizer:
                       seqnum=self._src.pvds[0].seqnum,
                       vol_set_ident=self._src.pvds[0].volume_set_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
                       pub_ident_str=self._src.pvds[0].publisher_identifier.text.decode(self._src.pvds[0].encoding).rstrip(" "),
-                      preparer_ident_str=self._src.pvds[0].preparer_identifier.text.decode(self._src.pvds[0].encoding).rstrip(" "),
+                      preparer_ident_str="",
                       app_ident_str=self._src.pvds[0].application_identifier.text.decode(self._src.pvds[0].encoding).rstrip(" "),
                       copyright_file=self._src.pvds[0].copyright_file_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
                       abstract_file=self._src.pvds[0].abstract_file_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
@@ -172,21 +175,26 @@ class InstallMediaCustomizer:
                       rock_ridge=("1.12" if self._src.has_rock_ridge() else None),
                       xa=self._src.xa,
                       udf=None)
+
+        # mswin98 iso has 74 characters of preparer_ident_str, joliet extension can not convert it to utf-16 byte array of length 128, so we force it to ""
+        # preparer_ident_str=self._src.pvds[0].preparer_identifier.text.decode(self._src.pvds[0].encoding).rstrip(" "),
+
         try:
             root_entry = self._src.get_record(iso_path="/")
             dirs = collections.deque([root_entry])
             while dirs:
                 dir_record = dirs.popleft()
                 fullfn = self._src.full_path_from_dirrecord(dir_record)
-                if dir_record.is_link():
+                if dir_record.is_symlink():
                     raise InstallMediaError("invalid install media, it has symlink %s" % (fullfn))
                 elif dir_record.is_dir():
-                    kargDict = {}
-                    if self._src.has_rock_ridge():
-                        kargDict["rr_name"] = dir_record.rock_ridge.name()
-                    if self._src.has_joliet():
-                        kargDict["joliet_path"] = fullfn
-                    self._src.add_directory(fullfn, **kargDict)
+                    if fullfn != "/":
+                        kargDict = {}
+                        if self._src.has_rock_ridge():
+                            kargDict["rr_name"] = dir_record.rock_ridge.name()
+                        if self._src.has_joliet():
+                            kargDict["joliet_path"] = fullfn
+                        theDstIso.add_directory(iso_path=fullfn, **kargDict)
 
                     for child in self._src.list_children(iso_path=fullfn):
                         if child is None or child.is_dot() or child.is_dotdot():
@@ -198,7 +206,11 @@ class InstallMediaCustomizer:
                         kargDict["rr_name"] = dir_record.rock_ridge.name()
                     if self._src.has_joliet():
                         kargDict["joliet_path"] = fullfn
-                    theDstIso.add_file(fullfn, **kargDict)
+                    bio = io.BytesIO()
+                    self._src.get_file_from_iso_fp(bio, iso_path=fullfn)
+                    bioLen = bio.tell()
+                    bio.seek(0)
+                    theDstIso.add_fp(bio, bioLen, iso_path=fullfn, **kargDict)
                 else:
                     assert False
 
@@ -210,11 +222,12 @@ class InstallMediaCustomizer:
                     kargDict["joliet_path"] = fullfn
 
                 if fbuf is None:
-                    isoPath = pycdlib.utils.mangle_dir_for_iso9660(fullfn, theDstIso.interchange_level)
-                    theDstIso.add_directory(iso_path=isoPath, **kargDict)
+                    # isoPath = pycdlib.utils.mangle_dir_for_iso9660(fullfn, theDstIso.interchange_level)
+                    theDstIso.add_directory(iso_path=fullfn, **kargDict)
                 else:
-                    isoPath = pycdlib.utils.mangle_file_for_iso9660(fullfn, theDstIso.interchange_level)
-                    theDstIso.add_fp(io.BytesIO(fbuf), len(fbuf), iso_path=isoPath, **kargDict)
+                    # basename, ext = pycdlib.utils.mangle_file_for_iso9660(fullfn, theDstIso.interchange_level)
+                    # isoPath = '.'.join([basename, ext])
+                    theDstIso.add_fp(io.BytesIO(fbuf), len(fbuf), iso_path=fullfn, **kargDict)
 
             theDstIso.write(self._target)
         finally:

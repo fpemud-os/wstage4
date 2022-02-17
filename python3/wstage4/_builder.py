@@ -86,7 +86,7 @@ class Builder:
             # check install media
             if self._ts.arch != m.getArch():
                 raise InstallMediaError("invalid install media, arch not match")
-            if self._ts.category not in m.getCategory():
+            if self._ts.category != m.getCategory():
                 raise InstallMediaError("invalid install media, category not match")
             if self._ts.edition not in m.getVariantList():
                 raise InstallMediaError("invalid install media, edition not match")
