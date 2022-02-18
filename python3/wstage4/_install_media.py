@@ -128,6 +128,76 @@ class InstallMediaCustomizer:
     def __init__(self, src_iso_obj, target_iso_file):
         self._src = src_iso_obj
         self._target = target_iso_file
+
+    def exists(self, dir_or_file_path):
+        try:
+            self._src.get_entry(dir_or_file_path)
+            return True
+        except pycdlib.pycdlibexception.PyCdlibInvalidInput as e:
+            if e.message == 'Could not find path':
+                return False
+            raise
+
+    def add_dir(self, dir_path):
+        assert dir_path.startswith("/")
+        assert not self.exists(dir_path)
+
+        kargDict = {}
+        if self._src.has_joliet():
+            kargDict["joliet_path"] = dir_path
+        # isoPath = pycdlib.utils.mangle_dir_for_iso9660(fullfn, theDstIso.interchange_level)
+        self._src.add_directory(iso_path=dir_path, **kargDict)
+
+    def add_file(self, file_path, file_content):
+        assert file_path.startswith("/")
+        assert not self.exists(file_path)
+        assert isinstance(file_content, bytes)
+
+        kargDict = {}
+        if self._src.has_joliet():
+            kargDict["joliet_path"] = file_path
+        # basename, ext = pycdlib.utils.mangle_file_for_iso9660(fullfn, theDstIso.interchange_level)
+        # isoPath = '.'.join([basename, ext])
+        self._src.add_fp(io.BytesIO(file_content), len(file_content), iso_path=file_path, **kargDict)
+
+    def rm_dir(self, dir_path):
+        assert dir_path.startswith("/")
+        assert self.exists(dir_path)
+
+        self._rmRecursively(self._src, dir_path)
+
+    def rm_file(self, file_path):
+        assert file_path.startswith("/")
+        assert self.exists(file_path)
+
+        self._src.rm_file(iso_path=file_path)
+
+    def export(self):
+        self._src.write(self._target)
+
+    def dispose(self):
+        del self._newFiles
+        del self._target
+        del self._src
+
+    def _rmRecursively(self, isoObj, dirPath):
+        for child in isoObj.list_children(iso_path=dirPath):
+            if child.is_dir():
+                if child is None or child.is_dot() or child.is_dotdot():
+                    continue
+                self._rmRecursively(isoObj, isoObj.full_path_from_dirrecord(child))
+            elif child.is_file():
+                isoObj.rm_file(iso_path=isoObj.full_path_from_dirrecord(child))
+            else:
+                assert False
+        isoObj.rm_directory(iso_path=dirPath)
+
+
+class InstallMediaCustomizer2:
+
+    def __init__(self, src_iso_obj, target_iso_file):
+        self._src = src_iso_obj
+        self._target = target_iso_file
         self._newFiles = dict()
 
     def add_dir(self, dir_path):

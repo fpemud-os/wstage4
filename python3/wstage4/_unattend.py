@@ -21,7 +21,6 @@
 # THE SOFTWARE.
 
 
-from io import BytesIO
 from ._const import Category, Edition, Lang
 
 
@@ -104,7 +103,16 @@ def updateIsoForWindows98(ts, isoObj):
     # buf += "VRC=0\n"
     # buf += "PenWinWarning=0\n"
 
-    isoObj.add_file('/MSBATCH.INF', buf.encode("iso8859-1"))
+    # release some space, pycdlib sucks that it can't make iso file bigger when adding files
+    if isoObj.exists("/cdsample"):
+        isoObj.rm_dir("/cdsample")
+    if isoObj.exists("/add-ons"):
+        isoObj.rm_dir("/add-ons")
+    isoObj.rm_file("readme.txt")
+    isoObj.rm_file("setup_tip.txt")
+
+    # write target file
+    isoObj.add_file('/msbatch.inf', buf.encode("iso8859-1"))
 
     # [System]
     # Display="VBE Miniport" ; Comes from vbemp.inf
