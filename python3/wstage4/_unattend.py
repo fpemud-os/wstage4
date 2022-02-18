@@ -104,15 +104,17 @@ def updateIsoForWindows98(ts, isoObj):
     # buf += "PenWinWarning=0\n"
 
     # release some space, pycdlib sucks that it can't make iso file bigger when adding files
-    if isoObj.exists("/cdsample"):
-        isoObj.rm_dir("/cdsample")
-    if isoObj.exists("/add-ons"):
-        isoObj.rm_dir("/add-ons")
-    isoObj.rm_file("readme.txt")
-    isoObj.rm_file("setup_tip.txt")
+    if isoObj.exists(joliet_path="/cdsample"):
+        print("1")
+        # isoObj.del_dir(joliet_path="/cdsample")
+    if isoObj.exists(joliet_path="/add-ons"):
+        print("2")
+        # isoObj.del_dir(joliet_path="/add-ons")
+    isoObj.del_file(joliet_path="/readme.txt")
+    #isoObj.del_file(joliet_path="/setuptip.txt")
 
     # write target file
-    isoObj.add_file('/msbatch.inf', buf.encode("iso8859-1"))
+    #isoObj.add_file(joliet_path="/msbatch.inf", iso_path="/MSBATCH.INF", file_content=buf.encode("iso8859-1"))
 
     # [System]
     # Display="VBE Miniport" ; Comes from vbemp.inf
@@ -397,7 +399,7 @@ def updateIsoForWindowsXP(ts, isoObj):
     buf += "[GuiRunOnce]\n"
     buf += "\"shutdown /s /t 60\"\n"
 
-    isoObj.add_file('/WINNT.SIF', buf.encode("utf-8"))
+    isoObj.add_file(joliet_path="/winnt.sif", iso_path="/WINNT.SIF", file_content=buf.encode("utf-8"))
 
     # buf += "EncryptedAdminPassword=No\n"          # FIXME: in [GuiUnattended]
     # buf += "\n"
@@ -535,7 +537,7 @@ def updateIsoForWindows7(ts, isoObj):
     buf = buf.replace("@@product_key@@", ts.product_key)
     buf = buf.replace("@@timezone@@", _Util.getTimezoneCodeByLang(ts.lang))
 
-    isoObj.add_file('/autounattend.xml', buf.encode("utf-8"))
+    isoObj.add_file(udf_path='/autounattend.xml', file_content=buf.encode("utf-8"))
 
 
 class _Util:

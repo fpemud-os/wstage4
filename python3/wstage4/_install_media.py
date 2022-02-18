@@ -129,42 +129,45 @@ class InstallMediaCustomizer:
         self._target = target_iso_file
 
     def exists(self, udf_path=None, joliet_path=None, iso_path=None):
-        def __getAndCheck():
-            if rec.is_dir():
-                if flen is not None and flen != -1:
+        def __getAndCheck(rec, flen):
+            if rec is None:
+                if flen is not None:
                     raise InstallMediaError("invalid paths specified")
-                flen = -1
-            elif rec.is_file():
-                if flen is not None and flen != rec.get_data_length():
-                    raise InstallMediaError("invalid paths specified")
-                flen = rec.get_data_length()
             else:
-                raise InstallMediaError("invalid paths specified")
+                if rec.is_dir():
+                    if flen is not None:
+                        if flen != -1:
+                            raise InstallMediaError("invalid paths specified")
+                    else:
+                        flen = -1
+                elif rec.is_file():
+                    if flen is not None:
+                        if flen != rec.get_data_length():
+                            raise InstallMediaError("invalid paths specified")
+                    else:
+                        flen = rec.get_data_length()
+                else:
+                    raise InstallMediaError("invalid paths specified")
+            return flen
 
         flen = None
         if udf_path is not None:
             try:
                 rec = self._src.get_record(udf_path=udf_path)
-                __getAndCheck()
+                flen = __getAndCheck(rec, flen)
             except pycdlib.pycdlibexception.PyCdlibInvalidInput as e:
                 # for udf_path, exception is raised if not found, strange
-                if e.message == 'Could not find path':
+                if str(e) == 'Could not find path':
                     return False
                 raise
-
         if joliet_path is not None:
             rec = self._src.get_record(joliet_path=joliet_path)
-            if rec is None:
-                return False
-            __getAndCheck()
-
+            flen = __getAndCheck(rec, flen)
         if iso_path is not None:
             rec = self._src.get_record(iso_path=iso_path)
-            if rec is None:
-                return False
-            __getAndCheck()
+            flen = __getAndCheck(rec, flen)
 
-        return True
+        return (flen is not None)
 
     def add_dir(self, udf_path=None, joliet_path=None, iso_path=None):
         self._src.add_directory(**self._getKwAll(udf_path, joliet_path, iso_path))
@@ -174,7 +177,7 @@ class InstallMediaCustomizer:
             if child.is_dir():
                 if child is None or child.is_dot() or child.is_dotdot():
                     continue
-                self._src.del_dir(**self._getKwNew(udf_path, joliet_path, iso_path, self._src.full_path_from_dirrecord(child)))
+                self.del_dir(**self._getKwNew(udf_path, joliet_path, iso_path, self._src.full_path_from_dirrecord(child)))
             elif child.is_file():
                 self._src.rm_file(**self._getKwNew(udf_path, joliet_path, iso_path, self._src.full_path_from_dirrecord(child)))
             else:
@@ -185,13 +188,13 @@ class InstallMediaCustomizer:
         self._src.add_fp(io.BytesIO(file_content), len(file_content), **self._getKwAll(udf_path, joliet_path, iso_path))
 
     def del_file(self, udf_path=None, joliet_path=None, iso_path=None):
+        print(udf_path, joliet_path, iso_path)
         self._src.rm_file(**self._getKwOne(udf_path, joliet_path, iso_path))
 
     def export(self):
         self._src.write(self._target)
 
     def dispose(self):
-        del self._newFiles
         del self._target
         del self._src
 
