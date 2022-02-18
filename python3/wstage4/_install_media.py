@@ -24,7 +24,6 @@
 import os
 import io
 import pycdlib
-import collections
 from ._util import Util, TmpMount
 from ._const import Arch, Category, Edition, Lang
 from ._errors import InstallMediaError
@@ -129,48 +128,64 @@ class InstallMediaCustomizer:
         self._src = src_iso_obj
         self._target = target_iso_file
 
-    def exists(self, dir_or_file_path):
-        try:
-            self._src.get_entry(dir_or_file_path)
-            return True
-        except pycdlib.pycdlibexception.PyCdlibInvalidInput as e:
-            if e.message == 'Could not find path':
+    def exists(self, udf_path=None, joliet_path=None, iso_path=None):
+        def __getAndCheck():
+            if rec.is_dir():
+                if flen is not None and flen != -1:
+                    raise InstallMediaError("invalid paths specified")
+                flen = -1
+            elif rec.is_file():
+                if flen is not None and flen != rec.get_data_length():
+                    raise InstallMediaError("invalid paths specified")
+                flen = rec.get_data_length()
+            else:
+                raise InstallMediaError("invalid paths specified")
+
+        flen = None
+        if udf_path is not None:
+            try:
+                rec = self._src.get_record(udf_path=udf_path)
+                __getAndCheck()
+            except pycdlib.pycdlibexception.PyCdlibInvalidInput as e:
+                # for udf_path, exception is raised if not found, strange
+                if e.message == 'Could not find path':
+                    return False
+                raise
+
+        if joliet_path is not None:
+            rec = self._src.get_record(joliet_path=joliet_path)
+            if rec is None:
                 return False
-            raise
+            __getAndCheck()
 
-    def add_dir(self, dir_path):
-        assert dir_path.startswith("/")
-        assert not self.exists(dir_path)
+        if iso_path is not None:
+            rec = self._src.get_record(iso_path=iso_path)
+            if rec is None:
+                return False
+            __getAndCheck()
 
-        kargDict = {}
-        if self._src.has_joliet():
-            kargDict["joliet_path"] = dir_path
-        # isoPath = pycdlib.utils.mangle_dir_for_iso9660(fullfn, theDstIso.interchange_level)
-        self._src.add_directory(iso_path=dir_path, **kargDict)
+        return True
 
-    def add_file(self, file_path, file_content):
-        assert file_path.startswith("/")
-        assert not self.exists(file_path)
-        assert isinstance(file_content, bytes)
+    def add_dir(self, udf_path=None, joliet_path=None, iso_path=None):
+        self._src.add_directory(**self._getKwAll(udf_path, joliet_path, iso_path))
 
-        kargDict = {}
-        if self._src.has_joliet():
-            kargDict["joliet_path"] = file_path
-        # basename, ext = pycdlib.utils.mangle_file_for_iso9660(fullfn, theDstIso.interchange_level)
-        # isoPath = '.'.join([basename, ext])
-        self._src.add_fp(io.BytesIO(file_content), len(file_content), iso_path=file_path, **kargDict)
+    def del_dir(self, udf_path=None, joliet_path=None, iso_path=None):
+        for child in self._src.list_children(**self._getKwOne(udf_path, joliet_path, iso_path)):
+            if child.is_dir():
+                if child is None or child.is_dot() or child.is_dotdot():
+                    continue
+                self._src.del_dir(**self._getKwNew(udf_path, joliet_path, iso_path, self._src.full_path_from_dirrecord(child)))
+            elif child.is_file():
+                self._src.rm_file(**self._getKwNew(udf_path, joliet_path, iso_path, self._src.full_path_from_dirrecord(child)))
+            else:
+                raise InstallMediaError("invalid record type")
+        self._src.rm_directory(**self._getKwOne(udf_path, joliet_path, iso_path))
 
-    def rm_dir(self, dir_path):
-        assert dir_path.startswith("/")
-        assert self.exists(dir_path)
+    def add_file(self, udf_path=None, joliet_path=None, iso_path=None, file_content=None):
+        self._src.add_fp(io.BytesIO(file_content), len(file_content), **self._getKwAll(udf_path, joliet_path, iso_path))
 
-        self._rmRecursively(self._src, dir_path)
-
-    def rm_file(self, file_path):
-        assert file_path.startswith("/")
-        assert self.exists(file_path)
-
-        self._src.rm_file(iso_path=file_path)
+    def del_file(self, udf_path=None, joliet_path=None, iso_path=None):
+        self._src.rm_file(**self._getKwOne(udf_path, joliet_path, iso_path))
 
     def export(self):
         self._src.write(self._target)
@@ -180,124 +195,151 @@ class InstallMediaCustomizer:
         del self._target
         del self._src
 
-    def _rmRecursively(self, isoObj, dirPath):
-        for child in isoObj.list_children(iso_path=dirPath):
-            if child.is_dir():
-                if child is None or child.is_dot() or child.is_dotdot():
-                    continue
-                self._rmRecursively(isoObj, isoObj.full_path_from_dirrecord(child))
-            elif child.is_file():
-                isoObj.rm_file(iso_path=isoObj.full_path_from_dirrecord(child))
-            else:
-                assert False
-        isoObj.rm_directory(iso_path=dirPath)
+    def _getKwOne(self, udf_path, joliet_path, iso_path):
+        if udf_path is not None:
+            assert udf_path.startswith("/")
+        if joliet_path is not None:
+            assert joliet_path.startswith("/")
+        if iso_path is not None:
+            assert iso_path.startswith("/")
+        if udf_path is not None:
+            return {"udf_path": udf_path}
+        if joliet_path is not None:
+            return {"joliet_path": joliet_path}
+        if iso_path is not None:
+            return {"iso_path": iso_path}
+        assert False
+
+    def _getKwAll(self, udf_path, joliet_path, iso_path):
+        ret = {}
+        if udf_path is not None:
+            assert udf_path.startswith("/")
+            ret["udf_path"] = udf_path
+        if joliet_path is not None:
+            assert joliet_path.startswith("/")
+            ret["joliet_path"] = joliet_path
+        if iso_path is not None:
+            assert iso_path.startswith("/")
+            ret["iso_path"] = iso_path
+        assert len(ret) > 0
+        return ret
+
+    def _getKwNew(self, udf_path, joliet_path, iso_path, path):
+        assert path.startswith("/")
+        if udf_path is not None:
+            return {"udf_path": path}
+        if joliet_path is not None:
+            return {"joliet_path": path}
+        if iso_path is not None:
+            return {"iso_path": path}
+        assert False
 
 
-class InstallMediaCustomizer2:
+# class InstallMediaCustomizer2:
 
-    def __init__(self, src_iso_obj, target_iso_file):
-        self._src = src_iso_obj
-        self._target = target_iso_file
-        self._newFiles = dict()
+#     def __init__(self, src_iso_obj, target_iso_file):
+#         self._src = src_iso_obj
+#         self._target = target_iso_file
+#         self._newFiles = dict()
 
-    def add_dir(self, dir_path):
-        assert dir_path.startswith("/")
-        assert dir_path not in self._newFiles
+#     def add_dir(self, dir_path):
+#         assert dir_path.startswith("/")
+#         assert dir_path not in self._newFiles
 
-        self._newFiles[dir_path] = None
+#         self._newFiles[dir_path] = None
 
-    def add_file(self, file_path, file_content):
-        assert file_path.startswith("/")
-        assert file_path not in self._newFiles
-        assert isinstance(file_content, bytes)
+#     def add_file(self, file_path, file_content):
+#         assert file_path.startswith("/")
+#         assert file_path not in self._newFiles
+#         assert isinstance(file_content, bytes)
 
-        self._newFiles[file_path] = file_content
+#         self._newFiles[file_path] = file_content
 
-    def update_file(self, file_path, file_content):
-        assert file_path.startswith("/")
-        assert file_path not in self._newFiles
-        assert isinstance(file_content, bytes)
+#     def update_file(self, file_path, file_content):
+#         assert file_path.startswith("/")
+#         assert file_path not in self._newFiles
+#         assert isinstance(file_content, bytes)
 
-        self._newFiles[file_path] = file_content
+#         self._newFiles[file_path] = file_content
 
-    def add_or_update_file(self, file_path, file_content):
-        assert file_path.startswith("/")
-        assert isinstance(file_content, bytes)
+#     def add_or_update_file(self, file_path, file_content):
+#         assert file_path.startswith("/")
+#         assert isinstance(file_content, bytes)
 
-        self._newFiles[file_path] = file_content
+#         self._newFiles[file_path] = file_content
 
-    def export(self):
-        # should have the same parameter as self._src
-        theDstIso = pycdlib.PyCdlib()
-        theDstIso.new(interchange_level=self._src.interchange_level,
-                      sys_ident=self._src.pvds[0].system_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
-                      vol_ident=self._src.pvds[0].volume_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
-                      set_size=self._src.pvds[0].set_size,
-                      seqnum=self._src.pvds[0].seqnum,
-                      vol_set_ident=self._src.pvds[0].volume_set_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
-                      pub_ident_str=self._src.pvds[0].publisher_identifier.text.decode(self._src.pvds[0].encoding).rstrip(" "),
-                      preparer_ident_str="",
-                      app_ident_str=self._src.pvds[0].application_identifier.text.decode(self._src.pvds[0].encoding).rstrip(" "),
-                      copyright_file=self._src.pvds[0].copyright_file_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
-                      abstract_file=self._src.pvds[0].abstract_file_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
-                      bibli_file=self._src.pvds[0].bibliographic_file_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
-                      joliet=(3 if self._src.has_joliet() else None),
-                      rock_ridge=None,
-                      xa=self._src.xa,
-                      udf=None)
+#     def export(self):
+#         # should have the same parameter as self._src
+#         theDstIso = pycdlib.PyCdlib()
+#         theDstIso.new(interchange_level=self._src.interchange_level,
+#                       sys_ident=self._src.pvds[0].system_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
+#                       vol_ident=self._src.pvds[0].volume_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
+#                       set_size=self._src.pvds[0].set_size,
+#                       seqnum=self._src.pvds[0].seqnum,
+#                       vol_set_ident=self._src.pvds[0].volume_set_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
+#                       pub_ident_str=self._src.pvds[0].publisher_identifier.text.decode(self._src.pvds[0].encoding).rstrip(" "),
+#                       preparer_ident_str="",
+#                       app_ident_str=self._src.pvds[0].application_identifier.text.decode(self._src.pvds[0].encoding).rstrip(" "),
+#                       copyright_file=self._src.pvds[0].copyright_file_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
+#                       abstract_file=self._src.pvds[0].abstract_file_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
+#                       bibli_file=self._src.pvds[0].bibliographic_file_identifier.decode(self._src.pvds[0].encoding).rstrip(" "),
+#                       joliet=(3 if self._src.has_joliet() else None),
+#                       rock_ridge=None,
+#                       xa=self._src.xa,
+#                       udf=None)
 
-        # mswin98 iso has 74 characters of preparer_ident_str, joliet extension can not convert it to utf-16 byte array of length 128, so we force it to ""
-        # preparer_ident_str=self._src.pvds[0].preparer_identifier.text.decode(self._src.pvds[0].encoding).rstrip(" "),
+#         # mswin98 iso has 74 characters of preparer_ident_str, joliet extension can not convert it to utf-16 byte array of length 128, so we force it to ""
+#         # preparer_ident_str=self._src.pvds[0].preparer_identifier.text.decode(self._src.pvds[0].encoding).rstrip(" "),
 
-        try:
-            root_entry = self._src.get_record(iso_path="/")
-            dirs = collections.deque([root_entry])
-            while dirs:
-                dir_record = dirs.popleft()
-                fullfn = self._src.full_path_from_dirrecord(dir_record)
-                if dir_record.is_symlink():
-                    raise InstallMediaError("invalid install media, it has symlink %s" % (fullfn))
-                elif dir_record.is_dir():
-                    if fullfn != "/":
-                        kargDict = {}
-                        if self._src.has_joliet():
-                            kargDict["joliet_path"] = fullfn
-                        theDstIso.add_directory(iso_path=fullfn, **kargDict)
+#         try:
+#             root_entry = self._src.get_record(iso_path="/")
+#             dirs = collections.deque([root_entry])
+#             while dirs:
+#                 dir_record = dirs.popleft()
+#                 fullfn = self._src.full_path_from_dirrecord(dir_record)
+#                 if dir_record.is_symlink():
+#                     raise InstallMediaError("invalid install media, it has symlink %s" % (fullfn))
+#                 elif dir_record.is_dir():
+#                     if fullfn != "/":
+#                         kargDict = {}
+#                         if self._src.has_joliet():
+#                             kargDict["joliet_path"] = fullfn
+#                         theDstIso.add_directory(iso_path=fullfn, **kargDict)
 
-                    for child in self._src.list_children(iso_path=fullfn):
-                        if child is None or child.is_dot() or child.is_dotdot():
-                            continue
-                        dirs.append(child)
-                elif dir_record.is_file():
-                    kargDict = {}
-                    if self._src.has_joliet():
-                        kargDict["joliet_path"] = fullfn
-                    bio = io.BytesIO()
-                    self._src.get_file_from_iso_fp(bio, iso_path=fullfn)
-                    bioLen = bio.tell()
-                    bio.seek(0)
-                    theDstIso.add_fp(bio, bioLen, iso_path=fullfn, **kargDict)
-                else:
-                    assert False
+#                     for child in self._src.list_children(iso_path=fullfn):
+#                         if child is None or child.is_dot() or child.is_dotdot():
+#                             continue
+#                         dirs.append(child)
+#                 elif dir_record.is_file():
+#                     kargDict = {}
+#                     if self._src.has_joliet():
+#                         kargDict["joliet_path"] = fullfn
+#                     bio = io.BytesIO()
+#                     self._src.get_file_from_iso_fp(bio, iso_path=fullfn)
+#                     bioLen = bio.tell()
+#                     bio.seek(0)
+#                     theDstIso.add_fp(bio, bioLen, iso_path=fullfn, **kargDict)
+#                 else:
+#                     assert False
 
-            for fullfn, fbuf in self._newFiles.items():
-                kargDict = {}
-                if self._src.has_joliet():
-                    kargDict["joliet_path"] = fullfn
+#             for fullfn, fbuf in self._newFiles.items():
+#                 kargDict = {}
+#                 if self._src.has_joliet():
+#                     kargDict["joliet_path"] = fullfn
 
-                if fbuf is None:
-                    # isoPath = pycdlib.utils.mangle_dir_for_iso9660(fullfn, theDstIso.interchange_level)
-                    theDstIso.add_directory(iso_path=fullfn, **kargDict)
-                else:
-                    # basename, ext = pycdlib.utils.mangle_file_for_iso9660(fullfn, theDstIso.interchange_level)
-                    # isoPath = '.'.join([basename, ext])
-                    theDstIso.add_fp(io.BytesIO(fbuf), len(fbuf), iso_path=fullfn, **kargDict)
+#                 if fbuf is None:
+#                     # isoPath = pycdlib.utils.mangle_dir_for_iso9660(fullfn, theDstIso.interchange_level)
+#                     theDstIso.add_directory(iso_path=fullfn, **kargDict)
+#                 else:
+#                     # basename, ext = pycdlib.utils.mangle_file_for_iso9660(fullfn, theDstIso.interchange_level)
+#                     # isoPath = '.'.join([basename, ext])
+#                     theDstIso.add_fp(io.BytesIO(fbuf), len(fbuf), iso_path=fullfn, **kargDict)
 
-            theDstIso.write(self._target)
-        finally:
-            theDstIso.close()
+#             theDstIso.write(self._target)
+#         finally:
+#             theDstIso.close()
 
-    def dispose(self):
-        del self._newFiles
-        del self._target
-        del self._src
+#     def dispose(self):
+#         del self._newFiles
+#         del self._target
+#         del self._src
