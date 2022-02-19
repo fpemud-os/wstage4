@@ -442,7 +442,7 @@ class AnswerFileGeneratorForWindowsXP:
         buf += "[GuiRunOnce]\n"
         buf += "\"shutdown /s /t 60\"\n"
 
-        return ("winnt.sif", buf.encode("utf-8"))
+        return ("winnt.sif", buf.encode("iso8859-1"))
 
         # buf += "EncryptedAdminPassword=No\n"          # FIXME: in [GuiUnattended]
         # buf += "\n"
