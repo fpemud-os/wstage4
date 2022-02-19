@@ -27,12 +27,12 @@ import enum
 import robust_layer.simple_fops
 from ._util import Util, TmpMount
 from ._const import Category
-from ._install_media import InstallMedia, InstallMediaCustomizer
-from ._settings import Settings, TargetSettings
-from ._errors import InstallMediaError
-from ._unattend import AnswerFileGenerator
-from ._vm import Vm, VmUtil
 from ._prototype import ScriptInChroot
+from ._errors import InstallMediaError
+from ._settings import Settings, TargetSettings
+from ._vm import Vm, VmUtil
+from ._win_install_media import InstallMedia
+from ._win_unattend import AnswerFileGenerator
 
 
 def Action(*progressStepTuple):
