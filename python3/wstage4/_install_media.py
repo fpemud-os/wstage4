@@ -47,8 +47,6 @@ class InstallMedia:
             raise InstallMediaError("invalid install media, multiple PVDs")
         if self._iso.has_rock_ridge():
             raise InstallMediaError("invalid install media, Rock Ridge extension")
-        if self._iso.has_udf():
-            raise InstallMediaError("invalid install media, UDF format")
 
         # pycdlib has no direct method to get this value, sucks
         self._label = self._iso.pvds[0].volume_identifier.decode(self._iso.pvds[0].encoding).rstrip(" ")
@@ -97,28 +95,19 @@ class InstallMedia:
 
     def _parserWindowns98(self):
         if self._label == "WIN98 SE":
-            # FIXME
             return (Arch.X86, Category.WINDOWS_98, [Edition.WINDOWS_98_SE], [Lang.en_US])
         return None
 
     def _parserWindownsXP(self):
         if self._label == "GRTMPVOL_EN":
-            # FIXME
             return (Arch.X86, Category.WINDOWS_XP, [Edition.WINDOWS_XP_PROFESSIONAL], [Lang.en_US, Lang.zh_CN])
         return None
 
     def _parserWindowns7(self):
         if self._label == "GRMCULFRER_EN_DVD":
-            # FIXME
-            with TmpMount(self._path) as mp:
-                out = Util.cmdCall("file", "-L", os.path.join(mp, "setup.exe"))
-                if "80386" in out:
-                    arch = Arch.X86
-                elif "x86-64" in out:
-                    arch = Arch.X86_64
-                else:
-                    assert False
-            return (arch, Category.WINDOWS_7, [Edition.WINDOWS_7_ULTIMATE], [Lang.en_US, Lang.zh_CN])
+            return (Arch.X86, Category.WINDOWS_7, [Edition.WINDOWS_7_ULTIMATE], [Lang.en_US, Lang.zh_CN])
+        if self._label == "GRMCULXFRER_EN_DVD":
+            return (Arch.X86_64, Category.WINDOWS_7, [Edition.WINDOWS_7_ULTIMATE], [Lang.en_US, Lang.zh_CN])
         return None
 
 

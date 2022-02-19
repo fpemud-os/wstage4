@@ -418,6 +418,11 @@ def updateIsoForWindowsXP(ts, isoObj):
 
 
 def updateIsoForWindows7(ts, isoObj):
+    if ts.product_key is None:
+        key = _Util.getDefaultProductKeyByEdition(ts.edition)
+    else:
+        key = ts.product_key
+
     buf = """
         <?xml version="1.0" encoding="utf-8"?>
         <unattend xmlns="urn:schemas-microsoft-com:unattend">
@@ -530,11 +535,11 @@ def updateIsoForWindows7(ts, isoObj):
             <cpi:offlineImage cpi:source="catalog:h:/sources/install_windows 7 ultimate.clg" xmlns:cpi="urn:schemas-microsoft-com:cpi" />
         </unattend>
     """
-    buf = buf.replace("@@arch@@", ts.arch)
-    buf = buf.replace("@@lang@@", ts.lang)
+    buf = buf.replace("@@arch@@", ts.arch.name)
+    buf = buf.replace("@@lang@@", ts.lang.name)
     buf = buf.replace("@@username@@", "A")
     buf = buf.replace("@@password@@", "")
-    buf = buf.replace("@@product_key@@", ts.product_key)
+    buf = buf.replace("@@product_key@@", key)
     buf = buf.replace("@@timezone@@", _Util.getTimezoneCodeByLang(ts.lang))
 
     isoObj.add_file(udf_path='/autounattend.xml', file_content=buf.encode("utf-8"))
