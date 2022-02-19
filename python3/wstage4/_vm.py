@@ -125,23 +125,6 @@ class Vm:
         self._qmpPort = None
 
     def _generateQemuCommand(self):
-        """pci slot allcation:
-                slot 0x0.0x0:    host bridge
-                slot 0x1.0x0:    ISA bridge
-                slot 0x1.0x1;    IDE controller
-                slot 0x1.0x2:    USB controller
-                slot 0x2.0x0:    VGA controller
-                slot 0x3.0x0:    SCSI controller, main-disk"""
-
-        if self._qemuVmType == "pc":
-            pciBus = "pci.0"
-            pciSlot = 3
-        elif self._qemuVmType == "q35":
-            pciBus = "pcie.0"
-            pciSlot = 3
-        else:
-            assert False
-
         cmd = "/usr/bin/qemu-system-x86_64 \\\n"
         if os.getuid() == 0:
             # non-priviledged user can use us with a performance pernalty
@@ -166,7 +149,7 @@ class Vm:
             elif self._mainDiskInterface == "scsi":
                 cmd += "    -device scsi-hd,drive=main-disk,bootindex=2 \\\n"
             elif self._mainDiskInterface == "virtio":
-                cmd += "    -device virtio-blk-device,bus=%s,addr=0x%02x,drive=main-disk,bootindex=2 \\\n" % (pciBus, pciSlot)
+                cmd += "    -device virtio-blk-device,drive=main-disk,bootindex=2 \\\n"
                 pciSlot += 1
             else:
                 assert False
@@ -183,8 +166,7 @@ class Vm:
 
         # graphics device
         cmd += "    -display gtk \\\n"
-        cmd += "    -device VGA,bus=%s,addr=0x%02x \\\n" % (pciBus, pciSlot)
-        pciSlot += 1
+        cmd += "    -device VGA \\\n"
     #     if True:
     #         if self._graphicsAdapterInterface == "qxl":
     #             assert self.spicePort != -1
@@ -199,8 +181,7 @@ class Vm:
         # network device
         if True:
             cmd += "    -netdev user,id=eth0 \\\n"
-            cmd += "    -device rtl8139,netdev=eth0,bus=%s,addr=0x%02x,romfile= \\\n" % (pciBus, pciSlot)
-            pciSlot += 1
+            cmd += "    -device rtl8139,netdev=eth0,romfile= \\\n"
 
         # monitor interface
         if True:
