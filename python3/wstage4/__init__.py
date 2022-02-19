@@ -39,6 +39,7 @@ from ._const import BootMode
 from ._settings import Settings
 from ._settings import TargetSettings
 
+from ._prototype import StorageLayout
 from ._prototype import ScriptInChroot
 
 from ._workdir import WorkDir

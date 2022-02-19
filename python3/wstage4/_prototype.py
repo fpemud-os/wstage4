@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 
+import os
 import abc
 
 
@@ -47,3 +48,92 @@ class ScriptInChroot(abc.ABC):
 
     def __ne__(self, other):
         return (not self.__eq__(other))
+
+
+class StorageLayout:
+
+    @classmethod
+    def mount(cls, disk_list, base_dir):
+        assert len(disk_list) > 0
+        assert base_dir.startswith("/") and len(os.listdir(base_dir)) == 0
+
+        if len(disk_list) == 1:
+            return StorageLayoutNtfsSysWin._create_and_mount(disk_list, base_dir)
+        else:
+            assert False
+
+    @classmethod
+    def create_and_mount(cls, name, disk_list, base_dir):
+        assert len(disk_list) > 0
+        assert base_dir.startswith("/") and len(os.listdir(base_dir)) == 0
+
+        d = {
+            "fat-win": None,                                            # FIXME
+            "fat-win-data": None,                                       # FIXME
+            "ntfs-win": None,                                           # FIXME
+            "ntfs-win-data": None,                                      # FIXME
+            "ntfs-sys-win": StorageLayoutNtfsSysWin,
+            "ntfs-sys-win-data": None,                                  # FIXME
+            "ntfs-sys-msr-win": None,                                   # FIXME
+            "ntfs-sys-msr-win-data": None,                              # FIXME
+        }
+        return d[name]._create_and_mount(boot_mode, disk_list, base_dir)
+
+    @abc.abstractmethod
+    @property
+    def name(self):
+        pass
+
+    @abc.abstractmethod
+    @property
+    def boot_mode(self):
+        pass
+
+    @abc.abstractmethod
+    @property
+    def base_dir(self):
+        pass
+
+    @abc.abstractmethod
+    def umount_and_dispose(self):
+        pass
+
+    @abc.abstractmethod
+    def get_mount_entries(self):
+        pass
+
+    @classmethod
+    @abc.abstractmethod
+    def _mount(cls, disk_list, base_dir):
+        pass
+
+    @classmethod
+    @abc.abstractmethod
+    def _create_and_mount(cls, disk_list, base_dir):
+        pass
+
+    @staticmethod
+    def _getSubClass(name):
+        d = {
+            "fat-win": None,                                            # FIXME
+            "fat-win-data": None,                                       # FIXME
+            "ntfs-win": None,                                           # FIXME
+            "ntfs-win-data": None,                                      # FIXME
+            "ntfs-sys-win": StorageLayoutNtfsSysWin,
+            "ntfs-sys-win-data": None,                                  # FIXME
+            "ntfs-sys-msr-win": None,                                   # FIXME
+            "ntfs-sys-msr-win-data": None,                              # FIXME
+        }
+        ret = d[name]
+        assert ret is not None
+        return ret
+
+
+class MountEntry:
+
+    def __init__(self):
+        self.mnt_point = None
+        self.real_dir_path = None
+        self.target = None
+        self.fs_type = None
+        self.mnt_opts = None
