@@ -96,9 +96,7 @@ class Builder:
                 raise InstallMediaError("invalid install media, language not match")
 
             # do work
-            if self._ts.category == Category.WINDOWS_98:
-                assert False
-            elif self._ts.category in [Category.WINDOWS_XP, Category.WINDOWS_7]:
+            if self._ts.category in [Category.WINDOWS_98, Category.WINDOWS_XP, Category.WINDOWS_7]:
                 floppyFile = os.path.join(self._workDirObj.path, "floppy.img")
                 Util.createFormattedFloppy(floppyFile)
                 with TmpMount(floppyFile) as mp:
@@ -113,21 +111,12 @@ class Builder:
         finally:
             m.dispose()
 
-        # c = InstallMediaCustomizer(m.getIsoObj(), self._workDirObj.custom_iso_filepath)
-        # try:
-        #     AnswerFileGenerator(self._ts).updateIso(c)
-        #     c.export()
-        # finally:
-        #     c.dispose()
-
     @Action(BuildStep.CUSTOM_INSTALL_MEDIA_PREPARED)
     def action_install_windows(self):
         installIsoFile = None
         floppyFile = None
-        if self._ts.category == Category.WINDOWS_98:
-            assert False
-        elif self._ts.category in [Category.WINDOWS_XP, Category.WINDOWS_7]:
-            savedRecord = json.loads(self._workDirObj.load_record("custom-install-media", default_value=json.dumps({})))
+        if self._ts.category in [Category.WINDOWS_98, Category.WINDOWS_XP, Category.WINDOWS_7]:
+            savedRecord = json.loads(self._workDirObj.load_record("custom-install-media"))
             installIsoFile = savedRecord["install-iso-filepath"]
             floppyFile = os.path.join(self._workDirObj.path, savedRecord["floppy-filename"])
         else:

@@ -73,6 +73,14 @@ class Vm:
         self._qmpPort = None
 
     def _init(self, bBootstrap, arch, category, edition, lang, mainDiskFile, bootIsoFile, assistantFloppyFile, cmdFile):
+        # qemu command
+        if arch == Arch.X86:
+            self._cmd = "qemu-system-i386"
+        elif arch == Arch.X86_64:
+            self._cmd = "qemu-system-x86_64"
+        else:
+            assert False
+
         # vm type
         if category in [Category.WINDOWS_98, Category.WINDOWS_XP]:
             self._qemuVmType = "pc"
@@ -125,7 +133,7 @@ class Vm:
         self._qmpPort = None
 
     def _generateQemuCommand(self):
-        cmd = "/usr/bin/qemu-system-x86_64 \\\n"
+        cmd = self._cmd + " \\\n"
         if os.getuid() == 0:
             # non-priviledged user can use us with a performance pernalty
             cmd += "    -enable-kvm \\\n"
@@ -143,7 +151,7 @@ class Vm:
         if self._qemuVmType == "pc":
             pass
         elif self._qemuVmType == "q35":
-            cmd += "    -device isa-fdc \\\n"               # FIXME: create floppy controller, how to do it more standard
+            cmd += "    -device isa-fdc \\\n"
         else:
             assert False
         # cmd += "    -device virtio-scsi-pci \\\n"
