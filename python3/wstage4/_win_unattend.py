@@ -603,7 +603,7 @@ class AnswerFileGeneratorForWindows7:
                         <FirstLogonCommands>
                             <SynchronousCommand>
                                 <Order>1</Order>
-                                <CommandLine>timeout /t 60</CommandLine>
+                                <CommandLine>shutdown /s /t 60</CommandLine>
                             </SynchronousCommand>
                         </FirstLogonCommands>
                     </component>
