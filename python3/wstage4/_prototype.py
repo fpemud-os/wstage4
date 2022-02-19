@@ -23,6 +23,7 @@
 
 import os
 import abc
+from ._win_storage_layouts import StorageLayouts
 
 
 class ScriptInChroot(abc.ABC):
@@ -57,8 +58,9 @@ class StorageLayout:
         assert len(disk_list) > 0
         assert base_dir.startswith("/") and len(os.listdir(base_dir)) == 0
 
+        import _win_storage_layouts as storage_layouts
         if len(disk_list) == 1:
-            return StorageLayoutNtfsSysWin._create_and_mount(disk_list, base_dir)
+            return storage_layouts.StorageLayoutNtfsSysWin._create_and_mount(disk_list, base_dir)
         else:
             assert False
 
@@ -67,17 +69,7 @@ class StorageLayout:
         assert len(disk_list) > 0
         assert base_dir.startswith("/") and len(os.listdir(base_dir)) == 0
 
-        d = {
-            "fat-win": None,                                            # FIXME
-            "fat-win-data": None,                                       # FIXME
-            "ntfs-win": None,                                           # FIXME
-            "ntfs-win-data": None,                                      # FIXME
-            "ntfs-sys-win": StorageLayoutNtfsSysWin,
-            "ntfs-sys-win-data": None,                                  # FIXME
-            "ntfs-sys-msr-win": None,                                   # FIXME
-            "ntfs-sys-msr-win-data": None,                              # FIXME
-        }
-        return d[name]._create_and_mount(boot_mode, disk_list, base_dir)
+        return StorageLayouts().get_storage_layout(name)._create_and_mount(boot_mode, disk_list, base_dir)
 
     @abc.abstractmethod
     @property

@@ -23,7 +23,23 @@
 
 import os
 from . import StorageLayout
-from ._const import BootMode
+from . import BootMode
+
+
+class StorageLayouts:
+
+    def getStorageLayoutClass(name):
+        d = {
+            "fat-win": None,                                            # FIXME
+            "fat-win-data": None,                                       # FIXME
+            "ntfs-win": None,                                           # FIXME
+            "ntfs-win-data": None,                                      # FIXME
+            "ntfs-sys-win": StorageLayoutNtfsSysWin,
+            "ntfs-sys-win-data": None,                                  # FIXME
+            "ntfs-sys-msr-win": None,                                   # FIXME
+            "ntfs-sys-msr-win-data": None,                              # FIXME
+        }
+        return d[name]
 
 
 class StorageLayoutNtfsSysWin(StorageLayout):

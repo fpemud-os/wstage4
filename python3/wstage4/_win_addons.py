@@ -21,6 +21,9 @@
 # THE SOFTWARE.
 
 
+from ._const import Category
+
+
 class AddonRepo:
 
     def __init__(self, arch, category, edition, lang):
@@ -30,10 +33,45 @@ class AddonRepo:
         self._langList = lang
     
     def getAddonNames(self):
-        return []
+        if self._category == Category.WINDOWS_98:
+            return ["lang-packs", "virtio-drivers", "nvme-driver"]
+        elif self._category == Category.WINDOWS_XP:
+            return ["lang-packs", "virtio-drivers", "nvme-driver"]
+        elif self._category == Category.WINDOWS_7:
+            return ["lang-packs", "virtio-drivers", "nvme-driver"]
+        else:
+            assert False
 
     def getAddon(self, name):
-        assert False
+        if self._category == Category.WINDOWS_98:
+            if name == "lang-packs":
+                pass
+            elif name == "virtio-drivers":
+                pass
+            elif name == "nvme-driver":
+                pass
+            else:
+                assert False
+        elif self._category == Category.WINDOWS_XP:
+            if name == "lang-packs":
+                pass
+            elif name == "virtio-drivers":
+                pass
+            elif name == "nvme-driver":
+                pass
+            else:
+                assert False
+        elif self._category == Category.WINDOWS_7:
+            if name == "lang-packs":
+                pass
+            elif name == "virtio-drivers":
+                pass
+            elif name == "nvme-driver":
+                pass
+            else:
+                assert False
+        else:
+            assert False
 
 
 class Windows98Addon:
