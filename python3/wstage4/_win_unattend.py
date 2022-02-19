@@ -600,10 +600,14 @@ class AnswerFileGeneratorForWindows7:
                             </LocalAccounts>
                         </UserAccounts>
                         <FirstLogonCommands>
-                            <SynchronousCommand wcm:action="add">
+                            <SynchronousCommand>
                                 <Order>1</Order>
-                                <CommandLine>shutdown /s</CommandLine>                  <!-- shutdown in 30 seconds -->
-                                <Description>shutdown after install</Description>
+                                <CommandLine>timeout /t 30</CommandLine>                <!-- wait 30 seconds -->
+                            </SynchronousCommand>
+                            <SynchronousCommand>
+                                <Order>2</Order>
+                                <CommandLine>shutdown /s /f /t 0</CommandLine>          <!-- shutdown immediately. shutdown's own wait function malfunctions if system time change -->
+                                                                                        <!-- we'd better revert to "shutdown /s", since shutdown can show a timeout dialog when timing out -->
                             </SynchronousCommand>
                         </FirstLogonCommands>
                     </component>
