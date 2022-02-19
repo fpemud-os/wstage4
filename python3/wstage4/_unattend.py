@@ -35,8 +35,8 @@ class AnswerFileGenerator:
             # FIXME
             assert False
         elif self._ts.category == Category.WINDOWS_XP:
-            # FIXME
-            assert False
+            obj = AnswerFileGeneratorForWindowsXP()
+            obj.generateFile(self._ts, path)
         elif self._ts.category == Category.WINDOWS_VISTA:
             # FIXME
             assert False
@@ -74,36 +74,27 @@ class AnswerFileGenerator:
         if self._ts.category == Category.WINDOWS_98:
             updateIsoForWindows98(self._ts, isoObj)
         elif self._ts.category == Category.WINDOWS_XP:
-            updateIsoForWindowsXP(self._ts, isoObj)
+            assert False
         elif self._ts.category == Category.WINDOWS_VISTA:
-            # FIXME
             assert False
         elif self._ts.category == Category.WINDOWS_7:
             obj = AnswerFileGeneratorForWindows7()
             obj.updateIso(self._ts, isoObj)
         elif self._ts.category == Category.WINDOWS_8:
-            # FIXME
             assert False
         elif self._ts.category == Category.WINDOWS_8_1:
-            # FIXME
             assert False
         elif self._ts.category == Category.WINDOWS_10:
-            # FIXME
             assert False
         elif self._ts.category == Category.WINDOWS_11:
-            # FIXME
             assert False
         elif self._ts.category == Category.WINDOWS_SERVER_2008:
-            # FIXME
             assert False
         elif self._ts.category == Category.WINDOWS_SERVER_2012:
-            # FIXME
             assert False
         elif self._ts.category == Category.WINDOWS_SERVER_2016:
-            # FIXME
             assert False
         elif self._ts.category == Category.WINDOWS_SERVER_2019:
-            # FIXME
             assert False
         else:
             assert False
@@ -391,70 +382,82 @@ def updateIsoForWindows98(ts, isoObj):
     # HKLM,%KEY_RUNONCE%,BatchReg2,,"%25%\regedit.exe /s %1%\viewhidd.reg"
 
 
-def updateIsoForWindowsXP(ts, isoObj):
-    if ts.product_key is None:
-        key = _Util.getDefaultProductKeyByEdition(ts.edition)
-    else:
-        key = ts.product_key
+class AnswerFileGeneratorForWindowsXP:
 
-    buf = ""
-    buf += "[Data]\n"
-    buf += "AutoPartition=0\n"
-    buf += "MsDosInitiated=0\n"
-    buf += "UnattendedInstall=Yes\n"
-    buf += "AutomaticUpdates=No\n"              # disable automatic updates initially
-    buf += "\n"
-    buf += "[Unattended]\n"
-    buf += "UnattendMode=FullUnattended\n"
-    buf += "OemPreinstall=No\n"
-    buf += "OemSkipEula=Yes\n"
-    buf += "FileSystem=NTFS\n"                  # supports NTFS only
-    buf += "WaitForReboot=No\n"
-    buf += "NoWaitAfterTextMode=1\n"
-    buf += "NoWaitAfterGUIMode=1\n"
-    buf += "DriverSigningPolicy=Ignore\n"
-    buf += "NonDriverSigningPolicy=Ignore\n"
-    buf += "Repartition=Yes\n"
-    buf += "UnattendSwitch=Yes\n"
-    buf += "\n"
-    buf += "[GuiUnattended]\n"
-    buf += "AdminPassword=*\n"
-    buf += "TimeZone=%s\n" % (_Util.getTimezoneCodeByLang(ts.lang))
-    buf += "OEMSkipRegional=1\n"
-    buf += "OemSkipWelcome=1\n"
-    buf += "\n"
-    buf += "[UserData]\n"
-    buf += "ProductID=%s\n" % (key)
-    buf += "ComputerName=*\n"
-    buf += "FullName=*\n"
-    buf += "OrgName=*\n"
-    buf += "\n"
-    buf += "[RegionalSettings]\n"
-    buf += "LanguageGroup=%s\n" % (_Util.getLanguageGroupCodeByLang(ts.lang))
-    buf += "Language=%s\n" % (_Util.getLanguageIdByLang(ts.lang))
-    buf += "\n"
-    buf += "[Networking]\n"
-    buf += "InstallDefaultComponents=Yes\n"
-    buf += "\n"
-    buf += "[GuiRunOnce]\n"
-    buf += "\"shutdown /s /t 60\"\n"
+    def generateFile(self, ts, dstDir):
+        fn, buf = self._get_filename_and_buffer(ts)
+        with open(os.path.join(dstDir, fn), "wb") as f:
+            f.write(buf)
 
-    isoObj.add_file(joliet_path="/winnt.sif", iso_path="/WINNT.SIF", file_content=buf.encode("utf-8"))
+    def updateIso(self, ts, isoObj):
+        fn, buf = self._get_filename_and_buffer(ts)
+        isoObj.add_file(udf_path=("/" + fn), file_content=buf)
 
-    # buf += "EncryptedAdminPassword=No\n"          # FIXME: in [GuiUnattended]
-    # buf += "\n"
-    # buf += "[Display]\n"
-    # buf += "Xresolution=1024\n"
-    # buf += "Yresolution=768\n"
-    # buf += "\n"
-    # buf += "[TapiLocation]\n"
-    # buf += "CountryCode=%s\n" % ("86")
-    # buf += "AreaCode=%s\n" % ("00")
-    # buf += "Dialing=%s\n" % ("Tone")
-    # buf += "\n"
-    # buf += "[Identification]\n"
-    # buf += "JoinWorkgroup=WORKGROUP\n"
-    # buf += "\n"
+    @staticmethod
+    def _get_filename_and_buffer(ts):
+        if ts.product_key is None:
+            key = _Util.getDefaultProductKeyByEdition(ts.edition)
+        else:
+            key = ts.product_key
+
+        buf = ""
+        buf += "[Data]\n"
+        buf += "AutoPartition=0\n"
+        buf += "MsDosInitiated=0\n"
+        buf += "UnattendedInstall=Yes\n"
+        buf += "AutomaticUpdates=No\n"              # disable automatic updates initially
+        buf += "\n"
+        buf += "[Unattended]\n"
+        buf += "UnattendMode=FullUnattended\n"
+        buf += "OemPreinstall=No\n"
+        buf += "OemSkipEula=Yes\n"
+        buf += "FileSystem=NTFS\n"                  # supports NTFS only
+        buf += "WaitForReboot=No\n"
+        buf += "NoWaitAfterTextMode=1\n"
+        buf += "NoWaitAfterGUIMode=1\n"
+        buf += "DriverSigningPolicy=Ignore\n"
+        buf += "NonDriverSigningPolicy=Ignore\n"
+        buf += "Repartition=Yes\n"
+        buf += "UnattendSwitch=Yes\n"
+        buf += "\n"
+        buf += "[GuiUnattended]\n"
+        buf += "AdminPassword=*\n"
+        buf += "TimeZone=%s\n" % (_Util.getTimezoneCodeByLang(ts.lang))
+        buf += "OEMSkipRegional=1\n"
+        buf += "OemSkipWelcome=1\n"
+        buf += "\n"
+        buf += "[UserData]\n"
+        buf += "ProductID=%s\n" % (key)
+        buf += "ComputerName=*\n"
+        buf += "FullName=*\n"
+        buf += "OrgName=*\n"
+        buf += "\n"
+        buf += "[RegionalSettings]\n"
+        buf += "LanguageGroup=%s\n" % (_Util.getLanguageGroupCodeByLang(ts.lang))
+        buf += "Language=%s\n" % (_Util.getLanguageIdByLang(ts.lang))
+        buf += "\n"
+        buf += "[Networking]\n"
+        buf += "InstallDefaultComponents=Yes\n"
+        buf += "\n"
+        buf += "[GuiRunOnce]\n"
+        buf += "\"shutdown /s /t 60\"\n"
+
+        return ("winnt.sif", buf.encode("utf-8"))
+
+        # buf += "EncryptedAdminPassword=No\n"          # FIXME: in [GuiUnattended]
+        # buf += "\n"
+        # buf += "[Display]\n"
+        # buf += "Xresolution=1024\n"
+        # buf += "Yresolution=768\n"
+        # buf += "\n"
+        # buf += "[TapiLocation]\n"
+        # buf += "CountryCode=%s\n" % ("86")
+        # buf += "AreaCode=%s\n" % ("00")
+        # buf += "Dialing=%s\n" % ("Tone")
+        # buf += "\n"
+        # buf += "[Identification]\n"
+        # buf += "JoinWorkgroup=WORKGROUP\n"
+        # buf += "\n"
 
 
 class AnswerFileGeneratorForWindows7:

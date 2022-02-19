@@ -98,9 +98,7 @@ class Builder:
             # do work
             if self._ts.category == Category.WINDOWS_98:
                 assert False
-            elif self._ts.category == Category.WINDOWS_XP:
-                assert False
-            elif self._ts.category == Category.WINDOWS_7:
+            elif self._ts.category in [Category.WINDOWS_XP, Category.WINDOWS_7]:
                 floppyFile = os.path.join(self._workDirObj.path, "floppy.img")
                 Util.createFormattedFloppy(floppyFile)
                 with TmpMount(floppyFile) as mp:
@@ -128,9 +126,7 @@ class Builder:
         floppyFile = None
         if self._ts.category == Category.WINDOWS_98:
             assert False
-        elif self._ts.category == Category.WINDOWS_XP:
-            assert False
-        elif self._ts.category == Category.WINDOWS_7:
+        elif self._ts.category in [Category.WINDOWS_XP, Category.WINDOWS_7]:
             savedRecord = json.loads(self._workDirObj.load_record("custom-install-media", default_value=json.dumps({})))
             installIsoFile = savedRecord["install-iso-filepath"]
             floppyFile = os.path.join(self._workDirObj.path, savedRecord["floppy-filename"])
