@@ -531,15 +531,15 @@ class AnswerFileGeneratorForWindows7:
                                 <DiskID>0</DiskID>
                                 <WillWipeDisk>true</WillWipeDisk>
                                 <CreatePartitions>
-                                    <CreatePartition>               <!-- system reserved partition -->
+                                    <CreatePartition>                                   <!-- system reserved partition -->
                                         <Order>1</Order>
                                         <Type>Primary</Type>
                                         <Size>100</Size>
                                     </CreatePartition>
-                                    <CreatePartition>               <!-- windows partition -->
+                                    <CreatePartition>                                   <!-- windows partition -->
                                         <Order>2</Order>
                                         <Type>Primary</Type>
-                                        <Extend>true</Extend>       <!-- use all remaining space -->
+                                        <Extend>true</Extend>                           <!-- use all remaining space -->
                                     </CreatePartition>
                                 </CreatePartitions>
                                 <ModifyPartitions>
@@ -579,7 +579,7 @@ class AnswerFileGeneratorForWindows7:
                         </UserData>
                     </component>
                 </settings>
-                <settings pass="oobeSystem">                        <!-- system Out-Of-Box-Experience -->
+                <settings pass="oobeSystem">                                            <!-- system Out-Of-Box-Experience -->
                     <component name="Microsoft-Windows-Shell-Setup" @@component_tag_postfix@@>
                         <OOBE>
                             <HideEULAPage>true</HideEULAPage>
@@ -602,7 +602,7 @@ class AnswerFileGeneratorForWindows7:
                         <FirstLogonCommands>
                             <SynchronousCommand wcm:action="add">
                                 <Order>1</Order>
-                                <CommandLine>shutdown /s /t 60</CommandLine>
+                                <CommandLine>shutdown /s</CommandLine>                  <!-- shutdown in 30 seconds -->
                                 <Description>shutdown after install</Description>
                             </SynchronousCommand>
                         </FirstLogonCommands>
@@ -622,8 +622,6 @@ class AnswerFileGeneratorForWindows7:
                 </settings>
             </unattend>
         """
-#                <cpi:offlineImage cpi:source="catalog:h:/sources/install_windows 7 ultimate.clg" xmlns:cpi="urn:schemas-microsoft-com:cpi" />
-
         buf = buf.replace("@@component_tag_postfix", " ".join([
                 'processorArchitecture="%s"' % (archDict[ts.arch]),
                 'publicKeyToken="31bf3856ad364e35"',
