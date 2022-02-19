@@ -118,6 +118,8 @@ class InstallMediaCustomizer:
         self._target = target_iso_file
 
     def exists(self, udf_path=None, joliet_path=None, iso_path=None):
+        # existence check, pycdlib doesn't support this function
+
         def __getAndCheck(rec, flen):
             if rec is None:
                 if flen is not None:
@@ -162,7 +164,7 @@ class InstallMediaCustomizer:
         self._src.add_directory(**self._getKwAll(udf_path, joliet_path, iso_path))
 
     def del_dir(self, udf_path=None, joliet_path=None, iso_path=None):
-        # delete recursively, which pycdlib doesn't support
+        # delete recursively, pycdlib doesn't support this function
         for child in self._src.list_children(**self._getKwOne(udf_path, joliet_path, iso_path)):
             if child.is_dir():
                 if child is None or child.is_dot() or child.is_dotdot():
