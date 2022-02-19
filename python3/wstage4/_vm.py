@@ -139,7 +139,7 @@ class Vm:
             # non-priviledged user can use us with a performance pernalty
             cmd += "    -enable-kvm \\\n"
         cmd += "    -no-user-config \\\n"
-        # cmd += "    -nodefaults \\\n"
+        cmd += "    -nodefaults \\\n"
         cmd += "    -machine %s,usb=on \\\n" % (self._qemuVmType)
 
         # platform device
@@ -171,6 +171,8 @@ class Vm:
 
         # graphics device
         cmd += "    -display gtk \\\n"
+        cmd += "    -device VGA,bus=%s,addr=0x%02x" % (pciBus, pciSlot)
+        pciSlot += 1
     #     if True:
     #         if self._graphicsAdapterInterface == "qxl":
     #             assert self.spicePort != -1
@@ -181,7 +183,6 @@ class Vm:
     #             assert self.spicePort != -1
     #             cmd += " -spice port=%d,addr=127.0.0.1,disable-ticketing,agent-mouse=off" % (self.spicePort)
     #             cmd += " -device VGA,bus=%s,addr=0x%02x" % (pciBus, pciSlot)
-    #         pciSlot += 1
 
         # network device
         if True:
