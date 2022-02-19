@@ -533,7 +533,7 @@ class AnswerFileGeneratorForWindows7:
                                 <CreatePartitions>
                                     <CreatePartition>               <!-- system reserved partition -->
                                         <Order>1</Order>
-                                        <Type>Primary</Type>                            
+                                        <Type>Primary</Type>
                                         <Size>100</Size>
                                     </CreatePartition>
                                     <CreatePartition>               <!-- windows partition -->
@@ -620,9 +620,10 @@ class AnswerFileGeneratorForWindows7:
                         <Home_Page>about:blank</Home_Page>
                     </component>
                 </settings>
-                <cpi:offlineImage cpi:source="catalog:h:/sources/install_windows 7 ultimate.clg" xmlns:cpi="urn:schemas-microsoft-com:cpi" />
             </unattend>
         """
+#                <cpi:offlineImage cpi:source="catalog:h:/sources/install_windows 7 ultimate.clg" xmlns:cpi="urn:schemas-microsoft-com:cpi" />
+
         buf = buf.replace("@@component_tag_postfix", " ".join([
                 'processorArchitecture="%s"' % (archDict[ts.arch]),
                 'publicKeyToken="31bf3856ad364e35"',

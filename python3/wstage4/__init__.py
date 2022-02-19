@@ -34,7 +34,6 @@ from ._const import Arch
 from ._const import Category
 from ._const import Edition
 from ._const import Lang
-from ._const import BootMode
 
 from ._settings import Settings
 from ._settings import TargetSettings

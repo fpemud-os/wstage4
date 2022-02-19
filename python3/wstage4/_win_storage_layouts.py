@@ -22,7 +22,7 @@
 
 
 import os
-from ._const import BootMode
+from ._util import Util
 from ._prototype import StorageLayout
 
 
@@ -57,8 +57,8 @@ class StorageLayoutNtfsSysWin(StorageLayout):
         return "sys-win"
 
     @property
-    def boot_mode(self):
-        return BootMode.BIOS
+    def partition_type(self):
+        return Util.partitionTypeMbr
 
     @property
     def base_dir(self):
@@ -108,7 +108,7 @@ class _Mount:
 
     def __init__(self, bIsMounted, mntDir, mntParams, kwargsDict):
         assert len(mntParams) > 0
-        assert all([isinstance(x, MountParam) for x in mntParams])
+        assert all([isinstance(x, _MountParam) for x in mntParams])
 
         self._mntDir = mntDir
         self._mntParams = mntParams

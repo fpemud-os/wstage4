@@ -36,6 +36,9 @@ class Util:
     driveD = "D:"
     driveReserve = "SysReserv"
 
+    partitionTypeMbr = "mbr"
+    partitionTypeGpt = "gpt"
+
     fsTypeFat = "vfat"
     fsTypeNtfs = "ntfs"
 

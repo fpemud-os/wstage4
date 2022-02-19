@@ -99,8 +99,3 @@ class Lang(enum.IntEnum):
     en_US = enum.auto()
     zh_CN = enum.auto()
     zh_TW = enum.auto()
-
-
-class BootMode(enum.IntEnum):
-    BIOS = enum.auto()
-    EFI = enum.auto()
