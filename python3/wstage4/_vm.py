@@ -148,14 +148,9 @@ class Vm:
         cmd += "    -m %s \\\n" % (self._memorySize)
         cmd += "    -rtc base=localtime \\\n"
 
-        # boot-iso-file
-        if self._bootFile is not None:
-            cmd += "    -drive 'file=%s,if=none,id=boot-cdrom,readonly=on,format=raw' \\\n" % (self._bootFile)
-            cmd += "    -device ide-cd,bus=ide.1,unit=0,drive=boot-cdrom,id=boot-cdrom,bootindex=1 \\\n"
-
         # main-disk
         if True:
-            cmd += "    -drive 'file=%s,if=none,id=main-disk,format=raw' \\\n" % (self._diskPath)
+            cmd += "    -blockdev 'driver=file,filename=%s,node-name=main-disk' \\\n" % (self._diskPath)
             if self._mainDiskInterface == "ide":
                 cmd += "    -device ide-hd,bus=ide.0,unit=0,drive=main-disk,id=main-disk,bootindex=2 \\\n"
             elif self._mainDiskInterface == "scsi":
@@ -164,14 +159,19 @@ class Vm:
             else:
                 assert False
 
+        # boot-iso-file
+        # if self._bootFile is not None:
+        #     cmd += "    -blockdev 'driver=file,filename=%s,node-name=boot-cdrom,readonly=on' \\\n" % (self._bootFile)
+        #     cmd += "    -device ide-cd,bus=ide.1,unit=0,drive=boot-cdrom,id=boot-cdrom,bootindex=1 \\\n"
+
         # assistant-floppy-file
         if self._assistantFloppyFile is not None:
-            cmd += "    -drive \'file=%s,if=none,id=assistant-floopy,format=raw\' \\\n"%(self._assistantFloppyFile)
-            cmd += "    -global isa-fdc.driveA=assistant-floopy \\\n"
+            cmd += "    -blockdev 'driver=file,filename=%s,node-name=assistant-floppy' \\\n" % (self._assistantFloppyFile)
+            cmd += "    -device floppy,drive=assistant-floppy \\\n"
 
         # graphics device
         cmd += "    -display gtk \\\n"
-        cmd += "    -device VGA,bus=%s,addr=0x%02x" % (pciBus, pciSlot)
+        cmd += "    -device VGA,bus=%s,addr=0x%02x \\\n" % (pciBus, pciSlot)
         pciSlot += 1
     #     if True:
     #         if self._graphicsAdapterInterface == "qxl":
@@ -192,7 +192,7 @@ class Vm:
 
         # monitor interface
         if True:
-            cmd += "    -qmp \"tcp:127.0.0.1:%d,server,nowait\" \\\n" % (self._qmpPort)
+            cmd += "    -qmp 'tcp:127.0.0.1:%d,server,nowait' \\\n" % (self._qmpPort)
 
         # eliminate the last " \\\n"
         cmd = cmd[:-3] + "\n"
