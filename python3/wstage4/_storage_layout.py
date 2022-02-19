@@ -30,124 +30,124 @@ from ._const import BootMode
 class StorageLayout:
 
     @classmethod
-    def get_storage_layout(cls, os_category, base_dir):
+    def mount(cls, name, disk_list, base_dir):
+        assert len(disk_list) > 0
         assert base_dir.startswith("/") and len(os.listdir(base_dir)) == 0
-
-        boot_mode = BootMode.BIOS                      # FIXME
-        return cls._getSubClass(os_category)(boot_mode, base_dir)
+        return cls._getSubClass(name)._mount(disk_list, base_dir)
 
     @classmethod
-    def mount_storage_layout(cls, os_category, boot_mode, base_dir):
-        assert isinstance(boot_mode, BootMode)
+    def create_and_mount(cls, name, disk_list, base_dir):
+        assert len(disk_list) > 0
         assert base_dir.startswith("/") and len(os.listdir(base_dir)) == 0
+        return cls._getSubClass(name)._create_and_mount(disk_list, base_dir)
 
-        return cls._getSubClass(os_category).mount(boot_mode, base_dir)
+    @abc.abstractmethod
+    @property
+    def name(self):
+        pass
 
-    @classmethod
-    def create_and_mount_storage_layout(cls, os_category, boot_mode, disk_list, base_dir):
-        assert isinstance(boot_mode, BootMode)
-        assert base_dir.startswith("/") and len(os.listdir(base_dir)) == 0
+    @abc.abstractmethod
+    @property
+    def base_dir(self):
+        pass
 
-        return cls._getSubClass(os_category).create_and_mount(boot_mode, disk_list, base_dir)
+    @abc.abstractmethod
+    def umount_and_dispose(self):
+        pass
 
-    def __init__(self, os_category, boot_mode, base_dir):
-        assert isinstance(os_category, Category)
-        assert isinstance(boot_mode, BootMode)
-        assert base_dir.startswith("/")
+    @abc.abstractmethod
+    def get_mount_entries(self):
+        pass
 
-        self._category = os_category
-        self._boot_mode = boot_mode
-        self._base_dir = base_dir
+    @abc.abstractmethod
+    def _mount(self, disk_list, base_dir):
+        pass
+
+    @abc.abstractmethod
+    def _create_and_mount(self, disk_list, base_dir):
+        pass
+
+    @staticmethod
+    def _getSubClass(name):
+        d = {
+            "fat-win": StorageLayoutFatWin,
+            "fat-win-data": None,                                       # FIXME
+            "ntfs-win": StorageLayoutNtfsWin,
+            "ntfs-win-data": None,                                      # FIXME
+            "ntfs-sys-win": StorageLayoutNtfsSysWin,
+            "ntfs-sys-win-data": None,                                  # FIXME
+            "ntfs-sys-msr-win": None,                                   # FIXME
+            "ntfs-sys-msr-win-data": None,                              # FIXME
+        }
+        ret = d[name]
+        assert ret is not None
+        return ret
+
+
+class StorageLayoutFatWin(StorageLayout):
+
+    """single FAT32 partition in single harddisk"""
 
     @property
-    def os_category(self):
-        return self._category
-
-    @property
-    def boot_mode(self):
-        return self._boot_mode
+    def name():
+        return "fat-win"
 
     @property
     def base_dir(self):
-        return self._base_dir
-
-    @abc.abstractmethod
-    def umount_and_dispose(self):
         pass
 
-    @abc.abstractmethod
-    def get_mount_entries(self):
+    def _mount(self, disk_list, base_dir):
+        assert len(disk_list) == 1
+        Util.initializeDisk(hdd, Util.diskPartTableMbr, [
+            ("*", Util.fsTypeExt4),
+        ])
+
+
+    def _create_and_mount(self, disk_list, base_dir):
         pass
 
-    @staticmethod
-    def _getSubClass(os_category):
-        d = {
-            Category.WINDOWS_98: StorageLayoutWindows98,
-            Category.WINDOWS_XP: StorageLayoutWindowsXP,
-            Category.WINDOWS_7: StorageLayoutWindows7,
-        }
-        return d[os_category]
+class StorageLayoutNtfsWin(StorageLayout):
 
+    """single NTFS partition in single harddisk"""
 
-class StorageLayoutWindows98(StorageLayout):
+    @property
+    def name():
+        return "ntfs-win"
 
-    @staticmethod
-    def mount(boot_mode, base_dir):
-        os.mkdir(os.path.jion(base_dir, driveC))
-
-
-    @staticmethod
-    def create_and_mount(boot_mode, disk_list, base_dir):
+    @property
+    def base_dir(self):
         pass
 
-    def __init__(self, boot_mode, base_dir):
-        super().__init__(Category.WINDOWS_98, boot_mode, base_dir)
 
-    def umount_and_dispose(self):
-        assert False
+class StorageLayoutNtfsSysWin(StorageLayout):
 
-    def get_mount_entries(self):
-        assert False
+    """System Reserved partition(NTFS) + windows partition(NTFS) in single harddisk"""
 
+    @property
+    def name():
+        return "sys-win"
 
-class StorageLayoutWindowsXP(StorageLayout):
-
-    @staticmethod
-    def mount(boot_mode, base_dir):
+    @property
+    def base_dir(self):
         pass
 
-    @staticmethod
-    def create_and_mount(boot_mode, disk_list, base_dir):
+
+class StorageLayoutNtfsSysMsrWin(StorageLayout):
+
+    """System Reserved partition(NTFS) + MSR partition(FAT32) + windows partition(NTFS) in single harddisk, for EFI boot"""
+
+    @property
+    def name():
+        return "sys-msr-win"
+
+    @property
+    def base_dir(self):
         pass
 
-    def __init__(self, boot_mode, base_dir):
-        super().__init__(Category.WINDOWS_XP, boot_mode, base_dir)
 
-    def umount_and_dispose(self):
-        assert False
-
-    def get_mount_entries(self):
-        assert False
-
-
-class StorageLayoutWindows7(StorageLayout):
-
-    @staticmethod
-    def mount(boot_mode, base_dir):
-        pass
-
-    @staticmethod
-    def create_and_mount(boot_mode, disk_list, base_dir):
-        pass
-
-    def __init__(self, boot_mode, base_dir):
-        super().__init__(Category.WINDOWS_7, boot_mode, base_dir)
-
-    def umount_and_dispose(self):
-        assert False
-
-    def get_mount_entries(self):
-        assert False
+# There should be:
+#   ntfs-multi-vol: multiple harddisk in spanned volume (soft raid)
+#   ntfs-multi-vol: multiple harddisk in stripped volume (soft raid)
 
 driveC = "C:"
 driveD = "D:"
