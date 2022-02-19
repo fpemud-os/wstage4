@@ -21,10 +21,8 @@
 # THE SOFTWARE.
 
 
-import os
 import io
 import pycdlib
-from ._util import Util, TmpMount
 from ._const import Arch, Category, Edition, Lang
 from ._errors import InstallMediaError
 
