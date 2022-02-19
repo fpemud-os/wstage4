@@ -516,7 +516,7 @@ class AnswerFileGeneratorForWindows7:
             <?xml version="1.0" encoding="utf-8"?>
             <unattend xmlns="urn:schemas-microsoft-com:unattend">
                 <settings pass="windowsPE">
-                    <component name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="@@arch@@" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <component name="Microsoft-Windows-International-Core-WinPE" @@component_tag_postfix@@>
                         <SetupUILanguage>
                             <UILanguage>@@pe_lang@@</UILanguage>
                         </SetupUILanguage>
@@ -525,7 +525,7 @@ class AnswerFileGeneratorForWindows7:
                         <UILanguage>@@pe_lang@@</UILanguage>
                         <UserLocale>@@pe_lang@@</UserLocale>
                     </component>
-                    <component name="Microsoft-Windows-Setup" processorArchitecture="@@arch@@" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <component name="Microsoft-Windows-Setup" @@component_tag_postfix@@>
                         <DiskConfiguration>
                             <Disk>
                                 <DiskID>0</DiskID>
@@ -580,7 +580,7 @@ class AnswerFileGeneratorForWindows7:
                     </component>
                 </settings>
                 <settings pass="oobeSystem">                        <!-- system Out-Of-Box-Experience -->
-                    <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="@@arch@@" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <component name="Microsoft-Windows-Shell-Setup" @@component_tag_postfix@@>
                         <OOBE>
                             <HideEULAPage>true</HideEULAPage>
                             <ProtectYourPC>1</ProtectYourPC>
@@ -609,11 +609,11 @@ class AnswerFileGeneratorForWindows7:
                     </component>
                 </settings>
                 <settings pass="specialize">
-                    <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="@@arch@@" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <component name="Microsoft-Windows-Shell-Setup" @@component_tag_postfix@@>
                         <ComputerName>@@username@@-PC</ComputerName>
                     </component>
                     <!-- disable the welcome window of IE -->
-                    <component name="Microsoft-Windows-IE-InternetExplorer" processorArchitecture="@@arch@@" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <component name="Microsoft-Windows-IE-InternetExplorer" @@component_tag_postfix@@>
                         <DisableAccelerators>true</DisableAccelerators>
                         <DisableOOBAccelerators>true</DisableOOBAccelerators>
                         <SuggestedSitesEnabled>false</SuggestedSitesEnabled>
@@ -623,6 +623,15 @@ class AnswerFileGeneratorForWindows7:
                 <cpi:offlineImage cpi:source="catalog:h:/sources/install_windows 7 ultimate.clg" xmlns:cpi="urn:schemas-microsoft-com:cpi" />
             </unattend>
         """
+        buf = buf.replace("@@component_tag_postfix", " ".join([
+                'processorArchitecture="%s"' % (archDict[ts.arch]),
+                'publicKeyToken="31bf3856ad364e35"',
+                'language="neutral"',
+                'versionScope="nonSxS"',
+                'xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"',
+                'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
+            ])
+        )
         buf = buf.replace("@@arch@@", archDict[ts.arch])
         buf = buf.replace("@@pe_lang@@", langDict[Lang.en_US])                  # use fixed PE language, no one reads it ;)
         buf = buf.replace("@@pe_input_lang@@", localeCodeDict[Lang.en_US])      # same above
