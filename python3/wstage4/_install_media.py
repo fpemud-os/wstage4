@@ -98,14 +98,14 @@ class InstallMedia:
 
     def _parserWindownsXP(self):
         if self._label == "GRTMPVOL_EN":
-            return (Arch.X86, Category.WINDOWS_XP, [Edition.WINDOWS_XP_PROFESSIONAL], [Lang.en_US, Lang.zh_CN])
+            return (Arch.X86, Category.WINDOWS_XP, [Edition.WINDOWS_XP_PROFESSIONAL], [Lang.en_US])
         return None
 
     def _parserWindowns7(self):
         if self._label == "GRMCULFRER_EN_DVD":
-            return (Arch.X86, Category.WINDOWS_7, [Edition.WINDOWS_7_ULTIMATE], [Lang.en_US, Lang.zh_CN])
+            return (Arch.X86, Category.WINDOWS_7, [Edition.WINDOWS_7_ULTIMATE], [Lang.en_US])
         if self._label == "GRMCULXFRER_EN_DVD":
-            return (Arch.X86_64, Category.WINDOWS_7, [Edition.WINDOWS_7_ULTIMATE], [Lang.en_US, Lang.zh_CN])
+            return (Arch.X86_64, Category.WINDOWS_7, [Edition.WINDOWS_7_ULTIMATE], [Lang.en_US])
         return None
 
 
