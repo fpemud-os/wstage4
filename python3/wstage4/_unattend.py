@@ -524,6 +524,8 @@ class AnswerFileGeneratorForWindows7:
                                         <PartitionID>1</PartitionID>
                                         <Active>true</Active>
                                         <Format>NTFS</Format>
+                                        <TypeID>0x27</TypeID>
+                                        <Label>System Reserved</Label>
                                     </ModifyPartition>
                                     <ModifyPartition>
                                         <Order>2</Order>
