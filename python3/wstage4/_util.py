@@ -32,6 +32,14 @@ import subprocess
 
 class Util:
 
+    @staticmethod
+    def createFormattedFloppy(floppyFile):
+        """create a 1.44M floppy disk with DOS format"""
+    
+        with open(floppyFile, 'wb') as f:
+            f.truncate(1440 * 1024)
+        Util.cmdCall("mkfs.fat", floppyFile)
+
     def saveObj(filepath, obj):
         with open(filepath, 'wb') as fh:
             pickle.dump(obj, fh)

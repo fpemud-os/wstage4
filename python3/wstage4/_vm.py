@@ -37,7 +37,7 @@ class Vm:
             data = Util.readUntil(f, '\n\0', max=512, bTextOrBinary=False)
 
         data = json.loads(data.decode("iso8859-1"))
-        self._init(data["arch"], data["category"], data["edition"], data["lang"], main_disk_filepath, None)
+        self._init(data["arch"], data["category"], data["edition"], data["lang"], main_disk_filepath, None, None)
 
     def __enter__(self):
         self.start()
@@ -68,7 +68,7 @@ class Vm:
         self._proc = None
         self._qmpPort = None
 
-    def _init(self, arch, category, edition, lang, mainDiskFile, bootIsoFile):
+    def _init(self, arch, category, edition, lang, mainDiskFile, bootIsoFile, assistantFloppyFile):
         # vm type
         if category in [Category.WINDOWS_98, Category.WINDOWS_XP]:
             self._qemuVmType = "pc"
@@ -101,6 +101,9 @@ class Vm:
 
         # boot iso file path, can be None
         self._bootFile = bootIsoFile
+
+        # assistant floppy file path, can be None
+        self._assistantFloppyFile = assistantFloppyFile
 
         # runtime variables
         self._proc = None
@@ -154,6 +157,11 @@ class Vm:
             else:
                 assert False
 
+        # assistant-floppy-file
+        if self._assistantFloppyFile is not None:
+            cmd += " -drive \'file=%s,if=none,id=assistant-floopy,format=raw\'"%(self._assistantFloppyFile)
+            cmd += " -global isa-fdc.driveA=assistant-floopy"
+
         # graphics device
         cmd += " -display gtk"
     #     if True:
@@ -184,7 +192,7 @@ class Vm:
 class VmUtil:
 
     @staticmethod
-    def getBootstrapVm(arch, category, edition, lang, mainDiskPath, bootIsoFile):
+    def getBootstrapVm(arch, category, edition, lang, mainDiskPath, bootIsoFile, assistantFloppyFile):
         buf = json.dumps({
             "arch": arch,
             "category": category,
@@ -199,7 +207,7 @@ class VmUtil:
                 f.write(buf.encode("iso8859-1"))
 
         ret = Vm.__new__(Vm)
-        ret._init(arch, category, edition, lang, mainDiskPath, bootIsoFile)
+        ret._init(arch, category, edition, lang, mainDiskPath, bootIsoFile, assistantFloppyFile)
         return ret
 
     @staticmethod

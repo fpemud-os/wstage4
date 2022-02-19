@@ -22,9 +22,11 @@
 
 
 import os
+import json
 import enum
 import robust_layer.simple_fops
-from ._util import Util
+from ._util import Util, TmpMount
+from ._const import Category
 from ._install_media import InstallMedia, InstallMediaCustomizer
 from ._settings import Settings, TargetSettings
 from ._errors import InstallMediaError
@@ -47,7 +49,7 @@ def Action(*progressStepTuple):
 
 class BuildStep(enum.IntEnum):
     INIT = enum.auto()
-    CUSTOM_INSTALL_ISO_FILE_CREATED = enum.auto()
+    CUSTOM_INSTALL_MEDIA_PREPARED = enum.auto()
     MSWIN_INSTALLED = enum.auto()
     MSWIN_ADDONS_INSTALLED = enum.auto()
     APPLICATIONS_INSTALLED = enum.auto()
@@ -80,7 +82,7 @@ class Builder:
         return self._progress
 
     @Action(BuildStep.INIT)
-    def action_create_custom_install_iso_file(self, path):
+    def action_prepare_custom_install_media(self, path):
         m = InstallMedia(path)
         try:
             # check install media
@@ -94,18 +96,48 @@ class Builder:
                 raise InstallMediaError("invalid install media, language not match")
 
             # do work
-            c = InstallMediaCustomizer(m.getIsoObj(), self._workDirObj.custom_iso_filepath)
-            try:
-                AnswerFileGenerator(self._ts).updateIso(c)
-                c.export()
-            finally:
-                c.dispose()
+            if self._ts.category == Category.WINDOWS_98:
+                assert False
+            elif self._ts.category == Category.WINDOWS_XP:
+                assert False
+            elif self._ts.category == Category.WINDOWS_7:
+                floppyFile = os.path.join(self._workDirObj.path, "floppy.img")
+                Util.createFormattedFloppy(floppyFile)
+                with TmpMount(floppyFile) as mp:
+                    AnswerFileGenerator(self._ts).generateFile(mp.mountpoint)
+
+                self._workDirObj.save_record("custom-install-media", json.dumps({
+                    "install-iso-filepath": path,
+                    "floppy-filename": os.path.basename(floppyFile),
+                }))
+            else:
+                assert False
         finally:
             m.dispose()
 
-    @Action(BuildStep.CUSTOM_INSTALL_ISO_FILE_CREATED)
+        # c = InstallMediaCustomizer(m.getIsoObj(), self._workDirObj.custom_iso_filepath)
+        # try:
+        #     AnswerFileGenerator(self._ts).updateIso(c)
+        #     c.export()
+        # finally:
+        #     c.dispose()
+
+    @Action(BuildStep.CUSTOM_INSTALL_MEDIA_PREPARED)
     def action_install_windows(self):
-        with VmUtil.getBootstrapVm(self._ts.arch, self._ts.category, self._ts.edition, self._ts.lang, self._workDirObj.image_filepath, self._workDirObj.custom_iso_filepath) as vm:
+        installIsoFile = None
+        floppyFile = None
+        if self._ts.category == Category.WINDOWS_98:
+            assert False
+        elif self._ts.category == Category.WINDOWS_XP:
+            assert False
+        elif self._ts.category == Category.WINDOWS_7:
+            savedRecord = json.loads(self._workDirObj.load_record("custom-install-media", default_value=json.dumps({})))
+            installIsoFile = savedRecord["install-iso-filepath"]
+            floppyFile = os.path.join(self._workDirObj.path, savedRecord["floppy-filename"])
+        else:
+            assert False
+
+        with VmUtil.getBootstrapVm(self._ts.arch, self._ts.category, self._ts.edition, self._ts.lang, self._workDirObj.image_filepath, installIsoFile, floppyFile) as vm:
             vm.wait()
 
     @Action(BuildStep.MSWIN_INSTALLED)

@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 
+import os
 from ._const import Arch, Category, Edition, Lang
 
 
@@ -29,9 +30,47 @@ class AnswerFileGenerator:
     def __init__(self, target_settings):
         self._ts = target_settings
 
-    def updateIso(self, isoObj):
-        # from https://www.windowsafg.com
+    def generateFile(self, path):
+        if self._ts.category == Category.WINDOWS_98:
+            # FIXME
+            assert False
+        elif self._ts.category == Category.WINDOWS_XP:
+            # FIXME
+            assert False
+        elif self._ts.category == Category.WINDOWS_VISTA:
+            # FIXME
+            assert False
+        elif self._ts.category == Category.WINDOWS_7:
+            obj = AnswerFileGeneratorForWindows7()
+            obj.generateFile(self._ts, path)
+        elif self._ts.category == Category.WINDOWS_8:
+            # FIXME
+            assert False
+        elif self._ts.category == Category.WINDOWS_8_1:
+            # FIXME
+            assert False
+        elif self._ts.category == Category.WINDOWS_10:
+            # FIXME
+            assert False
+        elif self._ts.category == Category.WINDOWS_11:
+            # FIXME
+            assert False
+        elif self._ts.category == Category.WINDOWS_SERVER_2008:
+            # FIXME
+            assert False
+        elif self._ts.category == Category.WINDOWS_SERVER_2012:
+            # FIXME
+            assert False
+        elif self._ts.category == Category.WINDOWS_SERVER_2016:
+            # FIXME
+            assert False
+        elif self._ts.category == Category.WINDOWS_SERVER_2019:
+            # FIXME
+            assert False
+        else:
+            assert False
 
+    def updateIso(self, isoObj):
         if self._ts.category == Category.WINDOWS_98:
             updateIsoForWindows98(self._ts, isoObj)
         elif self._ts.category == Category.WINDOWS_XP:
@@ -40,7 +79,8 @@ class AnswerFileGenerator:
             # FIXME
             assert False
         elif self._ts.category == Category.WINDOWS_7:
-            updateIsoForWindows7(self._ts, isoObj)
+            obj = AnswerFileGeneratorForWindows7()
+            obj.updateIso(self._ts, isoObj)
         elif self._ts.category == Category.WINDOWS_8:
             # FIXME
             assert False
@@ -417,143 +457,155 @@ def updateIsoForWindowsXP(ts, isoObj):
     # buf += "\n"
 
 
-def updateIsoForWindows7(ts, isoObj):
-    if ts.product_key is None:
-        key = _Util.getDefaultProductKeyByEdition(ts.edition)
-    else:
-        key = ts.product_key
+class AnswerFileGeneratorForWindows7:
 
-    archDict = {
-        Arch.X86: "x86",
-        Arch.X86_64: "amd64",
-    }
+    def generateFile(self, ts, dstDir):
+        fn, buf = self._get_filename_and_buffer(ts)
+        with open(os.path.join(dstDir, fn), "wb") as f:
+            f.write(buf)
 
-    langDict = {
-        Lang.en_US: "en-us",
-        Lang.zh_CN: "zh-cn",
-        Lang.zh_TW: "zh-tw",
-    }
+    def updateIso(self, ts, isoObj):
+        fn, buf = self._get_filename_and_buffer(ts)
+        isoObj.add_file(udf_path=("/" + fn), file_content=buf)
 
-    buf = """
-        <?xml version="1.0" encoding="utf-8"?>
-        <unattend xmlns="urn:schemas-microsoft-com:unattend">
-            <settings pass="windowsPE">
-                <component name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="@@arch@@" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <SetupUILanguage>
+    @staticmethod
+    def _get_filename_and_buffer(ts):
+        if ts.product_key is None:
+            key = _Util.getDefaultProductKeyByEdition(ts.edition)
+        else:
+            key = ts.product_key
+
+        archDict = {
+            Arch.X86: "x86",
+            Arch.X86_64: "amd64",
+        }
+
+        langDict = {
+            Lang.en_US: "en-us",
+            Lang.zh_CN: "zh-cn",
+            Lang.zh_TW: "zh-tw",
+        }
+
+        buf = """
+            <?xml version="1.0" encoding="utf-8"?>
+            <unattend xmlns="urn:schemas-microsoft-com:unattend">
+                <settings pass="windowsPE">
+                    <component name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="@@arch@@" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                        <SetupUILanguage>
+                            <UILanguage>@@lang@@</UILanguage>
+                        </SetupUILanguage>
+                        <InputLocale>@@lang@@</InputLocale>
+                        <SystemLocale>@@lang@@</SystemLocale>
                         <UILanguage>@@lang@@</UILanguage>
-                    </SetupUILanguage>
-                    <InputLocale>@@lang@@</InputLocale>
-                    <SystemLocale>@@lang@@</SystemLocale>
-                    <UILanguage>@@lang@@</UILanguage>
-                    <UserLocale>@@lang@@</UserLocale>
-                </component>
-                <component name="Microsoft-Windows-Setup" processorArchitecture="@@arch@@" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <DiskConfiguration>
-                        <Disk>
-                            <DiskID>0</DiskID>
-                            <WillWipeDisk>true</WillWipeDisk>
-                            <CreatePartitions>
-                                <!-- system reserved partition for windows-7 -->
-                                <CreatePartition>
-                                    <Order>1</Order>
-                                    <Type>Primary</Type>                            
-                                    <Size>100</Size>
-                                </CreatePartition>
-                                <!-- windows partition -->
-                                <CreatePartition>
-                                    <Order>2</Order>
-                                    <Type>Primary</Type>
-                                    <Extend>true</Extend>
-                                </CreatePartition>
-                            </CreatePartitions>
-                            <ModifyPartitions>
-                                <ModifyPartition>
-                                    <Order>1</Order>
-                                    <PartitionID>1</PartitionID>
-                                    <Active>true</Active>
-                                    <Format>NTFS</Format>
-                                </ModifyPartition>
-                                <ModifyPartition>
-                                    <Order>2</Order>
-                                    <PartitionID>2</PartitionID>
-                                    <Letter>C</Letter>
-                                    <Format>NTFS</Format>
-                                </ModifyPartition>
-                            </ModifyPartitions>
-                        </Disk>
-                        <WillShowUI>OnError</WillShowUI>
-                    </DiskConfiguration>
-                    <ImageInstall>
-                        <OSImage>
-                            <InstallTo>
+                        <UserLocale>@@lang@@</UserLocale>
+                    </component>
+                    <component name="Microsoft-Windows-Setup" processorArchitecture="@@arch@@" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                        <DiskConfiguration>
+                            <Disk>
                                 <DiskID>0</DiskID>
-                                <PartitionID>2</PartitionID>
-                            </InstallTo>
+                                <WillWipeDisk>true</WillWipeDisk>
+                                <CreatePartitions>
+                                    <!-- system reserved partition for windows-7 -->
+                                    <CreatePartition>
+                                        <Order>1</Order>
+                                        <Type>Primary</Type>                            
+                                        <Size>100</Size>
+                                    </CreatePartition>
+                                    <!-- windows partition -->
+                                    <CreatePartition>
+                                        <Order>2</Order>
+                                        <Type>Primary</Type>
+                                        <Extend>true</Extend>
+                                    </CreatePartition>
+                                </CreatePartitions>
+                                <ModifyPartitions>
+                                    <ModifyPartition>
+                                        <Order>1</Order>
+                                        <PartitionID>1</PartitionID>
+                                        <Active>true</Active>
+                                        <Format>NTFS</Format>
+                                    </ModifyPartition>
+                                    <ModifyPartition>
+                                        <Order>2</Order>
+                                        <PartitionID>2</PartitionID>
+                                        <Letter>C</Letter>
+                                        <Format>NTFS</Format>
+                                    </ModifyPartition>
+                                </ModifyPartitions>
+                            </Disk>
                             <WillShowUI>OnError</WillShowUI>
-                        </OSImage>
-                    </ImageInstall>
-                    <UserData>
-                        <ProductKey>
-                            <WillShowUI>OnError</WillShowUI>
-                            <Key>@@product_key@@</Key>
-                        </ProductKey>
-                        <AcceptEula>true</AcceptEula>
-                        <FullName>@@username@@</FullName>
-                    </UserData>
-                </component>
-            </settings>
-            <settings pass="oobeSystem">
-                <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="@@arch@@" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <OOBE>
-                        <HideEULAPage>true</HideEULAPage>
-                        <ProtectYourPC>1</ProtectYourPC>
-                        <NetworkLocation>Other</NetworkLocation>
-                    </OOBE>
-                    <TimeZone>@@timezone@@</TimeZone>
-                    <UserAccounts>
-                        <LocalAccounts>
-                            <LocalAccount>
-                                <Group>Administrators</Group>
-                                <Name>@@username@@</Name>
-                                <Password>
-                                    <Value>@@password@@</Value>
-                                    <PlainText>true</PlainText>
-                                </Password>
-                            </LocalAccount>
-                        </LocalAccounts>
-                    </UserAccounts>
-                    <FirstLogonCommands>
-                        <SynchronousCommand wcm:action="add">
-                            <Order>1</Order>
-                            <CommandLine>shutdown /s /t 60</CommandLine>
-                            <Description>shutdown after install</Description>
-                        </SynchronousCommand>
-                    </FirstLogonCommands>
-                </component>
-            </settings>
-            <settings pass="specialize">
-                <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="@@arch@@" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <ComputerName>@@username@@-PC</ComputerName>
-                </component>
-                <!-- disable the welcome window of IE -->
-                <component name="Microsoft-Windows-IE-InternetExplorer" processorArchitecture="@@arch@@" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <DisableAccelerators>true</DisableAccelerators>
-                    <DisableOOBAccelerators>true</DisableOOBAccelerators>
-                    <SuggestedSitesEnabled>false</SuggestedSitesEnabled>
-                    <Home_Page>about:blank</Home_Page>
-                </component>
-            </settings>
-            <cpi:offlineImage cpi:source="catalog:h:/sources/install_windows 7 ultimate.clg" xmlns:cpi="urn:schemas-microsoft-com:cpi" />
-        </unattend>
-    """
-    buf = buf.replace("@@arch@@", archDict[ts.arch])
-    buf = buf.replace("@@lang@@", langDict[ts.lang])
-    buf = buf.replace("@@username@@", "A")
-    buf = buf.replace("@@password@@", "")
-    buf = buf.replace("@@product_key@@", key)
-    buf = buf.replace("@@timezone@@", _Util.getTimezoneCodeByLang(ts.lang))
+                        </DiskConfiguration>
+                        <ImageInstall>
+                            <OSImage>
+                                <InstallTo>
+                                    <DiskID>0</DiskID>
+                                    <PartitionID>2</PartitionID>
+                                </InstallTo>
+                                <WillShowUI>OnError</WillShowUI>
+                            </OSImage>
+                        </ImageInstall>
+                        <UserData>
+                            <ProductKey>
+                                <WillShowUI>OnError</WillShowUI>
+                                <Key>@@product_key@@</Key>
+                            </ProductKey>
+                            <AcceptEula>true</AcceptEula>
+                            <FullName>@@username@@</FullName>
+                        </UserData>
+                    </component>
+                </settings>
+                <settings pass="oobeSystem">
+                    <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="@@arch@@" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                        <OOBE>
+                            <HideEULAPage>true</HideEULAPage>
+                            <ProtectYourPC>1</ProtectYourPC>
+                            <NetworkLocation>Other</NetworkLocation>
+                        </OOBE>
+                        <TimeZone>@@timezone@@</TimeZone>
+                        <UserAccounts>
+                            <LocalAccounts>
+                                <LocalAccount>
+                                    <Group>Administrators</Group>
+                                    <Name>@@username@@</Name>
+                                    <Password>
+                                        <Value>@@password@@</Value>
+                                        <PlainText>true</PlainText>
+                                    </Password>
+                                </LocalAccount>
+                            </LocalAccounts>
+                        </UserAccounts>
+                        <FirstLogonCommands>
+                            <SynchronousCommand wcm:action="add">
+                                <Order>1</Order>
+                                <CommandLine>shutdown /s /t 60</CommandLine>
+                                <Description>shutdown after install</Description>
+                            </SynchronousCommand>
+                        </FirstLogonCommands>
+                    </component>
+                </settings>
+                <settings pass="specialize">
+                    <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="@@arch@@" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                        <ComputerName>@@username@@-PC</ComputerName>
+                    </component>
+                    <!-- disable the welcome window of IE -->
+                    <component name="Microsoft-Windows-IE-InternetExplorer" processorArchitecture="@@arch@@" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                        <DisableAccelerators>true</DisableAccelerators>
+                        <DisableOOBAccelerators>true</DisableOOBAccelerators>
+                        <SuggestedSitesEnabled>false</SuggestedSitesEnabled>
+                        <Home_Page>about:blank</Home_Page>
+                    </component>
+                </settings>
+                <cpi:offlineImage cpi:source="catalog:h:/sources/install_windows 7 ultimate.clg" xmlns:cpi="urn:schemas-microsoft-com:cpi" />
+            </unattend>
+        """
+        buf = buf.replace("@@arch@@", archDict[ts.arch])
+        buf = buf.replace("@@lang@@", langDict[ts.lang])
+        buf = buf.replace("@@username@@", "A")
+        buf = buf.replace("@@password@@", "")
+        buf = buf.replace("@@product_key@@", key)
+        buf = buf.replace("@@timezone@@", _Util.getTimezoneCodeByLang(ts.lang))
 
-    isoObj.add_file(udf_path='/autounattend.xml', file_content=buf.encode("utf-8"))
+        return ("autounattend.xml", buf.encode("utf-8"))
 
 
 class _Util:
