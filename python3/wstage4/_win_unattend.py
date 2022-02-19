@@ -626,7 +626,7 @@ class AnswerFileGeneratorForWindows7:
                 </settings>
             </unattend>
         """
-        buf = buf.replace("@@component_tag_postfix", " ".join([
+        buf = buf.replace("@@component_tag_postfix@@", " ".join([
                 'processorArchitecture="%s"' % (archDict[ts.arch]),
                 'publicKeyToken="31bf3856ad364e35"',
                 'language="neutral"',
