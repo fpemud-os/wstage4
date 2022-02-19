@@ -119,24 +119,6 @@ class MountEntry:
 ###############################################################################
 
 
-class StorageLayoutFatWin(StorageLayout):
-
-    """single FAT32 partition in single harddisk"""
-
-    @property
-    def name():
-        return "fat-win"
-
-
-class StorageLayoutNtfsWin(StorageLayout):
-
-    """single NTFS partition in single harddisk"""
-
-    @property
-    def name():
-        return "ntfs-win"
-
-
 class StorageLayoutNtfsSysWin(StorageLayout):
 
     """System Reserved partition(NTFS) + windows partition(NTFS) in single harddisk"""
