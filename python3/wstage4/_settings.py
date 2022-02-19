@@ -122,20 +122,6 @@ class TargetSettings:
             if not isinstance(obj.lang, Lang):
                 raise SettingsError("invalid value of lang")
 
-            # check obj.addons
-            if True:
-                if obj.category == Category.WINDOWS_98:
-                    validAddons = []
-                elif obj.category == Category.WINDOWS_XP:
-                    validAddons = []
-                elif obj.category == Category.WINDOWS_7:
-                    validAddons = []
-                else:
-                    assert False
-                for item in obj.addons:
-                    if item not in validAddons:
-                        raise SettingsError("invalid addon %s" % (item))
-
             return True
         except SettingsError:
             if raise_exception:

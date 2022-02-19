@@ -28,10 +28,11 @@ import robust_layer.simple_fops
 from ._util import Util, TmpMount
 from ._const import Category
 from ._prototype import ScriptInChroot
-from ._errors import InstallMediaError
+from ._errors import SettingsError, InstallMediaError
 from ._settings import Settings, TargetSettings
 from ._vm import Vm, VmUtil
 from ._win_install_media import InstallMedia
+from ._win_addons import AddonRepo
 from ._win_unattend import AnswerFileGenerator
 
 
@@ -73,6 +74,11 @@ class Builder:
             os.makedirs(self._s.log_dir, mode=0o750, exist_ok=True)
 
         self._ts = target_settings
+
+        self._addonRepo = AddonRepo(self._ts.arch, self._ts.category, self._ts.edition, self._ts.lang)
+        for i in self._ts.addons:
+            if i not in self._addonRepo.getAddonNames():
+                raise SettingsError("invalid addon %s" % (i))
 
         self._workDirObj = work_dir
 

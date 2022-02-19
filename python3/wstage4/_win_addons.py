@@ -23,4 +23,20 @@
 
 class AddonRepo:
 
-    def 
+    def __init__(self, arch, category, edition, lang):
+        self._arch = arch
+        self._category = category
+        self._variantList = edition
+        self._langList = lang
+    
+    def getAddonNames(self):
+        return []
+
+    def getAddon(self, name):
+        assert False
+
+
+class Windows98Addon:
+    pass
+
+
