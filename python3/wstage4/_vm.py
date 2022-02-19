@@ -138,7 +138,14 @@ class Vm:
         cmd += "    -smp 1,sockets=1,cores=%d,threads=1 \\\n" % (self._cpuNumber)
         cmd += "    -m %s \\\n" % (self._memorySize)
         cmd += "    -rtc base=localtime \\\n"           # FIXME: how to do it more standard
-        cmd += "    -device isa-fdc \\\n"               # FIXME: create floppy controller, how to do it more standard
+
+        # additional controllers
+        if self._qemuVmType == "pc":
+            pass
+        elif self._qemuVmType == "q35":
+            cmd += "    -device isa-fdc \\\n"               # FIXME: create floppy controller, how to do it more standard
+        else:
+            assert False
         # cmd += "    -device virtio-scsi-pci \\\n"
 
         # main-disk
