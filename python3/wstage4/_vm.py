@@ -157,10 +157,11 @@ class Vm:
         # boot-iso-file
         if self._bootFile is not None:
             cmd += "    -blockdev 'driver=file,filename=%s,node-name=boot-cdrom' \\\n" % (self._bootFile)
-            cmd += "    -device ide-cd,bus=ide.1,unit=0,drive=boot-cdrom,id=boot-cdrom,bootindex=1 \\\n"
+            cmd += "    -device ide-cd,drive=boot-cdrom,bootindex=1 \\\n"
 
         # assistant-floppy-file
         if self._assistantFloppyFile is not None:
+            # use "unit=0" to make it undoubtly "A:"
             cmd += "    -blockdev 'driver=file,filename=%s,node-name=assistant-floppy' \\\n" % (self._assistantFloppyFile)
             cmd += "    -device floppy,unit=0,drive=assistant-floppy \\\n"
 
