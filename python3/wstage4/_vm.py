@@ -192,7 +192,7 @@ class Vm:
 
         # monitor interface
         if True:
-            cmd += "    -qmp 'tcp:127.0.0.1:%d,server,nowait' \\\n" % (self._qmpPort)
+            cmd += "    -qmp tcp:127.0.0.1:%d,server,nowait \\\n" % (self._qmpPort)
 
         # eliminate the last " \\\n"
         cmd = cmd[:-3] + "\n"
