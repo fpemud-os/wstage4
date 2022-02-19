@@ -146,7 +146,8 @@ class Vm:
         cmd += "    -cpu host \\\n"
         cmd += "    -smp 1,sockets=1,cores=%d,threads=1 \\\n" % (self._cpuNumber)
         cmd += "    -m %s \\\n" % (self._memorySize)
-        cmd += "    -rtc base=localtime \\\n"
+        cmd += "    -rtc base=localtime \\\n"           # FIXME: how to do it more standard
+        cmd += "    -device isa-fdc \\\n"               # FIXME: create floppy controller, how to do it more standard
 
         # main-disk
         if True:
@@ -160,14 +161,14 @@ class Vm:
                 assert False
 
         # boot-iso-file
-        # if self._bootFile is not None:
-        #     cmd += "    -blockdev 'driver=file,filename=%s,node-name=boot-cdrom,readonly=on' \\\n" % (self._bootFile)
-        #     cmd += "    -device ide-cd,bus=ide.1,unit=0,drive=boot-cdrom,id=boot-cdrom,bootindex=1 \\\n"
+        if self._bootFile is not None:
+            cmd += "    -blockdev 'driver=file,filename=%s,node-name=boot-cdrom' \\\n" % (self._bootFile)
+            cmd += "    -device ide-cd,bus=ide.1,unit=0,drive=boot-cdrom,id=boot-cdrom,bootindex=1 \\\n"
 
         # assistant-floppy-file
         if self._assistantFloppyFile is not None:
             cmd += "    -blockdev 'driver=file,filename=%s,node-name=assistant-floppy' \\\n" % (self._assistantFloppyFile)
-            cmd += "    -device floppy,drive=assistant-floppy \\\n"
+            cmd += "    -device floppy,unit=0,drive=assistant-floppy \\\n"
 
         # graphics device
         cmd += "    -display gtk \\\n"
