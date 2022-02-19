@@ -32,6 +32,16 @@ import subprocess
 
 class Util:
 
+    driveC = "C:"
+    driveD = "D:"
+    driveReserve = "SysReserv"
+
+    fsTypeFat = "vfat"
+    fsTypeNtfs = "ntfs"
+
+    diskPartTableMbr = "mbr"
+    diskPartTableGpt = "gpt"
+
     @staticmethod
     def createFormattedFloppy(floppyFile):
         """create a 1.44M floppy disk with DOS format"""
