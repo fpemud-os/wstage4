@@ -451,7 +451,8 @@ class AnswerFileGeneratorForWindowsXP:
         buf += "InstallDefaultComponents=Yes\n"
         buf += "\n"
         buf += "[GuiRunOnce]\n"
-        buf += "\"shutdown /s /t 60\"\n"
+        buf += 'Command1="timeout /t 120"\n'       # wait NTP synchronization complete, shutdown's timeout malfunctions if system time change
+        buf += 'Command2="shutdown /s /t 5"\n'
 
         return ("winnt.sif", buf.encode("iso8859-1"))
 
@@ -602,12 +603,7 @@ class AnswerFileGeneratorForWindows7:
                         <FirstLogonCommands>
                             <SynchronousCommand>
                                 <Order>1</Order>
-                                <CommandLine>timeout /t 30</CommandLine>                <!-- wait 30 seconds -->
-                            </SynchronousCommand>
-                            <SynchronousCommand>
-                                <Order>2</Order>
-                                <CommandLine>shutdown /s /f /t 0</CommandLine>          <!-- shutdown immediately. shutdown's own wait function malfunctions if system time change -->
-                                                                                        <!-- we'd better revert to "shutdown /s", since shutdown can show a timeout dialog when timing out -->
+                                <CommandLine>timeout /t 60</CommandLine>
                             </SynchronousCommand>
                         </FirstLogonCommands>
                     </component>
