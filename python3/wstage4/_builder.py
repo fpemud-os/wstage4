@@ -51,7 +51,7 @@ class BuildStep(enum.IntEnum):
     INIT = enum.auto()
     CUSTOM_INSTALL_MEDIA_PREPARED = enum.auto()
     MSWIN_INSTALLED = enum.auto()
-    MSWIN_ADDONS_INSTALLED = enum.auto()
+    MSWIN_EXTRA_ADDONS_INSTALLED = enum.auto()
     APPLICATIONS_INSTALLED = enum.auto()
     SYSTEM_CUSTOMIZED = enum.auto()
     CLEANED_UP = enum.auto()
@@ -126,14 +126,14 @@ class Builder:
             vm.wait()
 
     @Action(BuildStep.MSWIN_INSTALLED)
-    def action_install_windows_addons(self):
+    def action_install_windows_extra_addons(self):
         vm = Vm(self._workDirObj.image_filepath, cmd_file=self._workDirObj.qemu_cmd_filepath)
 
-    @Action(BuildStep.MSWIN_INSTALLED, BuildStep.MSWIN_ADDONS_INSTALLED)
+    @Action(BuildStep.MSWIN_INSTALLED, BuildStep.MSWIN_EXTRA_ADDONS_INSTALLED)
     def action_install_applications(self):
         pass
 
-    @Action(BuildStep.MSWIN_INSTALLED, BuildStep.MSWIN_ADDONS_INSTALLED, BuildStep.APPLICATIONS_INSTALLED)
+    @Action(BuildStep.MSWIN_INSTALLED, BuildStep.MSWIN_EXTRA_ADDONS_INSTALLED, BuildStep.APPLICATIONS_INSTALLED)
     def action_customize_system(self, custom_script_list=[]):
         assert all([isinstance(s, ScriptInChroot) for s in custom_script_list])
 
@@ -142,7 +142,7 @@ class Builder:
                 for s in custom_script_list:
                     m.script_exec(s, quiet=self._getQuiet())
 
-    @Action(BuildStep.MSWIN_INSTALLED, BuildStep.MSWIN_ADDONS_INSTALLED, BuildStep.APPLICATIONS_INSTALLED, BuildStep.SYSTEM_CUSTOMIZED)
+    @Action(BuildStep.MSWIN_INSTALLED, BuildStep.MSWIN_EXTRA_ADDONS_INSTALLED, BuildStep.APPLICATIONS_INSTALLED, BuildStep.SYSTEM_CUSTOMIZED)
     def action_cleanup(self):
         pass
 
