@@ -145,19 +145,18 @@ class Vm:
         if True:
             cmd += "    -blockdev 'driver=file,filename=%s,node-name=main-disk' \\\n" % (self._diskPath)
             if self._mainDiskInterface == "ide":
-                cmd += "    -device ide-hd,drive=main-disk,bootindex=2 \\\n"
+                cmd += "    -device ide-hd,bus=ide.0,drive=main-disk,bootindex=2 \\\n"
             elif self._mainDiskInterface == "scsi":
                 cmd += "    -device scsi-hd,drive=main-disk,bootindex=2 \\\n"
             elif self._mainDiskInterface == "virtio":
                 cmd += "    -device virtio-blk-device,drive=main-disk,bootindex=2 \\\n"
-                pciSlot += 1
             else:
                 assert False
 
         # boot-iso-file
         if self._bootFile is not None:
             cmd += "    -blockdev 'driver=file,filename=%s,node-name=boot-cdrom' \\\n" % (self._bootFile)
-            cmd += "    -device ide-cd,drive=boot-cdrom,bootindex=1 \\\n"
+            cmd += "    -device ide-cd,bus=ide.1,drive=boot-cdrom,bootindex=1 \\\n"
 
         # assistant-floppy-file
         if self._assistantFloppyFile is not None:

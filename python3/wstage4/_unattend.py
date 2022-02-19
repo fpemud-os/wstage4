@@ -481,9 +481,15 @@ class AnswerFileGeneratorForWindows7:
         }
 
         langDict = {
-            Lang.en_US: "en-us",
-            Lang.zh_CN: "zh-cn",
-            Lang.zh_TW: "zh-tw",
+            Lang.en_US: "en-US",
+            Lang.zh_CN: "zh-CN",
+            Lang.zh_TW: "zh-TW",
+        }
+
+        localeCodeDict = {
+            Lang.en_US: "1033:00000409",
+            Lang.zh_CN: "2052:00000804",
+            Lang.zh_TW: "1028:00000404",
         }
 
         timezoneDict = {
@@ -498,12 +504,12 @@ class AnswerFileGeneratorForWindows7:
                 <settings pass="windowsPE">
                     <component name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="@@arch@@" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                         <SetupUILanguage>
-                            <UILanguage>@@lang@@</UILanguage>
+                            <UILanguage>@@pe_lang@@</UILanguage>
                         </SetupUILanguage>
-                        <InputLocale>@@lang@@</InputLocale>
-                        <SystemLocale>@@lang@@</SystemLocale>
-                        <UILanguage>@@lang@@</UILanguage>
-                        <UserLocale>@@lang@@</UserLocale>
+                        <InputLocale>@@pe_input_lang@@</InputLocale>
+                        <SystemLocale>@@pe_lang@@</SystemLocale>
+                        <UILanguage>@@pe_lang@@</UILanguage>
+                        <UserLocale>@@pe_lang@@</UserLocale>
                     </component>
                     <component name="Microsoft-Windows-Setup" processorArchitecture="@@arch@@" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                         <DiskConfiguration>
@@ -604,6 +610,8 @@ class AnswerFileGeneratorForWindows7:
             </unattend>
         """
         buf = buf.replace("@@arch@@", archDict[ts.arch])
+        buf = buf.replace("@@pe_lang@@", langDict[Lang.en_US])                  # use fixed PE language, no one reads it ;)
+        buf = buf.replace("@@pe_input_lang@@", localeCodeDict[Lang.en_US])      # same above
         buf = buf.replace("@@lang@@", langDict[ts.lang])
         buf = buf.replace("@@username@@", "A")
         buf = buf.replace("@@password@@", "")
