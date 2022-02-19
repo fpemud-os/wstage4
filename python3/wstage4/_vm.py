@@ -37,7 +37,7 @@ class Vm:
             data = Util.readUntil(f, '\n\0', max=512, bTextOrBinary=False)
 
         data = json.loads(data.decode("iso8859-1"))
-        self._init(data["arch"], data["category"], data["edition"], data["lang"], main_disk_filepath, None, None, cmd_file)
+        self._init(False, data["arch"], data["category"], data["edition"], data["lang"], main_disk_filepath, None, None, cmd_file)
 
     def __enter__(self):
         self.start()
@@ -72,7 +72,7 @@ class Vm:
         self._proc = None
         self._qmpPort = None
 
-    def _init(self, arch, category, edition, lang, mainDiskFile, bootIsoFile, assistantFloppyFile, cmdFile):
+    def _init(self, bBootstrap, arch, category, edition, lang, mainDiskFile, bootIsoFile, assistantFloppyFile, cmdFile):
         # vm type
         if category in [Category.WINDOWS_98, Category.WINDOWS_XP]:
             self._qemuVmType = "pc"
@@ -93,12 +93,20 @@ class Vm:
             assert False
 
         # disk interface
-        if category in [Category.WINDOWS_98, Category.WINDOWS_XP]:
-            self._mainDiskInterface = "ide"
-        elif category in [Category.WINDOWS_7]:
-            self._mainDiskInterface = "scsi"
+        if bBootstrap:
+            if category in [Category.WINDOWS_98, Category.WINDOWS_XP, Category.WINDOWS_7]:
+                self._mainDiskInterface = "ide"
+            elif category in []:
+                self._mainDiskInterface = "scsi"
+            else:
+                assert False
         else:
-            assert False
+            if category in [Category.WINDOWS_98, Category.WINDOWS_XP]:
+                self._mainDiskInterface = "ide"
+            elif category in [Category.WINDOWS_7]:
+                self._mainDiskInterface = "scsi"
+            else:
+                assert False
 
         # main disk file path
         self._diskPath = mainDiskFile
@@ -148,14 +156,17 @@ class Vm:
         cmd += "    -m %s \\\n" % (self._memorySize)
         cmd += "    -rtc base=localtime \\\n"           # FIXME: how to do it more standard
         cmd += "    -device isa-fdc \\\n"               # FIXME: create floppy controller, how to do it more standard
+        # cmd += "    -device virtio-scsi-pci \\\n"
 
         # main-disk
         if True:
             cmd += "    -blockdev 'driver=file,filename=%s,node-name=main-disk' \\\n" % (self._diskPath)
             if self._mainDiskInterface == "ide":
-                cmd += "    -device ide-hd,bus=ide.0,unit=0,drive=main-disk,id=main-disk,bootindex=2 \\\n"
+                cmd += "    -device ide-hd,drive=main-disk,bootindex=2 \\\n"
             elif self._mainDiskInterface == "scsi":
-                cmd += "    -device virtio-blk-pci,scsi=off,bus=%s,addr=0x%02x,drive=main-disk,id=main-disk,bootindex=2 \\\n" % (pciBus, pciSlot)        # FIXME
+                cmd += "    -device scsi-hd,drive=main-disk,bootindex=2 \\\n"
+            elif self._mainDiskInterface == "virtio":
+                cmd += "    -device virtio-blk-device,bus=%s,addr=0x%02x,drive=main-disk,bootindex=2 \\\n" % (pciBus, pciSlot)
                 pciSlot += 1
             else:
                 assert False
@@ -213,16 +224,20 @@ class VmUtil:
         }) + "\n"
 
         with open(mainDiskPath, 'wb') as f:
-            f.truncate(VmUtil.getMainDiskSize(arch, edition, lang) * 1000 * 1000 * 1000)
+            f.truncate(VmUtil.getMainDiskSize(arch, category, edition, lang) * 1000 * 1000 * 1000)
             if True:
                 f.seek(512)
                 f.write(buf.encode("iso8859-1"))
 
         ret = Vm.__new__(Vm)
-        ret._init(arch, category, edition, lang, mainDiskPath, bootIsoFile, assistantFloppyFile, cmdFile)
+        ret._init(True, arch, category, edition, lang, mainDiskPath, bootIsoFile, assistantFloppyFile, cmdFile)
         return ret
 
     @staticmethod
-    def getMainDiskSize(arch, edition, lang):
-        # disk size (10G)
-        return 10
+    def getMainDiskSize(arch, category, edition, lang):
+        if category in [Category.WINDOWS_98, Category.WINDOWS_XP]:
+            return 10
+        elif category in [Category.WINDOWS_7]:
+            return 20
+        else:
+            assert False

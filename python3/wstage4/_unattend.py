@@ -505,17 +505,15 @@ class AnswerFileGeneratorForWindows7:
                                 <DiskID>0</DiskID>
                                 <WillWipeDisk>true</WillWipeDisk>
                                 <CreatePartitions>
-                                    <!-- system reserved partition for windows-7 -->
-                                    <CreatePartition>
+                                    <CreatePartition>               <!-- system reserved partition -->
                                         <Order>1</Order>
                                         <Type>Primary</Type>                            
                                         <Size>100</Size>
                                     </CreatePartition>
-                                    <!-- windows partition -->
-                                    <CreatePartition>
+                                    <CreatePartition>               <!-- windows partition -->
                                         <Order>2</Order>
                                         <Type>Primary</Type>
-                                        <Extend>true</Extend>
+                                        <Extend>true</Extend>       <!-- use all remaining space -->
                                     </CreatePartition>
                                 </CreatePartitions>
                                 <ModifyPartitions>
@@ -524,14 +522,13 @@ class AnswerFileGeneratorForWindows7:
                                         <PartitionID>1</PartitionID>
                                         <Active>true</Active>
                                         <Format>NTFS</Format>
-                                        <TypeID>0x27</TypeID>
                                         <Label>System Reserved</Label>
                                     </ModifyPartition>
                                     <ModifyPartition>
                                         <Order>2</Order>
                                         <PartitionID>2</PartitionID>
-                                        <Letter>C</Letter>
                                         <Format>NTFS</Format>
+                                        <Letter>C</Letter>
                                     </ModifyPartition>
                                 </ModifyPartitions>
                             </Disk>
