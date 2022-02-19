@@ -26,18 +26,13 @@ from gstage4.scripts import ScriptFromBuffer
 from gstage4.scripts import PlacingFilesScript
 
 
-class SshServer:
+class InstallLanguagePack:
+    pass
 
-    def update_world_set(self, world_set):
-        world_set.add("net-misc/openssh")
 
-    def update_service_list(self, service_list):
-        if "sshd" not in service_list:
-            service_list.append("sshd")
+class UseChocolaty:
+    pass
 
-    def update_custom_script_list(self, custom_script_list):
-        # FIXME
-        pass
 
 
 class SetPasswordForUserRoot:

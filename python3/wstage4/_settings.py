@@ -21,7 +21,7 @@
 # THE SOFTWARE.
 
 
-from ._const import Arch
+from ._const import Arch, Category, Edition, Lang
 from ._errors import SettingsError
 
 
@@ -72,7 +72,10 @@ class TargetSettings:
         self.category = None
         self.edition = None
         self.lang = None
+
         self.product_key = None
+
+        self.addons = []
 
     @classmethod
     def check_object(cls, obj, raise_exception=None):
@@ -82,40 +85,56 @@ class TargetSettings:
             if not isinstance(obj, cls):
                 raise SettingsError("invalid object type")
 
-            if obj.arch == "alpha":
-                pass
-            elif obj.arch == "amd64":
-                pass
-            elif obj.arch == "arm":
-                pass
-            elif obj.arch == "hppa":
-                pass
-            elif obj.arch == "ia64":
-                pass
-            elif obj.arch == "m68k":
-                pass
-            elif obj.arch == "mips":
-                pass
-            elif obj.arch == "ppc":
-                pass
-            elif obj.arch == "riscv":
-                pass
-            elif obj.arch == "s390":
-                pass
-            elif obj.arch == "sh":
-                pass
-            elif obj.arch == "sparc":
-                pass
-            elif obj.arch == Arch.X86:
-                pass
-            elif obj.arch == Arch.X86_64:
-                pass
-            else:
+            # check obj.arch
+            if not isinstance(obj.arch, Arch):
                 raise SettingsError("invalid value of arch")
 
+            # check obj.category
+            if not isinstance(obj.arch, Category):
+                raise SettingsError("invalid value of category")
+            if True:
+                if obj.category in [Category.WINDOWS_98]:
+                    if obj.arch not in [Arch.X86]:
+                        raise SettingsError("arch and category are not match")
+                elif obj.category in [Category.WINDOWS_XP, Category.WINDOWS_7]:
+                    if obj.arch not in [Arch.X86, Arch.X86_64]:
+                        raise SettingsError("arch and category are not match")
+                else:
+                    assert False
 
+            # check obj.edition
+            if not isinstance(obj.edition, Edition):
+                raise SettingsError("invalid value of edition")
+            if True:
+                if obj.edition in [Edition.WINDOWS_98, Edition.WINDOWS_98_SE]:
+                    if obj.category != Category.WINDOWS_98:
+                        raise SettingsError("category and edition are not match")
+                elif obj.edition in [Edition.WINDOWS_XP_HOME, Edition.WINDOWS_XP_PROFESSIONAL]:
+                    if obj.category != Category.WINDOWS_XP:
+                        raise SettingsError("category and edition are not match")
+                elif obj.edition in [Edition.WINDOWS_7_STARTER, Edition.WINDOWS_7_HOME_BASIC, Edition.WINDOWS_7_HOME_PREMIUM, Edition.WINDOWS_7_PROFESSIONAL, Edition.WINDOWS_7_ULTIMATE, Edition.WINDOWS_7_ENTERPRISE]:
+                    if obj.category != Category.WINDOWS_7:
+                        raise SettingsError("category and edition are not match")
+                else:
+                    assert False
 
+            # check obj.lang
+            if not isinstance(obj.lang, Lang):
+                raise SettingsError("invalid value of lang")
 
+            # check obj.addons
+            if True:
+                if obj.category == Category.WINDOWS_98:
+                    validAddons = []
+                elif obj.category == Category.WINDOWS_XP:
+                    validAddons = []
+                elif obj.category == Category.WINDOWS_7:
+                    validAddons = []
+                else:
+                    assert False
+                for item in obj.addons:
+                    if item not in validAddons:
+                        raise SettingsError("invalid addon %s" % (item))
 
             return True
         except SettingsError:
