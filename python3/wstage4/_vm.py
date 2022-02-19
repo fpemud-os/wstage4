@@ -30,14 +30,14 @@ from ._const import Arch, Category, Edition, Lang
 
 class Vm:
 
-    def __init__(self, main_disk_filepath):
+    def __init__(self, main_disk_filepath, cmd_file=None):
         data = None
         with open(main_disk_filepath, "rb") as f:
             f.seek(512)
             data = Util.readUntil(f, '\n\0', max=512, bTextOrBinary=False)
 
         data = json.loads(data.decode("iso8859-1"))
-        self._init(data["arch"], data["category"], data["edition"], data["lang"], main_disk_filepath, None, None)
+        self._init(data["arch"], data["category"], data["edition"], data["lang"], main_disk_filepath, None, None, cmd_file)
 
     def __enter__(self):
         self.start()
@@ -52,7 +52,11 @@ class Vm:
     def start(self):
         try:
             self._qmpPort = Util.getFreeTcpPort()
-            self._proc = subprocess.Popen(self._generateQemuCommand(), shell=True)
+            cmd = self._generateQemuCommand()
+            if self._cmdFile is not None:               # for debugging
+                with open(self._cmdFile, "w") as f:
+                    f.write(cmd)
+            self._proc = subprocess.Popen(cmd, shell=True)
         except BaseException:
             self.stop()
             raise
@@ -68,7 +72,7 @@ class Vm:
         self._proc = None
         self._qmpPort = None
 
-    def _init(self, arch, category, edition, lang, mainDiskFile, bootIsoFile, assistantFloppyFile):
+    def _init(self, arch, category, edition, lang, mainDiskFile, bootIsoFile, assistantFloppyFile, cmdFile):
         # vm type
         if category in [Category.WINDOWS_98, Category.WINDOWS_XP]:
             self._qemuVmType = "pc"
@@ -105,6 +109,9 @@ class Vm:
         # assistant floppy file path, can be None
         self._assistantFloppyFile = assistantFloppyFile
 
+        # cmd file
+        self._cmdFile = cmdFile
+
         # runtime variables
         self._proc = None
         self._qmpPort = None
@@ -127,43 +134,43 @@ class Vm:
         else:
             assert False
 
-        cmd = "/usr/bin/qemu-system-x86_64"
+        cmd = "/usr/bin/qemu-system-x86_64 \\\n"
         if os.getuid() == 0:
             # non-priviledged user can use us with a performance pernalty
-            cmd += " -enable-kvm"
-        cmd += " -no-user-config"
-        # cmd += " -nodefaults"
-        cmd += " -machine %s,usb=on" % (self._qemuVmType)
+            cmd += "    -enable-kvm \\\n"
+        cmd += "    -no-user-config \\\n"
+        # cmd += "    -nodefaults \\\n"
+        cmd += "    -machine %s,usb=on \\\n" % (self._qemuVmType)
 
         # platform device
-        cmd += " -cpu host"
-        cmd += " -smp 1,sockets=1,cores=%d,threads=1" % (self._cpuNumber)
-        cmd += " -m %s" % (self._memorySize)
-        cmd += " -rtc base=localtime"
+        cmd += "    -cpu host \\\n"
+        cmd += "    -smp 1,sockets=1,cores=%d,threads=1 \\\n" % (self._cpuNumber)
+        cmd += "    -m %s \\\n" % (self._memorySize)
+        cmd += "    -rtc base=localtime \\\n"
 
         # boot-iso-file
         if self._bootFile is not None:
-            cmd += " -drive \'file=%s,if=none,id=boot-cdrom,readonly=on,format=raw\'" % (self._bootFile)
-            cmd += " -device ide-cd,bus=ide.1,unit=0,drive=boot-cdrom,id=boot-cdrom,bootindex=1"
+            cmd += "    -drive 'file=%s,if=none,id=boot-cdrom,readonly=on,format=raw' \\\n" % (self._bootFile)
+            cmd += "    -device ide-cd,bus=ide.1,unit=0,drive=boot-cdrom,id=boot-cdrom,bootindex=1 \\\n"
 
         # main-disk
         if True:
-            cmd += " -drive \'file=%s,if=none,id=main-disk,format=raw\'" % (self._diskPath)
+            cmd += "    -drive 'file=%s,if=none,id=main-disk,format=raw' \\\n" % (self._diskPath)
             if self._mainDiskInterface == "ide":
-                cmd += " -device ide-hd,bus=ide.0,unit=0,drive=main-disk,id=main-disk,bootindex=2"
+                cmd += "    -device ide-hd,bus=ide.0,unit=0,drive=main-disk,id=main-disk,bootindex=2 \\\n"
             elif self._mainDiskInterface == "scsi":
-                cmd += " -device virtio-blk-pci,scsi=off,bus=%s,addr=0x%02x,drive=main-disk,id=main-disk,bootindex=2" % (pciBus, pciSlot)        # FIXME
+                cmd += "    -device virtio-blk-pci,scsi=off,bus=%s,addr=0x%02x,drive=main-disk,id=main-disk,bootindex=2 \\\n" % (pciBus, pciSlot)        # FIXME
                 pciSlot += 1
             else:
                 assert False
 
         # assistant-floppy-file
         if self._assistantFloppyFile is not None:
-            cmd += " -drive \'file=%s,if=none,id=assistant-floopy,format=raw\'"%(self._assistantFloppyFile)
-            cmd += " -global isa-fdc.driveA=assistant-floopy"
+            cmd += "    -drive \'file=%s,if=none,id=assistant-floopy,format=raw\' \\\n"%(self._assistantFloppyFile)
+            cmd += "    -global isa-fdc.driveA=assistant-floopy \\\n"
 
         # graphics device
-        cmd += " -display gtk"
+        cmd += "    -display gtk \\\n"
     #     if True:
     #         if self._graphicsAdapterInterface == "qxl":
     #             assert self.spicePort != -1
@@ -178,13 +185,16 @@ class Vm:
 
         # network device
         if True:
-            cmd += " -netdev user,id=eth0"
-            cmd += " -device rtl8139,netdev=eth0,bus=%s,addr=0x%02x,romfile=" % (pciBus, pciSlot)
+            cmd += "    -netdev user,id=eth0 \\\n"
+            cmd += "    -device rtl8139,netdev=eth0,bus=%s,addr=0x%02x,romfile= \\\n" % (pciBus, pciSlot)
             pciSlot += 1
 
         # monitor interface
         if True:
-            cmd += " -qmp \"tcp:127.0.0.1:%d,server,nowait\"" % (self._qmpPort)
+            cmd += "    -qmp \"tcp:127.0.0.1:%d,server,nowait\" \\\n" % (self._qmpPort)
+
+        # eliminate the last " \\\n"
+        cmd = cmd[:-3] + "\n"
 
         return cmd
 
@@ -192,7 +202,7 @@ class Vm:
 class VmUtil:
 
     @staticmethod
-    def getBootstrapVm(arch, category, edition, lang, mainDiskPath, bootIsoFile, assistantFloppyFile):
+    def getBootstrapVm(arch, category, edition, lang, mainDiskPath, bootIsoFile, assistantFloppyFile, cmdFile=None):
         buf = json.dumps({
             "arch": arch,
             "category": category,
@@ -207,7 +217,7 @@ class VmUtil:
                 f.write(buf.encode("iso8859-1"))
 
         ret = Vm.__new__(Vm)
-        ret._init(arch, category, edition, lang, mainDiskPath, bootIsoFile, assistantFloppyFile)
+        ret._init(arch, category, edition, lang, mainDiskPath, bootIsoFile, assistantFloppyFile, cmdFile)
         return ret
 
     @staticmethod

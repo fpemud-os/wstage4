@@ -137,12 +137,12 @@ class Builder:
         else:
             assert False
 
-        with VmUtil.getBootstrapVm(self._ts.arch, self._ts.category, self._ts.edition, self._ts.lang, self._workDirObj.image_filepath, installIsoFile, floppyFile) as vm:
+        with VmUtil.getBootstrapVm(self._ts.arch, self._ts.category, self._ts.edition, self._ts.lang, self._workDirObj.image_filepath, installIsoFile, floppyFile, cmdFile=self._workDirObj.qemu_cmd_filepath) as vm:
             vm.wait()
 
     @Action(BuildStep.MSWIN_INSTALLED)
     def action_install_windows_addons(self):
-        vm = Vm(self._workDirObj.image_filepath)
+        vm = Vm(self._workDirObj.image_filepath, cmd_file=self._workDirObj.qemu_cmd_filepath)
 
     @Action(BuildStep.MSWIN_INSTALLED, BuildStep.MSWIN_ADDONS_INSTALLED)
     def action_install_applications(self):

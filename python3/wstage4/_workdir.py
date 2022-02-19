@@ -39,17 +39,12 @@ class WorkDir:
         self._MODE = 0o40700
 
         self._path = path
-        self._isoFile = os.path.join(path, "install.iso")
         self._qemuCmdFile = os.path.join(path, "qemu.sh")
         self._imageFile = os.path.join(path, "disk.img")
 
     @property
     def path(self):
         return self._path
-
-    @property
-    def custom_iso_filepath(self):
-        return self._isoFile
 
     @property
     def qemu_cmd_filepath(self):
