@@ -21,7 +21,7 @@
 # THE SOFTWARE.
 
 
-from ._const import Category, Edition, Lang
+from ._const import Arch, Category, Edition, Lang
 
 
 class AnswerFileGenerator:
@@ -423,6 +423,17 @@ def updateIsoForWindows7(ts, isoObj):
     else:
         key = ts.product_key
 
+    archDict = {
+        Arch.X86: "x86",
+        Arch.X86_64: "amd64",
+    }
+
+    langDict = {
+        Lang.en_US: "en-us",
+        Lang.zh_CN: "zh-cn",
+        Lang.zh_TW: "zh-tw",
+    }
+
     buf = """
         <?xml version="1.0" encoding="utf-8"?>
         <unattend xmlns="urn:schemas-microsoft-com:unattend">
@@ -535,8 +546,8 @@ def updateIsoForWindows7(ts, isoObj):
             <cpi:offlineImage cpi:source="catalog:h:/sources/install_windows 7 ultimate.clg" xmlns:cpi="urn:schemas-microsoft-com:cpi" />
         </unattend>
     """
-    buf = buf.replace("@@arch@@", ts.arch.name)
-    buf = buf.replace("@@lang@@", ts.lang.name)
+    buf = buf.replace("@@arch@@", archDict[ts.arch])
+    buf = buf.replace("@@lang@@", langDict[ts.lang])
     buf = buf.replace("@@username@@", "A")
     buf = buf.replace("@@password@@", "")
     buf = buf.replace("@@product_key@@", key)
