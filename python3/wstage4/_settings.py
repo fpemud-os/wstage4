@@ -90,7 +90,7 @@ class TargetSettings:
                 raise SettingsError("invalid value of arch")
 
             # check obj.category
-            if not isinstance(obj.arch, Category):
+            if not isinstance(obj.category, Category):
                 raise SettingsError("invalid value of category")
             if True:
                 if obj.category in [Category.WINDOWS_98]:

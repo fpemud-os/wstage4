@@ -99,6 +99,8 @@ class InstallMedia:
     def _parserWindownsXP(self):
         if self._label == "GRTMPVOL_EN":
             return (Arch.X86, Category.WINDOWS_XP, [Edition.WINDOWS_XP_PROFESSIONAL], [Lang.en_US])
+        if self._label == "CRMPXVOL_EN":
+            return (Arch.X86_64, Category.WINDOWS_XP, [Edition.WINDOWS_XP_PROFESSIONAL], [Lang.en_US])
         return None
 
     def _parserWindowns7(self):

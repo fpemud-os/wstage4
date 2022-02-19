@@ -126,7 +126,7 @@ class AnswerFileGeneratorForWindows98:
         # from https://www.tek-tips.com/viewthread.cfm?qid=612507
 
         if ts.product_key is None:
-            key = _Util.getDefaultProductKeyByEdition(ts.edition)
+            key = _Util.getDefaultProductKeyByEdition(ts.arch, ts.category, ts.edition, ts.lang)
         else:
             key = ts.product_key
 
@@ -407,7 +407,7 @@ class AnswerFileGeneratorForWindowsXP:
     @staticmethod
     def _get_filename_and_buffer(ts):
         if ts.product_key is None:
-            key = _Util.getDefaultProductKeyByEdition(ts.edition)
+            key = _Util.getDefaultProductKeyByEdition(ts.arch, ts.category, ts.edition, ts.lang)
         else:
             key = ts.product_key
 
@@ -485,7 +485,7 @@ class AnswerFileGeneratorForWindows7:
     @staticmethod
     def _get_filename_and_buffer(ts):
         if ts.product_key is None:
-            key = _Util.getDefaultProductKeyByEdition(ts.edition)
+            key = _Util.getDefaultProductKeyByEdition(ts.arch, ts.category, ts.edition, ts.lang)
         else:
             key = ts.product_key
 
@@ -672,7 +672,7 @@ class _Util:
         pass
 
     @staticmethod
-    def getDefaultProductKeyByEdition(edition):
+    def getDefaultProductKeyByEdition(arch, category, edition, lang):
         # these are the "public knowledge" abandonware key supplied by Microsoft
         # there may be additional logic in future, so we don't use dict here
 
@@ -688,9 +688,13 @@ class _Util:
             # ?
             return "NG4HW-VH26C-733KW-K6F98-J8CK4"
 
-        if edition == Edition.WINDOWS_XP_PROFESSIONAL:
+        if arch == Arch.X86 and edition == Edition.WINDOWS_XP_PROFESSIONAL:
             # ?
             return "HCQ9D-TVCWX-X9QRG-J4B2Y-GR2TT"
+
+        if arch == Arch.X86_64 and edition == Edition.WINDOWS_XP_PROFESSIONAL:
+            # ?
+            return "B66VY-4D94T-TPPD4-43F72-8X4FY"
 
         if edition == Edition.WINDOWS_7_STARTER:
             # from https://www.windowsafg.com/keys.html

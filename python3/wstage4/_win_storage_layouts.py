@@ -22,8 +22,8 @@
 
 
 import os
-from . import StorageLayout
-from . import BootMode
+from ._const import BootMode
+from ._prototype import StorageLayout
 
 
 class StorageLayouts:

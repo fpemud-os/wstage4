@@ -23,7 +23,6 @@
 
 import os
 import abc
-from ._win_storage_layouts import StorageLayouts
 
 
 class ScriptInChroot(abc.ABC):
@@ -58,9 +57,9 @@ class StorageLayout:
         assert len(disk_list) > 0
         assert base_dir.startswith("/") and len(os.listdir(base_dir)) == 0
 
-        import _win_storage_layouts as storage_layouts
         if len(disk_list) == 1:
-            return storage_layouts.StorageLayoutNtfsSysWin._create_and_mount(disk_list, base_dir)
+            from ._win_storage_layouts import StorageLayouts
+            return StorageLayouts().get_storage_layout("ntfs-sys-win")._create_and_mount(disk_list, base_dir)
         else:
             assert False
 
@@ -69,20 +68,21 @@ class StorageLayout:
         assert len(disk_list) > 0
         assert base_dir.startswith("/") and len(os.listdir(base_dir)) == 0
 
+        from ._win_storage_layouts import StorageLayouts
         return StorageLayouts().get_storage_layout(name)._create_and_mount(boot_mode, disk_list, base_dir)
 
-    @abc.abstractmethod
     @property
+    @abc.abstractmethod
     def name(self):
         pass
 
-    @abc.abstractmethod
     @property
+    @abc.abstractmethod
     def boot_mode(self):
         pass
 
-    @abc.abstractmethod
     @property
+    @abc.abstractmethod
     def base_dir(self):
         pass
 
@@ -104,24 +104,8 @@ class StorageLayout:
     def _create_and_mount(cls, disk_list, base_dir):
         pass
 
-    @staticmethod
-    def _getSubClass(name):
-        d = {
-            "fat-win": None,                                            # FIXME
-            "fat-win-data": None,                                       # FIXME
-            "ntfs-win": None,                                           # FIXME
-            "ntfs-win-data": None,                                      # FIXME
-            "ntfs-sys-win": StorageLayoutNtfsSysWin,
-            "ntfs-sys-win-data": None,                                  # FIXME
-            "ntfs-sys-msr-win": None,                                   # FIXME
-            "ntfs-sys-msr-win-data": None,                              # FIXME
-        }
-        ret = d[name]
-        assert ret is not None
-        return ret
 
-
-class MountEntry:
+class StorageLayoutMountEntry:
 
     def __init__(self):
         self.mnt_point = None
