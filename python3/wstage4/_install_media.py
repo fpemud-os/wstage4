@@ -162,6 +162,7 @@ class InstallMediaCustomizer:
         self._src.add_directory(**self._getKwAll(udf_path, joliet_path, iso_path))
 
     def del_dir(self, udf_path=None, joliet_path=None, iso_path=None):
+        # delete recursively, which pycdlib doesn't support
         for child in self._src.list_children(**self._getKwOne(udf_path, joliet_path, iso_path)):
             if child.is_dir():
                 if child is None or child.is_dot() or child.is_dotdot():
@@ -177,7 +178,6 @@ class InstallMediaCustomizer:
         self._src.add_fp(io.BytesIO(file_content), len(file_content), **self._getKwAll(udf_path, joliet_path, iso_path))
 
     def del_file(self, udf_path=None, joliet_path=None, iso_path=None):
-        print(udf_path, joliet_path, iso_path)
         self._src.rm_file(**self._getKwOne(udf_path, joliet_path, iso_path))
 
     def export(self):
