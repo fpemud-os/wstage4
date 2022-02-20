@@ -91,13 +91,13 @@ class Builder:
         m = InstallMedia(path)
         try:
             # check install media
-            if self._ts.arch != m.getArch():
+            if self._ts.arch != m.arch:
                 raise InstallMediaError("invalid install media, arch not match")
-            if self._ts.category != m.getCategory():
+            if self._ts.category != m.category:
                 raise InstallMediaError("invalid install media, category not match")
-            if self._ts.edition not in m.getVariantList():
+            if self._ts.edition not in m.editions:
                 raise InstallMediaError("invalid install media, edition not match")
-            if self._ts.lang not in m.getLangList():
+            if self._ts.lang not in m.languages:
                 raise InstallMediaError("invalid install media, language not match")
 
             # do work

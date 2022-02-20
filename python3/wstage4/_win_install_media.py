@@ -76,16 +76,16 @@ class InstallMedia:
     def path(self):
         return self._path
 
-    def getArch(self):
+    def arch(self):
         return self._arch
 
-    def getCategory(self):
+    def category(self):
         return self._category
 
-    def getVariantList(self):
+    def editions(self):
         return self._variantList
 
-    def getLangList(self):
+    def languages(self):
         return self._langList
 
     def getIsoObj(self):

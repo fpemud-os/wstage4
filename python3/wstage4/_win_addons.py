@@ -34,11 +34,11 @@ class AddonRepo:
     
     def getAddonNames(self):
         if self._category == Category.WINDOWS_98:
-            return ["lang-packs", "virtio-drivers", "nvme-driver"]
+            return ["lang-packs", "virtio-drivers", "common-drivers"]
         elif self._category == Category.WINDOWS_XP:
-            return ["lang-packs", "virtio-drivers", "nvme-driver"]
+            return ["lang-packs", "virtio-drivers", "common-drivers"]
         elif self._category == Category.WINDOWS_7:
-            return ["lang-packs", "virtio-drivers", "nvme-driver"]
+            return ["lang-packs", "virtio-drivers", "common-drivers"]
         else:
             assert False
 
@@ -48,7 +48,7 @@ class AddonRepo:
                 pass
             elif name == "virtio-drivers":
                 pass
-            elif name == "nvme-driver":
+            elif name == "common-drivers":
                 pass
             else:
                 assert False
@@ -57,7 +57,7 @@ class AddonRepo:
                 pass
             elif name == "virtio-drivers":
                 pass
-            elif name == "nvme-driver":
+            elif name == "common-drivers":
                 pass
             else:
                 assert False
@@ -66,7 +66,7 @@ class AddonRepo:
                 pass
             elif name == "virtio-drivers":
                 pass
-            elif name == "nvme-driver":
+            elif name == "common-drivers":
                 pass
             else:
                 assert False
