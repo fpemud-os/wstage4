@@ -68,11 +68,20 @@ class Util:
         return Util.loadObj(filepath)
 
     @staticmethod
-    def readUntil(f, chList, max=-1, bTextOrBinary=True, bInclusive=False):
-        if bTextOrBinary:
+    def readUntil(f, chList, max=-1, bInclusive=False):
+        if isinstance(chList, str):
             buf = ""
-        else:
+        elif isinstance(chList, bytes):
             buf = b''
+        elif isinstance(chList, list):
+            if isinstance(chList[0], str):
+                buf = ""
+            elif isinstance(chList[0], bytes):
+                buf = b''
+            else:
+                assert False
+        else:
+            assert False
 
         while True:
             c = f.read(1)

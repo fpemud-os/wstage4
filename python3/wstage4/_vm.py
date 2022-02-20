@@ -34,7 +34,7 @@ class Vm:
         data = None
         with open(main_disk_filepath, "rb") as f:
             f.seek(512)
-            data = Util.readUntil(f, '\n\0', max=512, bTextOrBinary=False)
+            data = Util.readUntil(f, b'\n\0', max=512)
 
         data = json.loads(data.decode("iso8859-1"))
         self._init(False, data["arch"], data["category"], data["edition"], data["lang"], main_disk_filepath, None, None)

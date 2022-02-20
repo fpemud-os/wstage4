@@ -24,8 +24,6 @@
 import os
 import json
 import enum
-from re import L
-import robust_layer.simple_fops
 from ._util import Util, TmpMount
 from ._const import Category
 from ._prototype import ScriptInChroot

@@ -451,8 +451,8 @@ class AnswerFileGeneratorForWindowsXP:
         buf += "InstallDefaultComponents=Yes\n"
         buf += "\n"
         buf += "[GuiRunOnce]\n"
-        buf += 'Command1="timeout /t 120"\n'       # wait NTP synchronization complete, shutdown's timeout malfunctions if system time change
-        buf += 'Command2="shutdown /s /t 5"\n'
+        buf += 'Command1="ping -n 120"\n'               # wait about 2 minutes for NTP synchronization, shutdown's timeout malfunctions if system time change
+        buf += 'Command2="shutdown /s /f /t 0"\n'
 
         return ("winnt.sif", buf.encode("iso8859-1"))
 
