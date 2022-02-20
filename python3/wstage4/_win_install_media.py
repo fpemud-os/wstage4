@@ -76,15 +76,19 @@ class InstallMedia:
     def path(self):
         return self._path
 
+    @property
     def arch(self):
         return self._arch
 
+    @property
     def category(self):
         return self._category
 
+    @property
     def editions(self):
         return self._variantList
 
+    @property
     def languages(self):
         return self._langList
 
