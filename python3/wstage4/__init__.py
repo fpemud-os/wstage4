@@ -45,6 +45,8 @@ from ._prototype import ScriptInChroot
 
 from ._workdir import WorkDir
 
+from ._vm import Vm
+
 from ._builder import Builder
 from ._builder import BuildStep
 

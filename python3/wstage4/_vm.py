@@ -30,14 +30,14 @@ from ._const import Arch, Category, Edition, Lang
 
 class Vm:
 
-    def __init__(self, main_disk_filepath, cmd_file=None):
+    def __init__(self, main_disk_filepath):
         data = None
         with open(main_disk_filepath, "rb") as f:
             f.seek(512)
             data = Util.readUntil(f, '\n\0', max=512, bTextOrBinary=False)
 
         data = json.loads(data.decode("iso8859-1"))
-        self._init(False, data["arch"], data["category"], data["edition"], data["lang"], main_disk_filepath, None, None, cmd_file)
+        self._init(False, data["arch"], data["category"], data["edition"], data["lang"], main_disk_filepath, None, None)
 
     def __enter__(self):
         self.start()
@@ -49,14 +49,14 @@ class Vm:
     def is_running(self):
         return self._proc is not None
 
-    def start(self):
+    def get_qemu_command(self):
+        return self._generateQemuCommand()
+
+    def start(self, show=False):
         try:
+            self._bShow = show
             self._qmpPort = Util.getFreeTcpPort()
-            cmd = self._generateQemuCommand()
-            if self._cmdFile is not None:               # for debugging
-                with open(self._cmdFile, "w") as f:
-                    f.write(cmd)
-            self._proc = subprocess.Popen(cmd, shell=True)
+            self._proc = subprocess.Popen(self._generateQemuCommand(), shell=True)
         except BaseException:
             self.stop()
             raise
@@ -72,7 +72,7 @@ class Vm:
         self._proc = None
         self._qmpPort = None
 
-    def _init(self, bBootstrap, arch, category, edition, lang, mainDiskFile, bootIsoFile, assistantFloppyFile, cmdFile):
+    def _init(self, bBootstrap, arch, category, edition, lang, mainDiskFile, bootIsoFile, assistantFloppyFile):
         # qemu command
         if arch == Arch.X86:
             self._cmd = "qemu-system-i386"
@@ -124,9 +124,6 @@ class Vm:
 
         # assistant floppy file path, can be None
         self._assistantFloppyFile = assistantFloppyFile
-
-        # cmd file
-        self._cmdFile = cmdFile
 
         # runtime variables
         self._proc = None
@@ -180,7 +177,8 @@ class Vm:
             cmd += "    -device floppy,unit=0,drive=assistant-floppy \\\n"
 
         # graphics device
-        cmd += "    -display gtk \\\n"
+        if self._bShow:
+            cmd += "    -display gtk \\\n"
         cmd += "    -device VGA \\\n"
     #     if True:
     #         if self._graphicsAdapterInterface == "qxl":
@@ -211,7 +209,7 @@ class Vm:
 class VmUtil:
 
     @staticmethod
-    def getBootstrapVm(arch, category, edition, lang, mainDiskPath, bootIsoFile, assistantFloppyFile, cmdFile=None):
+    def getBootstrapVm(arch, category, edition, lang, mainDiskPath, bootIsoFile, assistantFloppyFile):
         buf = json.dumps({
             "arch": arch,
             "category": category,
@@ -226,7 +224,7 @@ class VmUtil:
                 f.write(buf.encode("iso8859-1"))
 
         ret = Vm.__new__(Vm)
-        ret._init(True, arch, category, edition, lang, mainDiskPath, bootIsoFile, assistantFloppyFile, cmdFile)
+        ret._init(True, arch, category, edition, lang, mainDiskPath, bootIsoFile, assistantFloppyFile)
         return ret
 
     @staticmethod
