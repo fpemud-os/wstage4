@@ -30,14 +30,14 @@ from ._const import Arch, Category, Edition, Lang
 
 class Vm:
 
-    def __init__(self, main_disk_filepath, show=False):
+    def __init__(self, main_disk_filepath):
         data = None
         with open(main_disk_filepath, "rb") as f:
             f.seek(512)
             data = Util.readUntil(f, b'\n\0', max=512)
 
         data = json.loads(data.decode("iso8859-1"))
-        self._init(False, data["arch"], data["category"], data["edition"], data["lang"], main_disk_filepath, None, None, show)
+        self._init(False, data["arch"], data["category"], data["edition"], data["lang"], main_disk_filepath, None, None)
 
     def __enter__(self):
         self.start()
@@ -52,8 +52,9 @@ class Vm:
     def get_qemu_command(self):
         return self._generateQemuCommand()
 
-    def start(self):
+    def start(self, show=False):
         try:
+            self._bShow = show
             self._qmpPort = Util.getFreeTcpPort()
             self._proc = subprocess.Popen(self._generateQemuCommand(), shell=True)
         except BaseException:
@@ -71,7 +72,7 @@ class Vm:
         self._proc = None
         self._qmpPort = None
 
-    def _init(self, bBootstrap, arch, category, edition, lang, mainDiskFile, bootIsoFile, assistantFloppyFile, bShow):
+    def _init(self, bBootstrap, arch, category, edition, lang, mainDiskFile, bootIsoFile, assistantFloppyFile):
         # qemu command
         if arch == Arch.X86:
             self._cmd = "qemu-system-i386"
@@ -125,7 +126,6 @@ class Vm:
         self._assistantFloppyFile = assistantFloppyFile
 
         # runtime variables
-        self._bShow = bShow
         self._proc = None
         self._qmpPort = None
 
@@ -209,7 +209,7 @@ class Vm:
 class VmUtil:
 
     @staticmethod
-    def getBootstrapVm(arch, category, edition, lang, mainDiskPath, bootIsoFile, assistantFloppyFile, bShow):
+    def getBootstrapVm(arch, category, edition, lang, mainDiskPath, bootIsoFile, assistantFloppyFile):
         buf = json.dumps({
             "arch": arch,
             "category": category,
@@ -224,7 +224,7 @@ class VmUtil:
                 f.write(buf.encode("iso8859-1"))
 
         ret = Vm.__new__(Vm)
-        ret._init(True, arch, category, edition, lang, mainDiskPath, bootIsoFile, assistantFloppyFile, bShow)
+        ret._init(True, arch, category, edition, lang, mainDiskPath, bootIsoFile, assistantFloppyFile)
         return ret
 
     @staticmethod
