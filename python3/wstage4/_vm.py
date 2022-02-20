@@ -47,30 +47,36 @@ class Vm:
         self.stop()
 
     def is_running(self):
-        return self._proc is not None
+        return hasattr(self, "_proc")
 
     def get_qemu_command(self):
-        return self._generateQemuCommand()
+        return self._cmdLine
 
     def start(self, show=False):
         try:
             self._bShow = show
             self._qmpPort = Util.getFreeTcpPort()
-            self._proc = subprocess.Popen(self._generateQemuCommand(), shell=True)
+            self._cmdLine = self._generateQemuCommand()
+            self._proc = subprocess.Popen(self._cmd, shell=True)
         except BaseException:
             self.stop()
             raise
 
     def stop(self, remove_scripts=True):
-        if self._proc is not None:
+        if hasattr(self, "_proc"):
+            assert self._proc is not None
             # send to qmp shutdown machine
-            self._proc = None
-            self._qmpPort = None
+            del self._proc
+            del self._cmdLine
+            del self._qmpPort
+            del self._bShow
 
     def wait_until_stop(self):
         self._proc.wait()
-        self._proc = None
-        self._qmpPort = None
+        del self._proc
+        del self._cmdLine
+        del self._qmpPort
+        del self._bShow
 
     def _init(self, bBootstrap, arch, category, edition, lang, mainDiskFile, bootIsoFile, assistantFloppyFile):
         # qemu command
@@ -124,10 +130,6 @@ class Vm:
 
         # assistant floppy file path, can be None
         self._assistantFloppyFile = assistantFloppyFile
-
-        # runtime variables
-        self._proc = None
-        self._qmpPort = None
 
     def _generateQemuCommand(self):
         cmd = self._cmd + " \\\n"
