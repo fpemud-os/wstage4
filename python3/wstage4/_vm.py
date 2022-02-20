@@ -67,7 +67,7 @@ class Vm:
             self._proc = None
             self._qmpPort = None
 
-    def wait(self):
+    def wait_until_stop(self):
         self._proc.wait()
         self._proc = None
         self._qmpPort = None

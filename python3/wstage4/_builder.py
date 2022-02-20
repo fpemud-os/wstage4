@@ -24,6 +24,7 @@
 import os
 import json
 import enum
+from re import L
 import robust_layer.simple_fops
 from ._util import Util, TmpMount
 from ._const import Category
@@ -127,8 +128,10 @@ class Builder:
         else:
             assert False
 
-        with VmUtil.getBootstrapVm(self._ts.arch, self._ts.category, self._ts.edition, self._ts.lang, self._workDirObj.image_filepath, installIsoFile, floppyFile, cmdFile=self._workDirObj.qemu_cmd_filepath) as vm:
-            vm.wait()
+        vm = VmUtil.getBootstrapVm(self._ts.arch, self._ts.category, self._ts.edition, self._ts.lang, self._workDirObj.image_filepath, installIsoFile, floppyFile)
+        self._workDirObj.save_qemu_cmd_record(vm.get_qemu_command())
+        vm.start(show=True)
+        vm.wait_until_stop()
 
     @Action(BuildStep.MSWIN_INSTALLED)
     def action_install_applications(self):
@@ -139,7 +142,7 @@ class Builder:
         assert all([isinstance(s, ScriptInChroot) for s in custom_script_list])
 
         if len(custom_script_list) > 0:
-            with _MyVm(self) as m:
+            with Vm() as m:
                 for s in custom_script_list:
                     m.script_exec(s, quiet=self._getQuiet())
 
@@ -149,55 +152,3 @@ class Builder:
 
     def _getQuiet(self):
         return (self._s.verbose_level == 0)
-
-
-class _MyVm(Vm):
-
-    def __init__(self, arch, edition, lang):
-        super().__init__(arch, edition, lang)
-
-    def bind(self):
-        super().bind()
-        try:
-            t = TargetFilesAndDirs(self._w.chroot_dir_path)
-
-            # log directory mount point
-            if self._p._s.log_dir is not None:
-                assert os.path.exists(t.logdir_hostpath) and not Util.isMount(t.logdir_hostpath)
-                Util.shellCall("mount --bind \"%s\" \"%s\"" % (self._p._s.log_dir, t.logdir_hostpath))
-                self._bindMountList.append(t.logdir_hostpath)
-
-            # distdir mount point
-            if self._p._s.host_distfiles_dir is not None:
-                assert os.path.exists(t.distdir_hostpath) and not Util.isMount(t.distdir_hostpath)
-                Util.shellCall("mount --bind \"%s\" \"%s\"" % (self._p._s.host_distfiles_dir, t.distdir_hostpath))
-                self._bindMountList.append(t.distdir_hostpath)
-
-            # pkgdir mount point
-            if self._p._s.host_packages_dir is not None:
-                assert os.path.exists(t.binpkgdir_hostpath) and not Util.isMount(t.binpkgdir_hostpath)
-                Util.shellCall("mount --bind \"%s\" \"%s\"" % (self._p._s.host_packages_dir, t.binpkgdir_hostpath))
-                self._bindMountList.append(t.binpkgdir_hostpath)
-
-            # ccachedir mount point
-            if self._p._s.host_ccache_dir is not None and os.path.exists(t.ccachedir_hostpath):
-                assert os.path.exists(t.ccachedir_hostpath) and not Util.isMount(t.ccachedir_hostpath)
-                Util.shellCall("mount --bind \"%s\" \"%s\"" % (self._p._s.host_ccache_dir, t.ccachedir_hostpath))
-                self._bindMountList.append(t.ccachedir_hostpath)
-
-            # mount points for MountRepository
-            for myRepo in _MyRepoUtil.scanReposConfDir(self._w.chroot_dir_path):
-                mp = myRepo.get_mount_params()
-                if mp is not None:
-                    assert os.path.exists(myRepo.datadir_hostpath) and not Util.isMount(myRepo.datadir_hostpath)
-                    Util.shellCall("mount \"%s\" \"%s\" -o %s" % (mp[0], myRepo.datadir_hostpath, (mp[1] + ",ro") if mp[1] != "" else "ro"))
-                    self._bindMountList.append(myRepo.datadir_hostpath)
-        except BaseException:
-            self.unbind(remove_scripts=False)
-            raise
-
-    def unbind(self):
-        for fullfn in reversed(self._bindMountList):
-            Util.cmdCall("umount", "-l", fullfn)
-        self._bindMountList = []
-        super().unbind()

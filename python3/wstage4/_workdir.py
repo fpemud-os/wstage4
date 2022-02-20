@@ -47,10 +47,6 @@ class WorkDir:
         return self._path
 
     @property
-    def qemu_cmd_filepath(self):
-        return self._qemuCmdFile
-
-    @property
     def image_filepath(self):
         return self._imageFile
 
@@ -66,6 +62,13 @@ class WorkDir:
         if not self._verifyDir(raise_exception):
             return False
         return True
+
+    def save_qemu_cmd_record(self, qemu_cmd):
+        with open(self._qemuCmdFile, "w") as f:
+            f.write(qemu_cmd)
+
+    def delete_qemu_cmd_record(self):
+        robust_layer.simple_fops.rm(self._qemuCmdFile)
 
     def load_record(self, record_name, default_value=None):
         fullfn = os.path.join(self._path, record_name + ".save")
