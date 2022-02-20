@@ -127,8 +127,8 @@ class Builder:
             assert False
 
         vm = VmUtil.getBootstrapVm(self._ts.arch, self._ts.category, self._ts.edition, self._ts.lang, self._workDirObj.image_filepath, installIsoFile, floppyFile)
-        self._workDirObj.save_qemu_cmd_record(vm.get_qemu_command())
         vm.start(show=True)
+        self._workDirObj.save_qemu_cmd_record(vm.get_qemu_command())
         vm.wait_until_stop()
 
     @Action(BuildStep.MSWIN_INSTALLED)
