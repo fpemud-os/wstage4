@@ -78,7 +78,7 @@ class StorageLayout:
 
     @property
     @abc.abstractmethod
-    def boot_mode(self):
+    def partition_type(self):
         pass
 
     @property
