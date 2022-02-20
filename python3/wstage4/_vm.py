@@ -57,7 +57,7 @@ class Vm:
             self._bShow = show
             self._qmpPort = Util.getFreeTcpPort()
             self._cmdLine = self._generateQemuCommand()
-            self._proc = subprocess.Popen(self._cmd, shell=True)
+            self._proc = subprocess.Popen(self._cmdLine, shell=True)
         except BaseException:
             self.stop()
             raise
