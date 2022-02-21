@@ -78,3 +78,10 @@ class Windows98Addon:
     pass
 
 
+# Mainstream support for Windows 98 and 98 SE ended on June 30, 2002
+# Extended support for Windows 98 and 98 SE ended on July 11, 2006.
+
+# Mainstream support for Windows XP ended on April 14, 2009
+# Extended support for Windows XP ended on April 8, 2014
+
+# Support for Windows 7 ended on 14 January 2020
