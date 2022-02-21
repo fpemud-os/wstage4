@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 
+import os
 import enum
 
 
@@ -99,3 +100,46 @@ class Lang(enum.IntEnum):
     en_US = enum.auto()
     zh_CN = enum.auto()
     zh_TW = enum.auto()
+
+
+class Defaults:
+
+    @staticmethod
+    def get_prefered_edition(category):
+        d = {
+            Category.WINDOWS_98: Edition.WINDOWS_98_SE,
+            Category.WINDOWS_XP: Edition.WINDOWS_XP_PROFESSIONAL,
+            Category.WINDOWS_7: Edition.WINDOWS_7_ULTIMATE,
+        }
+        return d[category]
+
+    @staticmethod
+    def get_prefered_install_media_path(arch, category, edition, lang):
+        categoryPathDict = {
+            Category.WINDOWS_98: "windows-98",
+            Category.WINDOWS_XP: "windows-xp",
+            Category.WINDOWS_7: "windows-7",
+        }
+        MediaTypePostfixDict = {
+            Category.WINDOWS_98: "cd",
+            Category.WINDOWS_XP: "cd",
+            Category.WINDOWS_7: "dvd",
+        }
+        archNameDict = {
+            Arch.X86: "x86",
+            Arch.X86_64: "amd64",
+        }
+
+        assert edition == Defaults.get_prefered_edition(category)
+        assert lang == Lang.en_US
+
+        ret = "/usr/share"
+        ret = os.path.join(ret, "microsoft-" + categoryPathDict[category] + "-setup-" + MediaTypePostfixDict[category])
+        if category in [Category.WINDOWS_98]:
+            ret = os.path.join(ret, categoryPathDict[category] + "-setup.iso")
+        elif category in [Category.WINDOWS_XP, Category.WINDOWS_7]:
+            ret = os.path.join(ret, categoryPathDict[category] + "-setup-" + archNameDict[arch] + ".iso")
+        else:
+            assert False
+
+        return ret

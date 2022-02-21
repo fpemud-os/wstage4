@@ -25,7 +25,7 @@ import os
 import json
 import enum
 from ._util import Util, TmpMount
-from ._const import Category
+from ._const import Category, Defaults
 from ._prototype import ScriptInChroot
 from ._errors import SettingsError, InstallMediaError
 from ._settings import Settings, TargetSettings
@@ -86,7 +86,10 @@ class Builder:
         return self._progress
 
     @Action(BuildStep.INIT)
-    def action_prepare_custom_install_media(self, path):
+    def action_prepare_custom_install_media(self, path=None):
+        if path is None:
+            path = Defaults.get_prefered_install_media_path(self._ts.arch, self._ts.category, self._ts.edition, self._ts.lang)
+
         m = InstallMedia(path)
         try:
             # check install media
