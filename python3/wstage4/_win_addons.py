@@ -83,5 +83,6 @@ class Windows98Addon:
 
 # Mainstream support for Windows XP ended on April 14, 2009
 # Extended support for Windows XP ended on April 8, 2014
+# Extended support for Windows Embedded POSReady 2009 (based on Windows XP SP3) systems ends on April 9th, 2019
 
 # Support for Windows 7 ended on 14 January 2020
