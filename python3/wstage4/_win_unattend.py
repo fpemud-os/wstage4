@@ -640,6 +640,8 @@ class AnswerFileGeneratorForWindows7:
         buf = buf.replace("@@product_key@@", key)
         buf = buf.replace("@@timezone@@", timezoneDict[ts.lang])
 
+        # unattend.xml can not be used in <windowsPE> stage and <offlineServicing> stage
+        # autounattend.xml is to be used in all stages
         return ("autounattend.xml", buf.encode("utf-8"))
 
 
