@@ -34,11 +34,11 @@ class AddonRepo:
     
     def getAddonNames(self):
         if self._category == Category.WINDOWS_98:
-            return ["lang-packs", "virtio-drivers", "common-drivers"]
+            return ["lang-packs", "hotfixes", "common-drivers", "virtio-drivers"]
         elif self._category == Category.WINDOWS_XP:
-            return ["lang-packs", "virtio-drivers", "common-drivers"]
+            return ["lang-packs", "hotfixes", "common-drivers", "virtio-drivers"]
         elif self._category == Category.WINDOWS_7:
-            return ["lang-packs", "virtio-drivers", "common-drivers"]
+            return ["lang-packs", "hotfixes", "common-drivers", "virtio-drivers"]
         else:
             assert False
 
@@ -46,27 +46,33 @@ class AddonRepo:
         if self._category == Category.WINDOWS_98:
             if name == "lang-packs":
                 pass
-            elif name == "virtio-drivers":
+            elif name == "hotfixes":
                 pass
             elif name == "common-drivers":
+                pass
+            elif name == "virtio-drivers":
                 pass
             else:
                 assert False
         elif self._category == Category.WINDOWS_XP:
             if name == "lang-packs":
                 pass
-            elif name == "virtio-drivers":
+            elif name == "hotfixes":
                 pass
             elif name == "common-drivers":
+                pass
+            elif name == "virtio-drivers":
                 pass
             else:
                 assert False
         elif self._category == Category.WINDOWS_7:
             if name == "lang-packs":
                 pass
-            elif name == "virtio-drivers":
+            elif name == "hotfixes":
                 pass
             elif name == "common-drivers":
+                pass
+            elif name == "virtio-drivers":
                 pass
             else:
                 assert False
