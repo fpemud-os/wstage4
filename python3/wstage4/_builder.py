@@ -25,7 +25,6 @@ import os
 import json
 import enum
 from ._util import Util, TmpMount
-from ._const import Category, Defaults
 from ._prototype import ScriptInChroot
 from ._errors import SettingsError, InstallMediaError
 from ._settings import Settings, TargetSettings
