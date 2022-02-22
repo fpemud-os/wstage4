@@ -30,7 +30,6 @@ from ._prototype import ScriptInChroot
 from ._errors import SettingsError, InstallMediaError
 from ._settings import Settings, TargetSettings
 from ._vm import Vm, VmUtil
-from ._win_install_media import InstallMedia
 from ._win_addons import AddonRepo
 from ._win_unattend import AnswerFileGenerator
 
@@ -87,37 +86,30 @@ class Builder:
         return self._progress
 
     @Action(BuildStep.INIT)
-    def action_prepare_custom_install_media(self, path=None):
-        if path is None:
-            path = Defaults.get_prefered_install_media_path(self._ts.arch, self._ts.category, self._ts.edition, self._ts.lang)
+    def action_prepare_custom_install_media(self, install_iso_file):
+        # check install iso file
+        if self._ts.arch != install_iso_file.arch:
+            raise InstallMediaError("invalid install ISO file, arch not match")
+        if self._ts.category != install_iso_file.category:
+            raise InstallMediaError("invalid install ISO file, category not match")
+        if self._ts.edition not in install_iso_file.editions:
+            raise InstallMediaError("invalid install ISO file, edition not match")
+        if self._ts.lang not in install_iso_file.languages:
+            raise InstallMediaError("invalid install ISO file, language not match")
 
-        m = InstallMedia(path)
-        try:
-            # check install media
-            if self._ts.arch != m.arch:
-                raise InstallMediaError("invalid install media, arch not match")
-            if self._ts.category != m.category:
-                raise InstallMediaError("invalid install media, category not match")
-            if self._ts.edition not in m.editions:
-                raise InstallMediaError("invalid install media, edition not match")
-            if self._ts.lang not in m.languages:
-                raise InstallMediaError("invalid install media, language not match")
+        # do work
+        if self._ts.category in [Category.WINDOWS_98, Category.WINDOWS_XP, Category.WINDOWS_7]:
+            floppyFile = os.path.join(self._workDirObj.path, "floppy.img")
+            Util.createFormattedFloppy(floppyFile)
+            with TmpMount(floppyFile) as mp:
+                AnswerFileGenerator(self._ts).generateFile(mp.mountpoint)
 
-            # do work
-            if self._ts.category in [Category.WINDOWS_98, Category.WINDOWS_XP, Category.WINDOWS_7]:
-                floppyFile = os.path.join(self._workDirObj.path, "floppy.img")
-                Util.createFormattedFloppy(floppyFile)
-                with TmpMount(floppyFile) as mp:
-                    AnswerFileGenerator(self._ts).generateFile(mp.mountpoint)
-
-                self._workDirObj.save_record("custom-install-media", json.dumps({
-                    "install-iso-filepath": path,
-                    "floppy-filename": os.path.basename(floppyFile),
-                }))
-            else:
-                assert False
-        finally:
-            m.dispose()
+            self._workDirObj.save_record("custom-install-media", json.dumps({
+                "install-iso-filepath": install_iso_file.path,
+                "floppy-filename": os.path.basename(floppyFile),
+            }))
+        else:
+            assert False
 
     @Action(BuildStep.CUSTOM_INSTALL_MEDIA_PREPARED)
     def action_install_windows(self):
