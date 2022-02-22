@@ -23,8 +23,8 @@
 
 import io
 import pycdlib
-from ._const import Arch, Category, Edition, Lang
-from ._errors import InstallMediaError
+from ..python3.wstage4._const import Arch, Category, Edition, Lang
+from ..python3.wstage4._errors import InstallMediaError
 
 
 class InstallMediaCustomizer:
