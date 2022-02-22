@@ -29,11 +29,25 @@ from .. import InstallMediaError
 
 class CloudWindowsInstallIsoFile(WindowsInstallIsoFile):
 
-    def __init__(self, arch, category, edition=None, lang=None):
-        pass
+    def __init__(self, arch, category, edition=None, lang=None, local_filepath=None):
+        self._arch = arch
+        self._category = category
+        self._edition = edition
+        self._lang = lang
+        self._path = local_filepath
+
+    def download(self):
 
 
 
+
+
+        self._set_info(self._path, {
+            "arch": self._arch,
+            "category": self._category,
+            "editions": edition_list,
+            "languages": lang_list,
+        })
 
 
 class LocalWindowsInstallIsoFile(WindowsInstallIsoFile):
@@ -63,35 +77,31 @@ class LocalWindowsInstallIsoFile(WindowsInstallIsoFile):
             # FIXME
             assert lang == Lang.en_US
 
-        self._path = "/usr/share"
-        self._path = os.path.join(self._path, "microsoft-" + categoryPathDict[category] + "-setup-" + MediaTypePostfixDict[category])
+        path = "/usr/share"
+        path = os.path.join(path, "microsoft-" + categoryPathDict[category] + "-setup-" + MediaTypePostfixDict[category])
         if category == Category.WINDOWS_98:
-            self._path = os.path.join(self._path, categoryPathDict[category] + "-setup.iso")
+            path = os.path.join(path, categoryPathDict[category] + "-setup.iso")
             edition_list = [get_prefered_edition_by_category(category)]                             # FIXME: should be from ISO
             lang_list = [Lang.en_US]                                                                # FIXME: should be from ISO
         elif category in Category.WINDOWS_XP:
-            self._path = os.path.join(self._path, categoryPathDict[category] + "-setup-" + archNameDict[arch] + ".iso")
+            path = os.path.join(path, categoryPathDict[category] + "-setup-" + archNameDict[arch] + ".iso")
             edition_list = [get_prefered_edition_by_category(category)]                             # FIXME: should be from ISO
             lang_list = [Lang.en_US]                                                                # FIXME: should be from ISO
         elif category == Category.WINDOWS_7:
-            self._path = os.path.join(self._path, categoryPathDict[category] + "-setup-" + archNameDict[arch] + ".iso")
+            path = os.path.join(path, categoryPathDict[category] + "-setup-" + archNameDict[arch] + ".iso")
             edition_list = [get_prefered_edition_by_category(category)]                             # FIXME: should be from ISO
             lang_list = [Lang.en_US]                                                                # FIXME: should be from ISO
         else:
             assert False
 
         if self.verify:
-            if not os.path.exists(self._path):
-                raise InstallMediaError("file \"%s\" does not exist" % (self._path))
+            if not os.path.exists(path):
+                raise InstallMediaError("file \"%s\" does not exist" % (path))
             # FIXME: check content
 
-        self._set_os_info({
+        self._set_info(path, {
             "arch": arch,
             "category": category,
             "editions": edition_list,
             "languages": lang_list,
         })
-
-    @property
-    def path(self):
-        return self._path

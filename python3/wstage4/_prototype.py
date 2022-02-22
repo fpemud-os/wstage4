@@ -28,7 +28,12 @@ import abc
 class WindowsInstallIsoFile:
 
     def __init__(self):
+        self._path = None
         self._osInfo = None
+
+    @property
+    def path(self):
+        return self._path
 
     @property
     def arch(self):
@@ -46,7 +51,8 @@ class WindowsInstallIsoFile:
     def languages(self):
         return self._osInfo["languages"]
 
-    def _set_os_info(self, os_info):
+    def _set_info(self, iso_filepath, os_info):
+        self._path = iso_filepath
         self._osInfo = os_info
 
 
