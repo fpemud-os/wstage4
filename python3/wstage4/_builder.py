@@ -51,7 +51,8 @@ class BuildStep(enum.IntEnum):
     INIT = enum.auto()
     CUSTOM_INSTALL_MEDIA_PREPARED = enum.auto()
     MSWIN_INSTALLED = enum.auto()
-    APPLICATIONS_INSTALLED = enum.auto()
+    CORE_APPS_INSTALLED = enum.auto()
+    EXTRA_APPS_INSTALLED = enum.auto()
     SYSTEM_CUSTOMIZED = enum.auto()
     CLEANED_UP = enum.auto()
 
@@ -135,10 +136,14 @@ class Builder:
         vm.wait_until_stop()
 
     @Action(BuildStep.MSWIN_INSTALLED)
-    def action_install_applications(self):
+    def action_install_core_applications(self):
         pass
 
-    @Action(BuildStep.MSWIN_INSTALLED, BuildStep.APPLICATIONS_INSTALLED)
+    @Action(BuildStep.MSWIN_INSTALLED, BuildStep.CORE_APPS_INSTALLED)
+    def action_install_extra_applications(self):
+        pass
+
+    @Action(BuildStep.MSWIN_INSTALLED, BuildStep.CORE_APPS_INSTALLED, BuildStep.EXTRA_APPS_INSTALLED)
     def action_customize_system(self, custom_script_list=[]):
         assert all([isinstance(s, ScriptInChroot) for s in custom_script_list])
 
@@ -147,7 +152,7 @@ class Builder:
                 for s in custom_script_list:
                     m.script_exec(s, quiet=self._getQuiet())
 
-    @Action(BuildStep.MSWIN_INSTALLED, BuildStep.APPLICATIONS_INSTALLED, BuildStep.SYSTEM_CUSTOMIZED)
+    @Action(BuildStep.MSWIN_INSTALLED, BuildStep.CORE_APPS_INSTALLED, BuildStep.EXTRA_APPS_INSTALLED, BuildStep.SYSTEM_CUSTOMIZED)
     def action_cleanup(self):
         pass
 

@@ -102,16 +102,34 @@ class Lang(enum.IntEnum):
     zh_TW = enum.auto()
 
 
-class Defaults:
+def get_archs_by_category(category):
+    d = {
+        Category.WINDOWS_98: [Arch.X86],
+        Category.WINDOWS_XP: [Arch.X86, Arch.X86_64],
+        Category.WINDOWS_7: [Arch.X86, Arch.X86_64],
+    }
+    return d[category]
 
-    @staticmethod
-    def get_prefered_edition(category):
-        d = {
-            Category.WINDOWS_98: Edition.WINDOWS_98_SE,
-            Category.WINDOWS_XP: Edition.WINDOWS_XP_PROFESSIONAL,
-            Category.WINDOWS_7: Edition.WINDOWS_7_ULTIMATE,
-        }
-        return d[category]
+
+def get_editions_by_category(category):
+    d = {
+        Category.WINDOWS_98: [Edition.WINDOWS_98, Edition.WINDOWS_98_SE],
+        Category.WINDOWS_XP: [Edition.WINDOWS_XP_HOME, Edition.WINDOWS_XP_PROFESSIONAL],
+        Category.WINDOWS_7: [Edition.WINDOWS_7_STARTER, Edition.WINDOWS_7_HOME_BASIC, Edition.WINDOWS_7_HOME_PREMIUM, Edition.WINDOWS_7_PROFESSIONAL, Edition.WINDOWS_7_ULTIMATE, Edition.WINDOWS_7_ENTERPRISE],
+    }
+    return d[category]
+
+
+def get_prefered_edition_by_category(category):
+    d = {
+        Category.WINDOWS_98: Edition.WINDOWS_98_SE,
+        Category.WINDOWS_XP: Edition.WINDOWS_XP_PROFESSIONAL,
+        Category.WINDOWS_7: Edition.WINDOWS_7_ULTIMATE,
+    }
+    return d[category]
+
+
+class Defaults:
 
     @staticmethod
     def get_prefered_install_media_path(arch, category, edition, lang):

@@ -25,29 +25,29 @@ import os
 import abc
 
 
-class ScriptInChroot(abc.ABC):
+class WindowsInstallIsoFile:
 
-    @abc.abstractmethod
-    def fill_script_dir(self, script_dir_hostpath):
-        pass
+    def __init__(self):
+        self._osInfo = None
 
-    @abc.abstractmethod
-    def get_description(self):
-        pass
+    @property
+    def arch(self):
+        return self._osInfo["arch"]
 
-    @abc.abstractmethod
-    def get_script(self):
-        pass
+    @property
+    def category(self):
+        return self._osInfo["category"]
 
-    def __eq__(self, other):
-        if not isinstance(other, ScriptInChroot):
-            return False
-        if self.get_description() != other.get_description():
-            return False
-        return True
+    @property
+    def editions(self):
+        return self._osInfo["editions"]
 
-    def __ne__(self, other):
-        return (not self.__eq__(other))
+    @property
+    def languages(self):
+        return self._osInfo["languages"]
+
+    def _set_os_info(self, os_info):
+        self._osInfo = os_info
 
 
 class StorageLayout:
@@ -113,3 +113,28 @@ class StorageLayoutMountEntry:
         self.target = None
         self.fs_type = None
         self.mnt_opts = None
+
+
+class ScriptInChroot(abc.ABC):
+
+    @abc.abstractmethod
+    def fill_script_dir(self, script_dir_hostpath):
+        pass
+
+    @abc.abstractmethod
+    def get_description(self):
+        pass
+
+    @abc.abstractmethod
+    def get_script(self):
+        pass
+
+    def __eq__(self, other):
+        if not isinstance(other, ScriptInChroot):
+            return False
+        if self.get_description() != other.get_description():
+            return False
+        return True
+
+    def __ne__(self, other):
+        return (not self.__eq__(other))

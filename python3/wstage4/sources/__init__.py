@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-# wstage4 - customized microsoft windows disk image building
-#
 # Copyright (c) 2020-2021 Fpemud <fpemud@sina.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,35 +20,3 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-
-__package__ = 'wstage4'
-
-__version__ = '0.0.1'
-
-__author__ = 'Fpemud <fpemud@sina.com>'
-
-
-from ._const import Arch
-from ._const import Category
-from ._const import Edition
-from ._const import Lang
-from ._const import get_prefered_edition_by_category
-
-from ._settings import Settings
-from ._settings import TargetSettings
-
-from ._prototype import StorageLayout
-from ._prototype import StorageLayoutMountEntry
-
-from ._prototype import ScriptInChroot
-
-from ._workdir import WorkDir
-
-from ._vm import Vm
-
-from ._builder import Builder
-from ._builder import BuildStep
-
-from ._errors import SettingsError
-from ._errors import InstallMediaError
-from ._errors import WorkDirError
