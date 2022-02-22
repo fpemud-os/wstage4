@@ -22,6 +22,7 @@
 
 
 import os
+import pycdlib
 from .. import Arch, Category, Edition, Lang, get_prefered_edition_by_category
 from .. import WindowsInstallIsoFile
 from .. import InstallMediaError
@@ -37,17 +38,14 @@ class CloudWindowsInstallIsoFile(WindowsInstallIsoFile):
         self._path = local_filepath
 
     def download(self):
-
-
-
-
-
+        # FIXME
         self._set_info(self._path, {
             "arch": self._arch,
             "category": self._category,
-            "editions": edition_list,
-            "languages": lang_list,
+            "editions": [],
+            "languages": [],
         })
+        assert False
 
 
 class LocalWindowsInstallIsoFile(WindowsInstallIsoFile):
@@ -97,7 +95,36 @@ class LocalWindowsInstallIsoFile(WindowsInstallIsoFile):
         if self.verify:
             if not os.path.exists(path):
                 raise InstallMediaError("file \"%s\" does not exist" % (path))
-            # FIXME: check content
+
+            iso = pycdlib.PyCdlib()
+            iso.open(self._path)
+            try:
+                if len(iso.pvds) != 1:
+                    raise InstallMediaError("invalid ISO file, multiple PVDs")
+                if iso.has_rock_ridge():
+                    raise InstallMediaError("invalid ISO file, Rock Ridge extension found")
+
+                # pycdlib has no direct method to get this value, sucks
+                label = iso.pvds[0].volume_identifier.decode(iso.pvds[0].encoding).rstrip(" ")
+                if edition == Edition.WINDOWS_98_SE:
+                    if label != "WIN98 SE":
+                        raise InstallMediaError("invalid ISO file, label not match")
+                elif arch == Arch.X86 and edition == Edition.WINDOWS_XP_PROFESSIONAL:
+                    if label == "GRTMPVOL_EN":
+                        raise InstallMediaError("invalid ISO file, label not match")
+                elif arch == Arch.X86_64 and edition == Edition.WINDOWS_XP_PROFESSIONAL:
+                    if label == "CRMPXVOL_EN":
+                        raise InstallMediaError("invalid ISO file, label not match")
+                elif arch == Arch.X86 and edition == Edition.WINDOWS_7_ULTIMATE:
+                    if label == "GRMCULFRER_EN_DVD":
+                        raise InstallMediaError("invalid ISO file, label not match")
+                elif arch == Arch.X86_64 and edition == Edition.WINDOWS_7_ULTIMATE:
+                    if label == "GRMCULXFRER_EN_DVD":
+                        raise InstallMediaError("invalid ISO file, label not match")
+                else:
+                    assert False
+            finally:
+                iso.close()
 
         self._set_info(path, {
             "arch": arch,
