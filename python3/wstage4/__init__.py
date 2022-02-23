@@ -34,9 +34,8 @@ from ._const import Arch
 from ._const import Version
 from ._const import Edition
 from ._const import Lang
-from ._const import get_archs_by_category
-from ._const import get_editions_by_category
-from ._const import get_prefered_edition_by_category
+from ._const import get_archs_by_version
+from ._const import get_editions_by_version
 
 from ._settings import Settings
 from ._settings import TargetSettings
