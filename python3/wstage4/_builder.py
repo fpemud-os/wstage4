@@ -89,13 +89,13 @@ class Builder:
         assert isinstance(install_iso_file, WindowsInstallIsoFile)
 
         # check install iso file
-        if self._ts.arch != install_iso_file.arch:
+        if self._ts.arch != install_iso_file.get_arch():
             raise InstallMediaError("invalid install ISO file, arch not match")
-        if self._ts.category != install_iso_file.category:
+        if self._ts.category != install_iso_file.get_category():
             raise InstallMediaError("invalid install ISO file, category not match")
-        if self._ts.edition not in install_iso_file.editions:
+        if self._ts.edition not in install_iso_file.get_editions():
             raise InstallMediaError("invalid install ISO file, edition not match")
-        if self._ts.lang not in install_iso_file.languages:
+        if self._ts.lang not in install_iso_file.get_languages():
             raise InstallMediaError("invalid install ISO file, language not match")
 
         # do work
@@ -106,7 +106,7 @@ class Builder:
                 AnswerFileGenerator(self._ts).generateFile(mp.mountpoint)
 
             self._workDirObj.save_record("custom-install-media", json.dumps({
-                "install-iso-filepath": install_iso_file.path,
+                "install-iso-filepath": install_iso_file.get_path(),
                 "floppy-filename": os.path.basename(floppyFile),
             }))
         else:

@@ -31,24 +31,19 @@ class WindowsInstallIsoFile:
         self._path = None
         self._osInfo = None
 
-    @property
-    def path(self):
+    def get_path(self):
         return self._path
 
-    @property
-    def arch(self):
+    def get_arch(self):
         return self._osInfo["arch"]
 
-    @property
-    def category(self):
+    def get_category(self):
         return self._osInfo["category"]
 
-    @property
-    def editions(self):
+    def get_editions(self):
         return self._osInfo["editions"]
 
-    @property
-    def languages(self):
+    def get_languages(self):
         return self._osInfo["languages"]
 
     def _set_info(self, iso_filepath, os_info):
