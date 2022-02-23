@@ -21,29 +21,29 @@
 # THE SOFTWARE.
 
 
-from ._const import Category
+from ._const import Version
 
 
 class AddonRepo:
 
-    def __init__(self, arch, category, edition, lang):
+    def __init__(self, arch, version, edition, lang):
         self._arch = arch
-        self._category = category
+        self._version = version
         self._variantList = edition
         self._langList = lang
     
     def getAddonNames(self):
-        if self._category == Category.WINDOWS_98:
+        if self._version == Version.WINDOWS_98:
             return ["lang-packs", "hotfixes", "common-drivers", "virtio-drivers"]
-        elif self._category == Category.WINDOWS_XP:
+        elif self._version == Version.WINDOWS_XP:
             return ["lang-packs", "hotfixes", "common-drivers", "virtio-drivers"]
-        elif self._category == Category.WINDOWS_7:
+        elif self._version == Version.WINDOWS_7:
             return ["lang-packs", "hotfixes", "common-drivers", "virtio-drivers"]
         else:
             assert False
 
     def getAddon(self, name):
-        if self._category == Category.WINDOWS_98:
+        if self._version == Version.WINDOWS_98:
             if name == "lang-packs":
                 pass
             elif name == "hotfixes":
@@ -54,7 +54,7 @@ class AddonRepo:
                 pass
             else:
                 assert False
-        elif self._category == Category.WINDOWS_XP:
+        elif self._version == Version.WINDOWS_XP:
             if name == "lang-packs":
                 pass
             elif name == "hotfixes":
@@ -65,7 +65,7 @@ class AddonRepo:
                 pass
             else:
                 assert False
-        elif self._category == Category.WINDOWS_7:
+        elif self._version == Version.WINDOWS_7:
             if name == "lang-packs":
                 pass
             elif name == "hotfixes":

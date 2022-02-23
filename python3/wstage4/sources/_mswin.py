@@ -23,16 +23,16 @@
 
 import os
 import pycdlib
-from .. import Arch, Category, Edition, Lang, get_prefered_edition_by_category
+from .. import Arch, Version, Edition, Lang, get_prefered_edition_by_version
 from .. import WindowsInstallIsoFile
 from .. import InstallMediaError
 
 
 class CloudWindowsInstallIsoFile(WindowsInstallIsoFile):
 
-    def __init__(self, arch, category, edition=None, lang=None, local_filepath=None):
+    def __init__(self, arch, version, edition=None, lang=None, local_filepath=None):
         self._arch = arch
-        self._category = category
+        self._version = version
         self._edition = edition
         self._lang = lang
         self._path = local_filepath
@@ -71,7 +71,7 @@ class CloudWindowsInstallIsoFile(WindowsInstallIsoFile):
 
         self._set_info(self._path, {
             "arch": self._arch,
-            "category": self._category,
+            "version": self._version,
             "editions": self._edition,
             "languages": self._lang,
         })
@@ -80,16 +80,16 @@ class CloudWindowsInstallIsoFile(WindowsInstallIsoFile):
 
 class LocalWindowsInstallIsoFile(WindowsInstallIsoFile):
 
-    def __init__(self, arch, category, edition=None, lang=None, verify=True):
-        categoryPathDict = {
-            Category.WINDOWS_98: "windows-98",
-            Category.WINDOWS_XP: "windows-xp",
-            Category.WINDOWS_7: "windows-7",
+    def __init__(self, arch, version, edition=None, lang=None, verify=True):
+        versionPathDict = {
+            Version.WINDOWS_98: "windows-98",
+            Version.WINDOWS_XP: "windows-xp",
+            Version.WINDOWS_7: "windows-7",
         }
         MediaTypePostfixDict = {
-            Category.WINDOWS_98: "cd",
-            Category.WINDOWS_XP: "cd",
-            Category.WINDOWS_7: "dvd",
+            Version.WINDOWS_98: "cd",
+            Version.WINDOWS_XP: "cd",
+            Version.WINDOWS_7: "dvd",
         }
         archNameDict = {
             Arch.X86: "x86",
@@ -98,26 +98,26 @@ class LocalWindowsInstallIsoFile(WindowsInstallIsoFile):
 
         if edition is not None:
             # FIXME
-            # assert edition in get_editions_by_category(category)
-            assert edition == get_prefered_edition_by_category(category)
+            # assert edition in get_editions_by_version(version)
+            assert edition == get_prefered_edition_by_version(version)
 
         if lang is not None:
             # FIXME
             assert lang == Lang.en_US
 
         path = "/usr/share"
-        path = os.path.join(path, "microsoft-" + categoryPathDict[category] + "-setup-" + MediaTypePostfixDict[category])
-        if category == Category.WINDOWS_98:
-            path = os.path.join(path, categoryPathDict[category] + "-setup.iso")
-            edition_list = [get_prefered_edition_by_category(category)]                             # FIXME: should be from ISO
+        path = os.path.join(path, "microsoft-" + versionPathDict[version] + "-setup-" + MediaTypePostfixDict[version])
+        if version == Version.WINDOWS_98:
+            path = os.path.join(path, versionPathDict[version] + "-setup.iso")
+            edition_list = [get_prefered_edition_by_version(version)]                             # FIXME: should be from ISO
             lang_list = [Lang.en_US]                                                                # FIXME: should be from ISO
-        elif category in Category.WINDOWS_XP:
-            path = os.path.join(path, categoryPathDict[category] + "-setup-" + archNameDict[arch] + ".iso")
-            edition_list = [get_prefered_edition_by_category(category)]                             # FIXME: should be from ISO
+        elif version in Version.WINDOWS_XP:
+            path = os.path.join(path, versionPathDict[version] + "-setup-" + archNameDict[arch] + ".iso")
+            edition_list = [get_prefered_edition_by_version(version)]                             # FIXME: should be from ISO
             lang_list = [Lang.en_US]                                                                # FIXME: should be from ISO
-        elif category == Category.WINDOWS_7:
-            path = os.path.join(path, categoryPathDict[category] + "-setup-" + archNameDict[arch] + ".iso")
-            edition_list = [get_prefered_edition_by_category(category)]                             # FIXME: should be from ISO
+        elif version == Version.WINDOWS_7:
+            path = os.path.join(path, versionPathDict[version] + "-setup-" + archNameDict[arch] + ".iso")
+            edition_list = [get_prefered_edition_by_version(version)]                             # FIXME: should be from ISO
             lang_list = [Lang.en_US]                                                                # FIXME: should be from ISO
         else:
             assert False
@@ -158,7 +158,7 @@ class LocalWindowsInstallIsoFile(WindowsInstallIsoFile):
 
         self._set_info(path, {
             "arch": arch,
-            "category": category,
+            "version": version,
             "editions": edition_list,
             "languages": lang_list,
         })

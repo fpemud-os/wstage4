@@ -23,7 +23,7 @@
 
 import io
 import pycdlib
-from ..python3.wstage4._const import Arch, Category, Edition, Lang
+from ..python3.wstage4._const import Arch, Version, Edition, Lang
 from ..python3.wstage4._errors import InstallMediaError
 
 

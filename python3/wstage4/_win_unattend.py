@@ -22,7 +22,7 @@
 
 
 import os
-from ._const import Arch, Category, Edition, Lang
+from ._const import Arch, Version, Edition, Lang
 
 
 class AnswerFileGenerator:
@@ -31,69 +31,69 @@ class AnswerFileGenerator:
         self._ts = target_settings
 
     def generateFile(self, path):
-        if self._ts.category == Category.WINDOWS_98:
+        if self._ts.version == Version.WINDOWS_98:
             obj = AnswerFileGeneratorForWindows98()
             obj.generateFile(self._ts, path)
-        elif self._ts.category == Category.WINDOWS_XP:
+        elif self._ts.version == Version.WINDOWS_XP:
             obj = AnswerFileGeneratorForWindowsXP()
             obj.generateFile(self._ts, path)
-        elif self._ts.category == Category.WINDOWS_VISTA:
+        elif self._ts.version == Version.WINDOWS_VISTA:
             # FIXME
             assert False
-        elif self._ts.category == Category.WINDOWS_7:
+        elif self._ts.version == Version.WINDOWS_7:
             obj = AnswerFileGeneratorForWindows7()
             obj.generateFile(self._ts, path)
-        elif self._ts.category == Category.WINDOWS_8:
+        elif self._ts.version == Version.WINDOWS_8:
             # FIXME
             assert False
-        elif self._ts.category == Category.WINDOWS_8_1:
+        elif self._ts.version == Version.WINDOWS_8_1:
             # FIXME
             assert False
-        elif self._ts.category == Category.WINDOWS_10:
+        elif self._ts.version == Version.WINDOWS_10:
             # FIXME
             assert False
-        elif self._ts.category == Category.WINDOWS_11:
+        elif self._ts.version == Version.WINDOWS_11:
             # FIXME
             assert False
-        elif self._ts.category == Category.WINDOWS_SERVER_2008:
+        elif self._ts.version == Version.WINDOWS_SERVER_2008:
             # FIXME
             assert False
-        elif self._ts.category == Category.WINDOWS_SERVER_2012:
+        elif self._ts.version == Version.WINDOWS_SERVER_2012:
             # FIXME
             assert False
-        elif self._ts.category == Category.WINDOWS_SERVER_2016:
+        elif self._ts.version == Version.WINDOWS_SERVER_2016:
             # FIXME
             assert False
-        elif self._ts.category == Category.WINDOWS_SERVER_2019:
+        elif self._ts.version == Version.WINDOWS_SERVER_2019:
             # FIXME
             assert False
         else:
             assert False
 
     def updateIso(self, isoObj):
-        if self._ts.category == Category.WINDOWS_98:
+        if self._ts.version == Version.WINDOWS_98:
             assert False
-        elif self._ts.category == Category.WINDOWS_XP:
+        elif self._ts.version == Version.WINDOWS_XP:
             assert False
-        elif self._ts.category == Category.WINDOWS_VISTA:
+        elif self._ts.version == Version.WINDOWS_VISTA:
             assert False
-        elif self._ts.category == Category.WINDOWS_7:
+        elif self._ts.version == Version.WINDOWS_7:
             assert False
-        elif self._ts.category == Category.WINDOWS_8:
+        elif self._ts.version == Version.WINDOWS_8:
             assert False
-        elif self._ts.category == Category.WINDOWS_8_1:
+        elif self._ts.version == Version.WINDOWS_8_1:
             assert False
-        elif self._ts.category == Category.WINDOWS_10:
+        elif self._ts.version == Version.WINDOWS_10:
             assert False
-        elif self._ts.category == Category.WINDOWS_11:
+        elif self._ts.version == Version.WINDOWS_11:
             assert False
-        elif self._ts.category == Category.WINDOWS_SERVER_2008:
+        elif self._ts.version == Version.WINDOWS_SERVER_2008:
             assert False
-        elif self._ts.category == Category.WINDOWS_SERVER_2012:
+        elif self._ts.version == Version.WINDOWS_SERVER_2012:
             assert False
-        elif self._ts.category == Category.WINDOWS_SERVER_2016:
+        elif self._ts.version == Version.WINDOWS_SERVER_2016:
             assert False
-        elif self._ts.category == Category.WINDOWS_SERVER_2019:
+        elif self._ts.version == Version.WINDOWS_SERVER_2019:
             assert False
         else:
             assert False
@@ -126,7 +126,7 @@ class AnswerFileGeneratorForWindows98:
         # from https://www.tek-tips.com/viewthread.cfm?qid=612507
 
         if ts.product_key is None:
-            key = _Util.getDefaultProductKeyByEdition(ts.arch, ts.category, ts.edition, ts.lang)
+            key = _Util.getDefaultProductKeyByEdition(ts.arch, ts.version, ts.edition, ts.lang)
         else:
             key = ts.product_key
 
@@ -407,7 +407,7 @@ class AnswerFileGeneratorForWindowsXP:
     @staticmethod
     def _get_filename_and_buffer(ts):
         if ts.product_key is None:
-            key = _Util.getDefaultProductKeyByEdition(ts.arch, ts.category, ts.edition, ts.lang)
+            key = _Util.getDefaultProductKeyByEdition(ts.arch, ts.version, ts.edition, ts.lang)
         else:
             key = ts.product_key
 
@@ -486,7 +486,7 @@ class AnswerFileGeneratorForWindows7:
     @staticmethod
     def _get_filename_and_buffer(ts):
         if ts.product_key is None:
-            key = _Util.getDefaultProductKeyByEdition(ts.arch, ts.category, ts.edition, ts.lang)
+            key = _Util.getDefaultProductKeyByEdition(ts.arch, ts.version, ts.edition, ts.lang)
         else:
             key = ts.product_key
 
@@ -682,7 +682,7 @@ class _Util:
         pass
 
     @staticmethod
-    def getDefaultProductKeyByEdition(arch, category, edition, lang):
+    def getDefaultProductKeyByEdition(arch, version, edition, lang):
         # these are the "public knowledge" abandonware key supplied by Microsoft
         # there may be additional logic in future, so we don't use dict here
 

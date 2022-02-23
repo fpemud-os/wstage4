@@ -29,7 +29,7 @@ class Arch(enum.IntEnum):   # use enum.IntEnum so it's serializable, sucks
     X86_64 = enum.auto()
 
 
-class Category(enum.IntEnum):
+class Version(enum.IntEnum):
     WINDOWS_95 = enum.auto()
     WINDOWS_98 = enum.auto()
     WINDOWS_XP = enum.auto()
@@ -101,28 +101,28 @@ class Lang(enum.IntEnum):
     zh_TW = enum.auto()
 
 
-def get_archs_by_category(category):
+def get_archs_by_version(version):
     d = {
-        Category.WINDOWS_98: [Arch.X86],
-        Category.WINDOWS_XP: [Arch.X86, Arch.X86_64],
-        Category.WINDOWS_7: [Arch.X86, Arch.X86_64],
+        Version.WINDOWS_98: [Arch.X86],
+        Version.WINDOWS_XP: [Arch.X86, Arch.X86_64],
+        Version.WINDOWS_7: [Arch.X86, Arch.X86_64],
     }
-    return d[category]
+    return d[version]
 
 
-def get_editions_by_category(category):
+def get_editions_by_version(version):
     d = {
-        Category.WINDOWS_98: [Edition.WINDOWS_98, Edition.WINDOWS_98_SE],
-        Category.WINDOWS_XP: [Edition.WINDOWS_XP_HOME, Edition.WINDOWS_XP_PROFESSIONAL],
-        Category.WINDOWS_7: [Edition.WINDOWS_7_STARTER, Edition.WINDOWS_7_HOME_BASIC, Edition.WINDOWS_7_HOME_PREMIUM, Edition.WINDOWS_7_PROFESSIONAL, Edition.WINDOWS_7_ULTIMATE, Edition.WINDOWS_7_ENTERPRISE],
+        Version.WINDOWS_98: [Edition.WINDOWS_98, Edition.WINDOWS_98_SE],
+        Version.WINDOWS_XP: [Edition.WINDOWS_XP_HOME, Edition.WINDOWS_XP_PROFESSIONAL],
+        Version.WINDOWS_7: [Edition.WINDOWS_7_STARTER, Edition.WINDOWS_7_HOME_BASIC, Edition.WINDOWS_7_HOME_PREMIUM, Edition.WINDOWS_7_PROFESSIONAL, Edition.WINDOWS_7_ULTIMATE, Edition.WINDOWS_7_ENTERPRISE],
     }
-    return d[category]
+    return d[version]
 
 
-def get_prefered_edition_by_category(category):
+def get_prefered_edition_by_version(version):
     d = {
-        Category.WINDOWS_98: Edition.WINDOWS_98_SE,
-        Category.WINDOWS_XP: Edition.WINDOWS_XP_PROFESSIONAL,
-        Category.WINDOWS_7: Edition.WINDOWS_7_ULTIMATE,
+        Version.WINDOWS_98: Edition.WINDOWS_98_SE,
+        Version.WINDOWS_XP: Edition.WINDOWS_XP_PROFESSIONAL,
+        Version.WINDOWS_7: Edition.WINDOWS_7_ULTIMATE,
     }
-    return d[category]
+    return d[version]

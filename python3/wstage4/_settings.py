@@ -21,7 +21,7 @@
 # THE SOFTWARE.
 
 
-from ._const import Arch, Category, Edition, Lang
+from ._const import Arch, Version, Edition, Lang
 from ._errors import SettingsError
 
 
@@ -69,7 +69,7 @@ class TargetSettings:
 
     def __init__(self):
         self.arch = None
-        self.category = None
+        self.version = None
         self.edition = None
         self.lang = None
 
@@ -89,16 +89,16 @@ class TargetSettings:
             if not isinstance(obj.arch, Arch):
                 raise SettingsError("invalid value of arch")
 
-            # check obj.category
-            if not isinstance(obj.category, Category):
-                raise SettingsError("invalid value of category")
+            # check obj.version
+            if not isinstance(obj.version, Version):
+                raise SettingsError("invalid value of version")
             if True:
-                if obj.category in [Category.WINDOWS_98]:
+                if obj.version in [Version.WINDOWS_98]:
                     if obj.arch not in [Arch.X86]:
-                        raise SettingsError("arch and category are not match")
-                elif obj.category in [Category.WINDOWS_XP, Category.WINDOWS_7]:
+                        raise SettingsError("arch and version are not match")
+                elif obj.version in [Version.WINDOWS_XP, Version.WINDOWS_7]:
                     if obj.arch not in [Arch.X86, Arch.X86_64]:
-                        raise SettingsError("arch and category are not match")
+                        raise SettingsError("arch and version are not match")
                 else:
                     assert False
 
@@ -107,14 +107,14 @@ class TargetSettings:
                 raise SettingsError("invalid value of edition")
             if True:
                 if obj.edition in [Edition.WINDOWS_98, Edition.WINDOWS_98_SE]:
-                    if obj.category != Category.WINDOWS_98:
-                        raise SettingsError("category and edition are not match")
+                    if obj.version != Version.WINDOWS_98:
+                        raise SettingsError("version and edition are not match")
                 elif obj.edition in [Edition.WINDOWS_XP_HOME, Edition.WINDOWS_XP_PROFESSIONAL]:
-                    if obj.category != Category.WINDOWS_XP:
-                        raise SettingsError("category and edition are not match")
+                    if obj.version != Version.WINDOWS_XP:
+                        raise SettingsError("version and edition are not match")
                 elif obj.edition in [Edition.WINDOWS_7_STARTER, Edition.WINDOWS_7_HOME_BASIC, Edition.WINDOWS_7_HOME_PREMIUM, Edition.WINDOWS_7_PROFESSIONAL, Edition.WINDOWS_7_ULTIMATE, Edition.WINDOWS_7_ENTERPRISE]:
-                    if obj.category != Category.WINDOWS_7:
-                        raise SettingsError("category and edition are not match")
+                    if obj.version != Version.WINDOWS_7:
+                        raise SettingsError("version and edition are not match")
                 else:
                     assert False
 

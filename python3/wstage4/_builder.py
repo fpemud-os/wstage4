@@ -25,6 +25,7 @@ import os
 import json
 import enum
 from ._util import Util, TmpMount
+from ._const import Version
 from ._prototype import WindowsInstallIsoFile, ScriptInChroot
 from ._errors import SettingsError, InstallMediaError
 from ._settings import Settings, TargetSettings
@@ -72,7 +73,7 @@ class Builder:
 
         self._ts = target_settings
 
-        self._addonRepo = AddonRepo(self._ts.arch, self._ts.category, self._ts.edition, self._ts.lang)
+        self._addonRepo = AddonRepo(self._ts.arch, self._ts.version, self._ts.edition, self._ts.lang)
         for i in self._ts.addons:
             if i not in self._addonRepo.getAddonNames():
                 raise SettingsError("invalid addon %s" % (i))
@@ -91,15 +92,15 @@ class Builder:
         # check install iso file
         if self._ts.arch != install_iso_file.get_arch():
             raise InstallMediaError("invalid install ISO file, arch not match")
-        if self._ts.category != install_iso_file.get_category():
-            raise InstallMediaError("invalid install ISO file, category not match")
+        if self._ts.version != install_iso_file.get_version():
+            raise InstallMediaError("invalid install ISO file, version not match")
         if self._ts.edition not in install_iso_file.get_editions():
             raise InstallMediaError("invalid install ISO file, edition not match")
         if self._ts.lang not in install_iso_file.get_languages():
             raise InstallMediaError("invalid install ISO file, language not match")
 
         # do work
-        if self._ts.category in [Category.WINDOWS_98, Category.WINDOWS_XP, Category.WINDOWS_7]:
+        if self._ts.version in [Version.WINDOWS_98, Version.WINDOWS_XP, Version.WINDOWS_7]:
             floppyFile = os.path.join(self._workDirObj.path, "floppy.img")
             Util.createFormattedFloppy(floppyFile)
             with TmpMount(floppyFile) as mp:
@@ -116,14 +117,14 @@ class Builder:
     def action_install_windows(self):
         installIsoFile = None
         floppyFile = None
-        if self._ts.category in [Category.WINDOWS_98, Category.WINDOWS_XP, Category.WINDOWS_7]:
+        if self._ts.version in [Version.WINDOWS_98, Version.WINDOWS_XP, Version.WINDOWS_7]:
             savedRecord = json.loads(self._workDirObj.load_record("custom-install-media"))
             installIsoFile = savedRecord["install-iso-filepath"]
             floppyFile = os.path.join(self._workDirObj.path, savedRecord["floppy-filename"])
         else:
             assert False
 
-        vm = VmUtil.getBootstrapVm(self._ts.arch, self._ts.category, self._ts.edition, self._ts.lang, self._workDirObj.image_filepath, installIsoFile, floppyFile)
+        vm = VmUtil.getBootstrapVm(self._ts.arch, self._ts.version, self._ts.edition, self._ts.lang, self._workDirObj.image_filepath, installIsoFile, floppyFile)
         vm.start(show=True)
         self._workDirObj.save_qemu_cmd_record(vm.get_qemu_command())
         vm.wait_until_stop()

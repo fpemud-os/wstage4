@@ -37,8 +37,8 @@ class WindowsInstallIsoFile:
     def get_arch(self):
         return self._osInfo["arch"]
 
-    def get_category(self):
-        return self._osInfo["category"]
+    def get_version(self):
+        return self._osInfo["version"]
 
     def get_editions(self):
         return self._osInfo["editions"]

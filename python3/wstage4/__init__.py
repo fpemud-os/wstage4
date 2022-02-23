@@ -31,7 +31,7 @@ __author__ = 'Fpemud <fpemud@sina.com>'
 
 
 from ._const import Arch
-from ._const import Category
+from ._const import Version
 from ._const import Edition
 from ._const import Lang
 from ._const import get_archs_by_category

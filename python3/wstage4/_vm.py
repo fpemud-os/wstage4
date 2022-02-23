@@ -25,7 +25,7 @@ import os
 import json
 import subprocess
 from ._util import Util
-from ._const import Arch, Category, Edition, Lang
+from ._const import Arch, Version, Edition, Lang
 
 
 class Vm:
@@ -37,7 +37,7 @@ class Vm:
             data = Util.readUntil(f, b'\n\0', max=512)
 
         data = json.loads(data.decode("iso8859-1"))
-        self._init(False, data["arch"], data["category"], data["edition"], data["lang"], main_disk_filepath, None, None)
+        self._init(False, data["arch"], data["version"], data["edition"], data["lang"], main_disk_filepath, None, None)
 
     def __enter__(self):
         self.start()
@@ -78,7 +78,7 @@ class Vm:
         del self._qmpPort
         del self._bShow
 
-    def _init(self, bBootstrap, arch, category, edition, lang, mainDiskFile, bootIsoFile, assistantFloppyFile):
+    def _init(self, bBootstrap, arch, version, edition, lang, mainDiskFile, bootIsoFile, assistantFloppyFile):
         # qemu command
         if arch == Arch.X86:
             self._cmd = "qemu-system-i386"
@@ -88,9 +88,9 @@ class Vm:
             assert False
 
         # vm type
-        if category in [Category.WINDOWS_98, Category.WINDOWS_XP]:
+        if version in [Version.WINDOWS_98, Version.WINDOWS_XP]:
             self._qemuVmType = "pc"
-        elif category in [Category.WINDOWS_7]:
+        elif version in [Version.WINDOWS_7]:
             self._qemuVmType = "q35"
         else:
             assert False
@@ -108,16 +108,16 @@ class Vm:
 
         # disk interface
         if bBootstrap:
-            if category in [Category.WINDOWS_98, Category.WINDOWS_XP, Category.WINDOWS_7]:
+            if version in [Version.WINDOWS_98, Version.WINDOWS_XP, Version.WINDOWS_7]:
                 self._mainDiskInterface = "ide"
-            elif category in []:
+            elif version in []:
                 self._mainDiskInterface = "scsi"
             else:
                 assert False
         else:
-            if category in [Category.WINDOWS_98, Category.WINDOWS_XP]:
+            if version in [Version.WINDOWS_98, Version.WINDOWS_XP]:
                 self._mainDiskInterface = "ide"
-            elif category in [Category.WINDOWS_7]:
+            elif version in [Version.WINDOWS_7]:
                 self._mainDiskInterface = "scsi"
             else:
                 assert False
@@ -211,29 +211,29 @@ class Vm:
 class VmUtil:
 
     @staticmethod
-    def getBootstrapVm(arch, category, edition, lang, mainDiskPath, bootIsoFile, assistantFloppyFile):
+    def getBootstrapVm(arch, version, edition, lang, mainDiskPath, bootIsoFile, assistantFloppyFile):
         buf = json.dumps({
             "arch": arch,
-            "category": category,
+            "version": version,
             "edition": edition,
             "lang": lang,
         }) + "\n"
 
         with open(mainDiskPath, 'wb') as f:
-            f.truncate(VmUtil.getMainDiskSize(arch, category, edition, lang) * 1000 * 1000 * 1000)
+            f.truncate(VmUtil.getMainDiskSize(arch, version, edition, lang) * 1000 * 1000 * 1000)
             if True:
                 f.seek(512)
                 f.write(buf.encode("iso8859-1"))
 
         ret = Vm.__new__(Vm)
-        ret._init(True, arch, category, edition, lang, mainDiskPath, bootIsoFile, assistantFloppyFile)
+        ret._init(True, arch, version, edition, lang, mainDiskPath, bootIsoFile, assistantFloppyFile)
         return ret
 
     @staticmethod
-    def getMainDiskSize(arch, category, edition, lang):
-        if category in [Category.WINDOWS_98, Category.WINDOWS_XP]:
+    def getMainDiskSize(arch, version, edition, lang):
+        if version in [Version.WINDOWS_98, Version.WINDOWS_XP]:
             return 10
-        elif category in [Category.WINDOWS_7]:
+        elif version in [Version.WINDOWS_7]:
             return 20
         else:
             assert False
