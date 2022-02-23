@@ -38,12 +38,33 @@ class CloudWindowsInstallIsoFile(WindowsInstallIsoFile):
         self._path = local_filepath
 
     def download(self):
-        # FIXME
+        urlDict = {
+            Edition.WINDOWS_7_HOME_PREMIUM: {
+                Arch.X86: "https://download.microsoft.com/download/E/D/A/EDA6B508-7663-4E30-86F9-949932F443D0/7601.24214.180801-1700.win7sp1_ldr_escrow_CLIENT_HOMEPREMIUM_x86FRE_en-us.iso",       # from https://github.com/pbatard/Fido/blob/master/Fido.ps1
+                Arch.X86_64: "https://download.microsoft.com/download/E/A/8/EA804D86-C3DF-4719-9966-6A66C9306598/7601.24214.180801-1700.win7sp1_ldr_escrow_CLIENT_HOMEPREMIUM_x64FRE_en-us.iso",    # from https://github.com/pbatard/Fido/blob/master/Fido.ps1
+            },
+            Edition.WINDOWS_7_PROFESSIONAL: {
+                Arch.X86: "https://download.microsoft.com/download/C/0/6/C067D0CD-3785-4727-898E-60DC3120BB14/7601.24214.180801-1700.win7sp1_ldr_escrow_CLIENT_PROFESSIONAL_x86FRE_en-us.iso",      # from https://github.com/pbatard/Fido/blob/master/Fido.ps1
+                Arch.X86_64: "https://download.microsoft.com/download/5/1/9/5195A765-3A41-4A72-87D8-200D897CBE21/7601.24214.180801-1700.win7sp1_ldr_escrow_CLIENT_ULTIMATE_x64FRE_en-us.iso",       # from https://github.com/pbatard/Fido/blob/master/Fido.ps1
+            },
+            Edition.WINDOWS_7_ULTIMATE: {
+                Arch.X86: "https://download.microsoft.com/download/1/E/6/1E6B4803-DD2A-49DF-8468-69C0E6E36218/7601.24214.180801-1700.win7sp1_ldr_escrow_CLIENT_ULTIMATE_x86FRE_en-us.iso",          # from https://github.com/pbatard/Fido/blob/master/Fido.ps1
+                Arch.X86_64: "https://download.microsoft.com/download/5/1/9/5195A765-3A41-4A72-87D8-200D897CBE21/7601.24214.180801-1700.win7sp1_ldr_escrow_CLIENT_ULTIMATE_x64FRE_en-us.iso",       # from https://github.com/pbatard/Fido/blob/master/Fido.ps1
+            },
+        }
+
+        with urllib.request.urlopen(urlDict[self._edition][self._arch]) as resp:
+            with open(self._path, "wb") as f:
+                buf = resp.read(4096)
+                while len(buf) > 0:
+                    f.write(buf)
+                    buf = resp.read(4096)
+
         self._set_info(self._path, {
             "arch": self._arch,
             "category": self._category,
-            "editions": [],
-            "languages": [],
+            "editions": self._edition,
+            "languages": self._lang,
         })
         assert False
 
