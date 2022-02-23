@@ -38,7 +38,7 @@ class CloudWindowsInstallIsoFile(WindowsInstallIsoFile):
         self._path = local_filepath
 
     def download(self):
-        if edition == Edition.WINDOWS_7_ENTERPRISE:
+        if self._edition == Edition.WINDOWS_7_ENTERPRISE:
             urlDict = {
                 Arch.X86: "https://idatavn-my.sharepoint.com/:u:/g/personal/data01_phanmemchat_net/Eec-CsxcwntJkpS_qCnrYPEBp5GFlChmzzfFAlisjR96Kw?e=fpr76R",       # from https://techpp.com/2018/04/16/windows-7-iso-official-direct-download-links
                 Arch.X86_64: "https://idatavn-my.sharepoint.com/:u:/g/personal/data01_phanmemchat_net/EbQ80EYnmyNFqprGKPmf3xgBzyHkeLvPTeGOpvhmePYh5Q?e=lwMDXi",    # from https://techpp.com/2018/04/16/windows-7-iso-official-direct-download-links
