@@ -41,6 +41,7 @@ from ._const import get_prefered_edition_by_category
 from ._settings import Settings
 from ._settings import TargetSettings
 
+from ._prototype import WindowsInstallIsoFile
 from ._prototype import StorageLayout
 from ._prototype import StorageLayoutMountEntry
 
