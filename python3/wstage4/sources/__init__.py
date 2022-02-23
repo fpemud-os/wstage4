@@ -22,3 +22,4 @@
 
 
 from _mswin import LocalWindowsInstallIsoFile
+from _mswin import CustomWindowsInstallIsoFile

@@ -31,6 +31,7 @@ from .. import InstallMediaError
 class CloudWindowsInstallIsoFile(WindowsInstallIsoFile):
 
     def __init__(self, arch, version, edition=None, lang=None, local_filepath=None):
+        super().__init__()
         self._arch = arch
         self._version = version
         self._edition = edition
@@ -81,6 +82,8 @@ class CloudWindowsInstallIsoFile(WindowsInstallIsoFile):
 class LocalWindowsInstallIsoFile(WindowsInstallIsoFile):
 
     def __init__(self, arch, version, edition=None, lang=None, verify=True):
+        super().__init__()
+
         versionPathDict = {
             Version.WINDOWS_98: "windows-98",
             Version.WINDOWS_XP: "windows-xp",
@@ -161,4 +164,16 @@ class LocalWindowsInstallIsoFile(WindowsInstallIsoFile):
             "version": version,
             "editions": edition_list,
             "languages": lang_list,
+        })
+
+
+class CustomWindowsInstallIsoFile(WindowsInstallIsoFile):
+
+    def __init__(self, arch, version, edition, lang, filepath):
+        super().__init__()
+        self._set_info(filepath, {
+            "arch": arch,
+            "version": version,
+            "editions": [edition],
+            "languages": [lang],
         })
