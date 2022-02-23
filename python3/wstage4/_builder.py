@@ -25,7 +25,7 @@ import os
 import json
 import enum
 from ._util import Util, TmpMount
-from ._prototype import ScriptInChroot
+from ._prototype import WindowsInstallIsoFile, ScriptInChroot
 from ._errors import SettingsError, InstallMediaError
 from ._settings import Settings, TargetSettings
 from ._vm import Vm, VmUtil
@@ -86,6 +86,8 @@ class Builder:
 
     @Action(BuildStep.INIT)
     def action_prepare_custom_install_media(self, install_iso_file):
+        assert isinstance(install_iso_file, WindowsInstallIsoFile)
+
         # check install iso file
         if self._ts.arch != install_iso_file.arch:
             raise InstallMediaError("invalid install ISO file, arch not match")
