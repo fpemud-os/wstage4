@@ -38,22 +38,31 @@ class CloudWindowsInstallIsoFile(WindowsInstallIsoFile):
         self._path = local_filepath
 
     def download(self):
-        urlDict = {
-            Edition.WINDOWS_7_HOME_PREMIUM: {
-                Arch.X86: "https://download.microsoft.com/download/E/D/A/EDA6B508-7663-4E30-86F9-949932F443D0/7601.24214.180801-1700.win7sp1_ldr_escrow_CLIENT_HOMEPREMIUM_x86FRE_en-us.iso",       # from https://github.com/pbatard/Fido/blob/master/Fido.ps1
-                Arch.X86_64: "https://download.microsoft.com/download/E/A/8/EA804D86-C3DF-4719-9966-6A66C9306598/7601.24214.180801-1700.win7sp1_ldr_escrow_CLIENT_HOMEPREMIUM_x64FRE_en-us.iso",    # from https://github.com/pbatard/Fido/blob/master/Fido.ps1
-            },
-            Edition.WINDOWS_7_PROFESSIONAL: {
-                Arch.X86: "https://download.microsoft.com/download/C/0/6/C067D0CD-3785-4727-898E-60DC3120BB14/7601.24214.180801-1700.win7sp1_ldr_escrow_CLIENT_PROFESSIONAL_x86FRE_en-us.iso",      # from https://github.com/pbatard/Fido/blob/master/Fido.ps1
-                Arch.X86_64: "https://download.microsoft.com/download/5/1/9/5195A765-3A41-4A72-87D8-200D897CBE21/7601.24214.180801-1700.win7sp1_ldr_escrow_CLIENT_ULTIMATE_x64FRE_en-us.iso",       # from https://github.com/pbatard/Fido/blob/master/Fido.ps1
-            },
-            Edition.WINDOWS_7_ULTIMATE: {
-                Arch.X86: "https://download.microsoft.com/download/1/E/6/1E6B4803-DD2A-49DF-8468-69C0E6E36218/7601.24214.180801-1700.win7sp1_ldr_escrow_CLIENT_ULTIMATE_x86FRE_en-us.iso",          # from https://github.com/pbatard/Fido/blob/master/Fido.ps1
-                Arch.X86_64: "https://download.microsoft.com/download/5/1/9/5195A765-3A41-4A72-87D8-200D897CBE21/7601.24214.180801-1700.win7sp1_ldr_escrow_CLIENT_ULTIMATE_x64FRE_en-us.iso",       # from https://github.com/pbatard/Fido/blob/master/Fido.ps1
-            },
-        }
+        if edition == Edition.WINDOWS_7_ENTERPRISE:
+            urlDict = {
+                Arch.X86: "https://idatavn-my.sharepoint.com/:u:/g/personal/data01_phanmemchat_net/Eec-CsxcwntJkpS_qCnrYPEBp5GFlChmzzfFAlisjR96Kw?e=fpr76R",       # from https://techpp.com/2018/04/16/windows-7-iso-official-direct-download-links
+                Arch.X86_64: "https://idatavn-my.sharepoint.com/:u:/g/personal/data01_phanmemchat_net/EbQ80EYnmyNFqprGKPmf3xgBzyHkeLvPTeGOpvhmePYh5Q?e=lwMDXi",    # from https://techpp.com/2018/04/16/windows-7-iso-official-direct-download-links
+            }
+            # FIXME: need to click button
+            assert False
+        else:
+            urlDict = {
+                Edition.WINDOWS_7_HOME_PREMIUM: {
+                    Arch.X86: "https://download.microsoft.com/download/E/D/A/EDA6B508-7663-4E30-86F9-949932F443D0/7601.24214.180801-1700.win7sp1_ldr_escrow_CLIENT_HOMEPREMIUM_x86FRE_en-us.iso",       # from https://techpp.com/2018/04/16/windows-7-iso-official-direct-download-links
+                    Arch.X86_64: "https://download.microsoft.com/download/E/A/8/EA804D86-C3DF-4719-9966-6A66C9306598/7601.24214.180801-1700.win7sp1_ldr_escrow_CLIENT_HOMEPREMIUM_x64FRE_en-us.iso",    # from https://techpp.com/2018/04/16/windows-7-iso-official-direct-download-links
+                },
+                Edition.WINDOWS_7_PROFESSIONAL: {
+                    Arch.X86: "https://download.microsoft.com/download/C/0/6/C067D0CD-3785-4727-898E-60DC3120BB14/7601.24214.180801-1700.win7sp1_ldr_escrow_CLIENT_PROFESSIONAL_x86FRE_en-us.iso",      # from https://techpp.com/2018/04/16/windows-7-iso-official-direct-download-links
+                    Arch.X86_64: "https://download.microsoft.com/download/5/1/9/5195A765-3A41-4A72-87D8-200D897CBE21/7601.24214.180801-1700.win7sp1_ldr_escrow_CLIENT_ULTIMATE_x64FRE_en-us.iso",       # from https://techpp.com/2018/04/16/windows-7-iso-official-direct-download-links
+                },
+                Edition.WINDOWS_7_ULTIMATE: {
+                    Arch.X86: "https://download.microsoft.com/download/1/E/6/1E6B4803-DD2A-49DF-8468-69C0E6E36218/7601.24214.180801-1700.win7sp1_ldr_escrow_CLIENT_ULTIMATE_x86FRE_en-us.iso",          # from https://techpp.com/2018/04/16/windows-7-iso-official-direct-download-links
+                    Arch.X86_64: "https://download.microsoft.com/download/5/1/9/5195A765-3A41-4A72-87D8-200D897CBE21/7601.24214.180801-1700.win7sp1_ldr_escrow_CLIENT_ULTIMATE_x64FRE_en-us.iso",       # from https://techpp.com/2018/04/16/windows-7-iso-official-direct-download-links
+                },
+            }
+            url = urlDict[self._edition][self._arch]
 
-        with urllib.request.urlopen(urlDict[self._edition][self._arch]) as resp:
+        with urllib.request.urlopen(url) as resp:
             with open(self._path, "wb") as f:
                 buf = resp.read(4096)
                 while len(buf) > 0:
