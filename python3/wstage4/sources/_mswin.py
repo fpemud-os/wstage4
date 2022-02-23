@@ -23,7 +23,7 @@
 
 import os
 import pycdlib
-from .. import Arch, Version, Edition, Lang, get_prefered_edition_by_version
+from .. import Arch, Version, Edition, Lang
 from .. import WindowsInstallIsoFile
 from .. import InstallMediaError
 
@@ -102,7 +102,7 @@ class LocalWindowsInstallIsoFile(WindowsInstallIsoFile):
         if edition is not None:
             # FIXME
             # assert edition in get_editions_by_version(version)
-            assert edition == get_prefered_edition_by_version(version)
+            assert edition == self.get_prefered_edition_by_version(version)
 
         if lang is not None:
             # FIXME
@@ -112,16 +112,16 @@ class LocalWindowsInstallIsoFile(WindowsInstallIsoFile):
         path = os.path.join(path, "microsoft-" + versionPathDict[version] + "-setup-" + MediaTypePostfixDict[version])
         if version == Version.WINDOWS_98:
             path = os.path.join(path, versionPathDict[version] + "-setup.iso")
-            edition_list = [get_prefered_edition_by_version(version)]                             # FIXME: should be from ISO
-            lang_list = [Lang.en_US]                                                                # FIXME: should be from ISO
+            edition_list = [self.get_prefered_edition_by_version(version)]                             # FIXME: should be from ISO
+            lang_list = [Lang.en_US]                                                                   # FIXME: should be from ISO
         elif version in Version.WINDOWS_XP:
             path = os.path.join(path, versionPathDict[version] + "-setup-" + archNameDict[arch] + ".iso")
-            edition_list = [get_prefered_edition_by_version(version)]                             # FIXME: should be from ISO
-            lang_list = [Lang.en_US]                                                                # FIXME: should be from ISO
+            edition_list = [self.get_prefered_edition_by_version(version)]                             # FIXME: should be from ISO
+            lang_list = [Lang.en_US]                                                                   # FIXME: should be from ISO
         elif version == Version.WINDOWS_7:
             path = os.path.join(path, versionPathDict[version] + "-setup-" + archNameDict[arch] + ".iso")
-            edition_list = [get_prefered_edition_by_version(version)]                             # FIXME: should be from ISO
-            lang_list = [Lang.en_US]                                                                # FIXME: should be from ISO
+            edition_list = [self.get_prefered_edition_by_version(version)]                             # FIXME: should be from ISO
+            lang_list = [Lang.en_US]                                                                   # FIXME: should be from ISO
         else:
             assert False
 
@@ -165,6 +165,14 @@ class LocalWindowsInstallIsoFile(WindowsInstallIsoFile):
             "editions": edition_list,
             "languages": lang_list,
         })
+
+    def get_prefered_edition_by_version(self, version):
+        d = {
+            Version.WINDOWS_98: Edition.WINDOWS_98_SE,
+            Version.WINDOWS_XP: Edition.WINDOWS_XP_PROFESSIONAL,
+            Version.WINDOWS_7: Edition.WINDOWS_7_ULTIMATE,
+        }
+        return d[version]
 
 
 class CustomWindowsInstallIsoFile(WindowsInstallIsoFile):

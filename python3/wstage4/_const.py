@@ -117,12 +117,3 @@ def get_editions_by_version(version):
         Version.WINDOWS_7: [Edition.WINDOWS_7_STARTER, Edition.WINDOWS_7_HOME_BASIC, Edition.WINDOWS_7_HOME_PREMIUM, Edition.WINDOWS_7_PROFESSIONAL, Edition.WINDOWS_7_ULTIMATE, Edition.WINDOWS_7_ENTERPRISE],
     }
     return d[version]
-
-
-def get_prefered_edition_by_version(version):
-    d = {
-        Version.WINDOWS_98: Edition.WINDOWS_98_SE,
-        Version.WINDOWS_XP: Edition.WINDOWS_XP_PROFESSIONAL,
-        Version.WINDOWS_7: Edition.WINDOWS_7_ULTIMATE,
-    }
-    return d[version]
