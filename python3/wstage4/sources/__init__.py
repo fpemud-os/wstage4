@@ -21,5 +21,5 @@
 # THE SOFTWARE.
 
 
-from _mswin import LocalWindowsInstallIsoFile
-from _mswin import CustomWindowsInstallIsoFile
+from ._mswin import LocalWindowsInstallIsoFile
+from ._mswin import CustomWindowsInstallIsoFile
